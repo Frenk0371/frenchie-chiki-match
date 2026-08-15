@@ -21,6 +21,8 @@ private comboMultiplier = 1
 private comboText!: Phaser.GameObjects.Text
 private moves = 20
 private movesText!: Phaser.GameObjects.Text
+private targetScore = 5000
+private levelCompleted = false
 
   private readonly colors = [
     0xff5c8a,
@@ -70,7 +72,14 @@ this.movesText = this.add
     fontStyle: 'bold',
   })
   .setOrigin(0.5)
-
+this.add
+  .text(540, 320, `Obiettivo: ${this.targetScore}`, {
+    fontFamily: 'Arial',
+    fontSize: '24px',
+    color: '#ffffff',
+    fontStyle: 'bold',
+  })
+  .setOrigin(0.5)
 
   this.comboText = this.add
   .text(540, 300, '', {
@@ -132,8 +141,13 @@ this.movesText = this.add
         }
 
         circle.on('pointerdown', () => {
-          this.selectTile(tile)
-        })
+  if (this.moves <= 0 || this.levelCompleted) {
+    return
+  }
+
+  this.selectTile(tile)
+})
+
 
         this.board[row][col] = tile
       }
@@ -248,6 +262,18 @@ this.movesText.setText(`Mosse: ${this.moves}`)
   console.log('PEDINE DEL TRIS:', matches)
   this.score += matches.length * 100
 this.scoreText.setText(`Punteggio: ${this.score}`)
+if (this.score >= this.targetScore) {
+  this.levelCompleted = true
+
+  this.add
+  .text(540, 700, '🎉 LIVELLO COMPLETATO! 🎉', {
+    fontFamily: 'Arial',
+    fontSize: '42px',
+    color: '#ffff00',
+    fontStyle: 'bold',
+  })
+  .setOrigin(0.5)
+}
   matches.forEach(tile => {
   tile.circle.destroy()
   this.board[tile.row][tile.col] = null as any
@@ -416,8 +442,13 @@ private refillBoard() {
       }
 
       circle.on('pointerdown', () => {
-        this.selectTile(tile)
-      })
+  if (this.moves <= 0) {
+    return
+  }
+
+  this.selectTile(tile)
+})
+
 
       this.board[row][col] = tile
 
@@ -443,6 +474,18 @@ this.comboText.setText(`COMBO x${this.comboMultiplier}!`)
 this.score += matches.length * 100 * this.comboMultiplier
 
 this.scoreText.setText(`Punteggio: ${this.score}`)
+if (this.score >= this.targetScore) {
+  this.levelCompleted = true
+
+  this.add
+  .text(540, 700, '🎉 LIVELLO COMPLETATO! 🎉', {
+    fontFamily: 'Arial',
+    fontSize: '42px',
+    color: '#ffff00',
+    fontStyle: 'bold',
+  })
+  .setOrigin(0.5)
+}
   matches.forEach(tile => {
     tile.circle.destroy()
     this.board[tile.row][tile.col] = null
