@@ -23,6 +23,9 @@ private moves = 20
 private movesText!: Phaser.GameObjects.Text
 private targetScore = 5000
 private levelCompleted = false
+private pointerStartX = 0
+private pointerStartY = 0
+
 
   private readonly colors = [
     0xff5c8a,
@@ -141,13 +144,44 @@ this.add
         }
 
         circle.on('pointerdown', () => {
+          this.pointerStartX = circle.x
+this.pointerStartY = circle.y
   if (this.moves <= 0 || this.levelCompleted) {
     return
   }
 
   this.selectTile(tile)
 })
+circle.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+const deltaX = pointer.x - this.pointerStartX
+const deltaY = pointer.y - this.pointerStartY
+if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30) {
+  return
+}
+let targetRow = tile.row
+let targetCol = tile.col
+if (Math.abs(deltaX) > Math.abs(deltaY)) {
+  targetCol += deltaX > 0 ? 1 : -1
+} else {
+  targetRow += deltaY > 0 ? 1 : -1
+}
+if (
+  targetRow < 0 ||
+  targetRow >= this.rows ||
+  targetCol < 0 ||
+  targetCol >= this.cols
+) {
+  return
+}
+const targetTile = this.board[targetRow][targetCol]
 
+if (!targetTile) {
+  return
+}
+this.selectedTile = null
+this.swapTiles(tile, targetTile)
+
+})
 
         this.board[row][col] = tile
       }
