@@ -510,7 +510,7 @@ private checkCascadeMatches() {
   const matches = this.findMatches()
 
   if (matches.length === 0) {
-  this.comboMultiplier = 1
+  this.comboMultiplier = 0
   this.comboText.setText('')
   return
 }
