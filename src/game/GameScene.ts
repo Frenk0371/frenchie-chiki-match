@@ -15,6 +15,10 @@ export default class GameScene extends Phaser.Scene {
   private board: (Tile | null)[][] = []
   private selectedTile: Tile | null = null
 
+  private score = 0
+private scoreText!: Phaser.GameObjects.Text
+private comboMultiplier = 1
+
   private readonly colors = [
     0xff5c8a,
     0xffc857,
@@ -47,7 +51,14 @@ export default class GameScene extends Phaser.Scene {
         color: '#ffffff',
       })
       .setOrigin(0.5)
-
+this.scoreText = this.add
+  .text(540, 250, 'Punteggio: 0', {
+    fontFamily: 'Arial',
+    fontSize: '28px',
+    color: '#ffffff',
+    fontStyle: 'bold',
+  })
+  .setOrigin(0.5)
     this.createBoard()
   }
 
@@ -212,6 +223,8 @@ this.swapTiles(tileA, tileB, true)
    if (matchCreated) {
   const matches = this.findMatches()
   console.log('PEDINE DEL TRIS:', matches)
+  this.score += matches.length * 100
+this.scoreText.setText(`Punteggio: ${this.score}`)
   matches.forEach(tile => {
   tile.circle.destroy()
   this.board[tile.row][tile.col] = null as any
@@ -398,9 +411,13 @@ private checkCascadeMatches() {
   const matches = this.findMatches()
 
   if (matches.length === 0) {
-    return
-  }
+  this.comboMultiplier = 1
+  return
+}
+this.comboMultiplier++
+this.score += matches.length * 100 * this.comboMultiplier
 
+this.scoreText.setText(`Punteggio: ${this.score}`)
   matches.forEach(tile => {
     tile.circle.destroy()
     this.board[tile.row][tile.col] = null
