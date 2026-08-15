@@ -19,6 +19,8 @@ export default class GameScene extends Phaser.Scene {
 private scoreText!: Phaser.GameObjects.Text
 private comboMultiplier = 1
 private comboText!: Phaser.GameObjects.Text
+private moves = 20
+private movesText!: Phaser.GameObjects.Text
 
   private readonly colors = [
     0xff5c8a,
@@ -60,6 +62,16 @@ this.scoreText = this.add
     fontStyle: 'bold',
   })
   .setOrigin(0.5)
+this.movesText = this.add
+  .text(540, 285, `Mosse: ${this.moves}`, {
+    fontFamily: 'Arial',
+    fontSize: '26px',
+    color: '#ffffff',
+    fontStyle: 'bold',
+  })
+  .setOrigin(0.5)
+
+
   this.comboText = this.add
   .text(540, 300, '', {
     fontFamily: 'Arial',
@@ -231,6 +243,8 @@ this.swapTiles(tileA, tileB, true)
    }
    if (matchCreated) {
   const matches = this.findMatches()
+  this.moves--
+this.movesText.setText(`Mosse: ${this.moves}`)
   console.log('PEDINE DEL TRIS:', matches)
   this.score += matches.length * 100
 this.scoreText.setText(`Punteggio: ${this.score}`)
