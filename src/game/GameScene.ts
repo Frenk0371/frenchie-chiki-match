@@ -262,6 +262,16 @@ this.swapTiles(tileA, tileB, true)
   const matches = this.findMatches()
   this.moves--
 this.movesText.setText(`Mosse: ${this.moves}`)
+if (this.moves <= 0 && this.score < this.targetScore) {
+  this.add
+  .text(540, 700, 'LIVELLO FALLITO', {
+    fontFamily: 'Arial',
+    fontSize: '42px',
+    color: '#ffffff',
+    fontStyle: 'bold',
+  })
+  .setOrigin(0.5)
+}
   console.log('PEDINE DEL TRIS:', matches)
   this.score += matches.length * 100
 this.scoreText.setText(`Punteggio: ${this.score}`)
