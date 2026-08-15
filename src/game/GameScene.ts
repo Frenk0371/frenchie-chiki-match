@@ -13,7 +13,7 @@ export default class GameScene extends Phaser.Scene {
   private readonly tileSize = 120
 
   private board: (Tile | null)[][] = []
-  private selectedTile: Tile | null = null
+  
 
   private score = 0
 private scoreText!: Phaser.GameObjects.Text
@@ -144,43 +144,53 @@ this.add
         }
 
         circle.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-          this.pointerStartX = pointer.x
-this.pointerStartY = pointer.y
   if (this.moves <= 0 || this.levelCompleted) {
     return
   }
 
-  
+  this.pointerStartX = pointer.x
+  this.pointerStartY = pointer.y
 })
+
 circle.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-const deltaX = pointer.x - this.pointerStartX
-const deltaY = pointer.y - this.pointerStartY
-if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30) {
-  return
-}
-let targetRow = tile.row
-let targetCol = tile.col
-if (Math.abs(deltaX) > Math.abs(deltaY)) {
-  targetCol += deltaX > 0 ? 1 : -1
-} else {
-  targetRow += deltaY > 0 ? 1 : -1
-}
-if (
-  targetRow < 0 ||
-  targetRow >= this.rows ||
-  targetCol < 0 ||
-  targetCol >= this.cols
-) {
-  return
-}
-const targetTile = this.board[targetRow][targetCol]
+  if (this.moves <= 0 || this.levelCompleted) {
+    return
+  }
 
-if (!targetTile) {
-  return
-}
-this.selectedTile = null
-this.swapTiles(tile, targetTile)
+  const deltaX = pointer.x - this.pointerStartX
+  const deltaY = pointer.y - this.pointerStartY
 
+  const minSwipe = 25
+
+  if (Math.abs(deltaX) < minSwipe && Math.abs(deltaY) < minSwipe) {
+    return
+  }
+
+  let targetRow = tile.row
+  let targetCol = tile.col
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    targetCol += deltaX > 0 ? 1 : -1
+  } else {
+    targetRow += deltaY > 0 ? 1 : -1
+  }
+
+  if (
+    targetRow < 0 ||
+    targetRow >= this.rows ||
+    targetCol < 0 ||
+    targetCol >= this.cols
+  ) {
+    return
+  }
+
+  const targetTile = this.board[targetRow][targetCol]
+
+  if (!targetTile) {
+    return
+  }
+
+  this.swapTiles(tile, targetTile)
 })
 
         this.board[row][col] = tile
@@ -212,41 +222,7 @@ this.swapTiles(tile, targetTile)
     return false
   }
 
-  private selectTile(tile: Tile) {
-  // Se non c'è ancora una pedina selezionata
-  if (!this.selectedTile) {
-    this.selectedTile = tile
-    tile.circle.setScale(1.18)
-    return
-  }
-
-  // Se clicchiamo di nuovo sulla stessa pedina
-  if (this.selectedTile === tile) {
-    tile.circle.setScale(1)
-    this.selectedTile = null
-    return
-  }
-
-  const rowDistance = Math.abs(this.selectedTile.row - tile.row)
-  const colDistance = Math.abs(this.selectedTile.col - tile.col)
-
-  const areAdjacent = rowDistance + colDistance === 1
-
-  // Se le pedine non sono vicine, cambiamo selezione
-  if (!areAdjacent) {
-    this.selectedTile.circle.setScale(1)
-    this.selectedTile = tile
-    tile.circle.setScale(1.18)
-    return
-  }
-
-  const firstTile = this.selectedTile
-
-  firstTile.circle.setScale(1)
-  this.selectedTile = null
-
-  this.swapTiles(firstTile, tile)
-}
+  
 private swapTiles(tileA: Tile, tileB: Tile, isReverting = false) {
 const rowA = tileA.row
   const colA = tileA.col
@@ -513,7 +489,7 @@ if (!targetTile) {
   return
 }
 
-this.selectedTile = null
+
 this.swapTiles(tile, targetTile)
 
 
