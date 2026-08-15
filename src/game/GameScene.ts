@@ -143,14 +143,14 @@ this.add
           circle,
         }
 
-        circle.on('pointerdown', () => {
-          this.pointerStartX = circle.x
-this.pointerStartY = circle.y
+        circle.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+          this.pointerStartX = pointer.x
+this.pointerStartY = pointer.y
   if (this.moves <= 0 || this.levelCompleted) {
     return
   }
 
-  this.selectTile(tile)
+  
 })
 circle.on('pointerup', (pointer: Phaser.Input.Pointer) => {
 const deltaX = pointer.x - this.pointerStartX
