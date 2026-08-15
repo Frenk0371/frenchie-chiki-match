@@ -18,6 +18,7 @@ export default class GameScene extends Phaser.Scene {
   private score = 0
 private scoreText!: Phaser.GameObjects.Text
 private comboMultiplier = 1
+private comboText!: Phaser.GameObjects.Text
 
   private readonly colors = [
     0xff5c8a,
@@ -56,6 +57,14 @@ this.scoreText = this.add
     fontFamily: 'Arial',
     fontSize: '28px',
     color: '#ffffff',
+    fontStyle: 'bold',
+  })
+  .setOrigin(0.5)
+  this.comboText = this.add
+  .text(540, 300, '', {
+    fontFamily: 'Arial',
+    fontSize: '26px',
+    color: '#ffff00',
     fontStyle: 'bold',
   })
   .setOrigin(0.5)
@@ -412,9 +421,11 @@ private checkCascadeMatches() {
 
   if (matches.length === 0) {
   this.comboMultiplier = 1
+  this.comboText.setText('')
   return
 }
 this.comboMultiplier++
+this.comboText.setText(`COMBO x${this.comboMultiplier}!`)
 this.score += matches.length * 100 * this.comboMultiplier
 
 this.scoreText.setText(`Punteggio: ${this.score}`)
