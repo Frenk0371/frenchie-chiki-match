@@ -215,7 +215,20 @@ private selectTile(tile: Tile) {
     return false
   }
 
-  
+  private showLevelCompleted() {
+  if (this.levelCompleted) return
+
+  this.levelCompleted = true
+
+  this.add
+    .text(540, 700, '🎉 LIVELLO COMPLETATO! 🎉', {
+      fontFamily: 'Arial',
+      fontSize: '42px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    })
+    .setOrigin(0.5)
+}
 private swapTiles(tileA: Tile, tileB: Tile, isReverting = false) {
 const rowA = tileA.row
   const colA = tileA.col
@@ -276,16 +289,8 @@ if (this.moves <= 0 && this.score < this.targetScore) {
   this.score += matches.length * 100
 this.scoreText.setText(`Punteggio: ${this.score}`)
 if (this.score >= this.targetScore) {
-  this.levelCompleted = true
+  this.showLevelCompleted()
 
-  this.add
-  .text(540, 700, '🎉 LIVELLO COMPLETATO! 🎉', {
-    fontFamily: 'Arial',
-    fontSize: '42px',
-    color: '#ffff00',
-    fontStyle: 'bold',
-  })
-  .setOrigin(0.5)
 }
   matches.forEach(tile => {
   tile.circle.destroy()
@@ -488,16 +493,10 @@ this.score += matches.length * 100 * this.comboMultiplier
 
 this.scoreText.setText(`Punteggio: ${this.score}`)
 if (this.score >= this.targetScore) {
-  this.levelCompleted = true
+  this.showLevelCompleted()
 
-  this.add
-  .text(540, 700, '🎉 LIVELLO COMPLETATO! 🎉', {
-    fontFamily: 'Arial',
-    fontSize: '42px',
-    color: '#ffff00',
-    fontStyle: 'bold',
-  })
-  .setOrigin(0.5)
+
+  
 }
   matches.forEach(tile => {
     tile.circle.destroy()
