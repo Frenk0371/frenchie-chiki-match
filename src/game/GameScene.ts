@@ -23,8 +23,7 @@ private moves = 20
 private movesText!: Phaser.GameObjects.Text
 private targetScore = 5000
 private levelCompleted = false
-private pointerStartX = 0
-private pointerStartY = 0
+
 
 
   private readonly colors = [
@@ -143,60 +142,54 @@ this.add
           circle,
         }
 
-        circle.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+        
+
+circle.on('pointerup', () => {
   if (this.moves <= 0 || this.levelCompleted) {
     return
   }
 
-  this.pointerStartX = pointer.x
-  this.pointerStartY = pointer.y
+  this.selectTile(tile)
 })
 
-circle.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-  if (this.moves <= 0 || this.levelCompleted) {
-    return
-  }
-
-  const deltaX = pointer.x - this.pointerStartX
-  const deltaY = pointer.y - this.pointerStartY
-
-  const minSwipe = 25
-
-  if (Math.abs(deltaX) < minSwipe && Math.abs(deltaY) < minSwipe) {
-    return
-  }
-
-  let targetRow = tile.row
-  let targetCol = tile.col
-
-  if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    targetCol += deltaX > 0 ? 1 : -1
-  } else {
-    targetRow += deltaY > 0 ? 1 : -1
-  }
-
-  if (
-    targetRow < 0 ||
-    targetRow >= this.rows ||
-    targetCol < 0 ||
-    targetCol >= this.cols
-  ) {
-    return
-  }
-
-  const targetTile = this.board[targetRow][targetCol]
-
-  if (!targetTile) {
-    return
-  }
-
-  this.swapTiles(tile, targetTile)
-})
 
         this.board[row][col] = tile
       }
     }
   }
+private selectedTile: Tile | null = null
+
+private selectTile(tile: Tile) {
+  if (!this.selectedTile) {
+    this.selectedTile = tile
+    tile.circle.setScale(1.18)
+    return
+  }
+
+  if (this.selectedTile === tile) {
+    this.selectedTile.circle.setScale(1)
+    this.selectedTile = null
+    return
+  }
+
+  const rowDistance = Math.abs(this.selectedTile.row - tile.row)
+  const colDistance = Math.abs(this.selectedTile.col - tile.col)
+  const areAdjacent = rowDistance + colDistance === 1
+
+  if (!areAdjacent) {
+    this.selectedTile.circle.setScale(1)
+    this.selectedTile = tile
+    tile.circle.setScale(1.18)
+    return
+  }
+
+  const firstTile = this.selectedTile
+
+  firstTile.circle.setScale(1)
+  this.selectedTile = null
+
+  this.swapTiles(firstTile, tile)
+}
 
   private createsInitialMatch(
     row: number,
@@ -451,49 +444,14 @@ private refillBoard() {
         circle,
       }
 
-      circle.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-        this.pointerStartX = pointer.x
-this.pointerStartY = pointer.y
-
-  if (this.moves <= 0) {
+      circle.on('pointerup', () => {
+  if (this.moves <= 0 || this.levelCompleted) {
     return
   }
 
-  
+  this.selectTile(tile)
 })
-circle.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-  const deltaX = pointer.x - this.pointerStartX
-const deltaY = pointer.y - this.pointerStartY
 
-if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30) {
-  return
-}
-let targetRow = tile.row
-let targetCol = tile.col
-if (Math.abs(deltaX) > Math.abs(deltaY)) {
-  targetCol += deltaX > 0 ? 1 : -1
-} else {
-  targetRow += deltaY > 0 ? 1 : -1
-}
-if (
-  targetRow < 0 ||
-  targetRow >= this.rows ||
-  targetCol < 0 ||
-  targetCol >= this.cols
-) {
-  return
-}
-const targetTile = this.board[targetRow][targetCol]
-
-if (!targetTile) {
-  return
-}
-
-
-this.swapTiles(tile, targetTile)
-
-
-})
 
       this.board[row][col] = tile
 
