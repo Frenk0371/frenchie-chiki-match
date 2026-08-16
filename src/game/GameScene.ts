@@ -92,6 +92,7 @@ this.add
   })
   .setOrigin(0.5)
     this.createBoard()
+    
   }
 
   private createBoard() {
@@ -221,14 +222,75 @@ private selectTile(tile: Tile) {
   this.levelCompleted = true
 
   this.add
-    .text(540, 700, '🎉 LIVELLO COMPLETATO! 🎉', {
+    .rectangle(540, 800, 700, 300, 0x000000, 0.75)
+    .setStrokeStyle(5, 0xffffff)
+
+  this.add
+    .text(540, 730, '🎉 LIVELLO COMPLETATO! 🎉', {
       fontFamily: 'Arial',
       fontSize: '42px',
       color: '#ffffff',
       fontStyle: 'bold',
     })
     .setOrigin(0.5)
+
+  const continueButton = this.add
+    .text(540, 850, 'CONTINUA', {
+      fontFamily: 'Arial',
+      fontSize: '34px',
+      color: '#ffffff',
+      backgroundColor: '#28a745',
+      padding: { x: 30, y: 18 },
+      fontStyle: 'bold',
+    })
+    .setOrigin(0.5)
+    .setInteractive({ useHandCursor: true })
+
+  continueButton.on('pointerup', () => {
+    this.scene.restart()
+  })
 }
+private showLevelFailed() {
+  if (this.levelCompleted) return
+
+  this.levelCompleted = true
+
+  this.add
+    .rectangle(540, 800, 700, 300, 0x000000, 0.75)
+    .setStrokeStyle(5, 0xffffff)
+
+  this.add
+    .text(540, 730, '😢 LIVELLO FALLITO', {
+      fontFamily: 'Arial',
+      fontSize: '42px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    })
+    .setOrigin(0.5)
+
+  const retryButton = this.add
+    .text(540, 850, 'RIPROVA', {
+      fontFamily: 'Arial',
+      fontSize: '34px',
+      color: '#ffffff',
+      backgroundColor: '#dc3545',
+      padding: { x: 30, y: 18 },
+      fontStyle: 'bold',
+    })
+    .setOrigin(0.5)
+    .setInteractive({ useHandCursor: true })
+
+  retryButton.on('pointerup', () => {
+  this.score = 0
+  this.moves = 20
+  this.comboMultiplier = 1
+  this.levelCompleted = false
+  this.selectedTile = null
+
+  this.scene.restart()
+})
+}
+
 private swapTiles(tileA: Tile, tileB: Tile, isReverting = false) {
 const rowA = tileA.row
   const colA = tileA.col
@@ -276,15 +338,9 @@ this.swapTiles(tileA, tileB, true)
   this.moves--
 this.movesText.setText(`Mosse: ${this.moves}`)
 if (this.moves <= 0 && this.score < this.targetScore) {
-  this.add
-  .text(540, 700, 'LIVELLO FALLITO', {
-    fontFamily: 'Arial',
-    fontSize: '42px',
-    color: '#ffffff',
-    fontStyle: 'bold',
-  })
-  .setOrigin(0.5)
+  this.showLevelFailed()
 }
+
   console.log('PEDINE DEL TRIS:', matches)
   this.score += matches.length * 100
 this.scoreText.setText(`Punteggio: ${this.score}`)
@@ -361,6 +417,113 @@ if (
 
   return false
 }
+private hasAvailableMove(): boolean {
+  for (let row = 0; row < this.rows; row++) {
+    for (let col = 0; col < this.cols; col++) {
+      const tile = this.board[row][col]
+
+      if (!tile) continue
+
+      // Prova lo scambio con la pedina a destra
+      if (col < this.cols - 1) {
+        const rightTile = this.board[row][col + 1]
+
+        if (rightTile) {
+          const typeA = tile.type
+          const typeB = rightTile.type
+
+          tile.type = typeB
+          rightTile.type = typeA
+
+          const createsMatch = this.hasMatch()
+
+          tile.type = typeA
+          rightTile.type = typeB
+
+          if (createsMatch) {
+            return true
+          }
+        }
+      }
+
+      // Prova lo scambio con la pedina sotto
+      if (row < this.rows - 1) {
+        const bottomTile = this.board[row + 1][col]
+
+        if (bottomTile) {
+          const typeA = tile.type
+          const typeB = bottomTile.type
+
+          tile.type = typeB
+          bottomTile.type = typeA
+
+          const createsMatch = this.hasMatch()
+
+          tile.type = typeA
+          bottomTile.type = typeB
+
+          if (createsMatch) {
+            return true
+          }
+        }
+      }
+    }
+  }
+
+  return false
+}
+private shuffleBoard() {
+  const tiles: Tile[] = []
+
+  for (let row = 0; row < this.rows; row++) {
+    for (let col = 0; col < this.cols; col++) {
+      const tile = this.board[row][col]
+
+      if (tile) {
+        tiles.push(tile)
+      }
+    }
+  }
+
+  let attempts = 0
+
+  do {
+    Phaser.Utils.Array.Shuffle(tiles)
+
+    let index = 0
+
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const tile = tiles[index]
+
+        this.board[row][col] = tile
+
+        tile.row = row
+        tile.col = col
+
+        const boardWidth = this.cols * this.tileSize
+        const startX = (1080 - boardWidth) / 2
+        const startY = 360
+
+        const x =
+          startX + col * this.tileSize + this.tileSize / 2
+
+        const y =
+          startY + row * this.tileSize + this.tileSize / 2
+
+        tile.circle.setPosition(x, y)
+
+        index++
+      }
+    }
+
+    attempts++
+  } while (
+    (this.hasMatch() || !this.hasAvailableMove()) &&
+    attempts < 1000
+  )
+}
+
 private findMatches(): Tile[] {
   const matches = new Set<Tile>()
 
@@ -485,6 +648,16 @@ private checkCascadeMatches() {
   if (matches.length === 0) {
   this.comboMultiplier = 0
   this.comboText.setText('')
+
+  if (
+    this.moves > 0 &&
+    !this.levelCompleted &&
+    !this.hasAvailableMove()
+  ) {
+    console.log('NESSUNA MOSSA DISPONIBILE')
+    this.shuffleBoard()
+  }
+
   return
 }
 this.comboMultiplier++
