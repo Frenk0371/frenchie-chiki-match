@@ -346,7 +346,9 @@ if (isReverting) {
   this.isProcessing = false
   return
 }
-const matchCreated = this.hasMatch()
+const matchCreated =
+  this.tileHasMatch(tileA) || this.tileHasMatch(tileB)
+
 console.log('MATCH TROVATO:', matchCreated)
    if (!matchCreated) {
 console.log('MOSSA NON VALIDA')
@@ -437,6 +439,46 @@ if (
 
   return false
 }
+private tileHasMatch(tile: Tile): boolean {
+  const row = tile.row
+  const col = tile.col
+  const type = tile.type
+
+  let horizontalCount = 1
+
+  for (let c = col - 1; c >= 0; c--) {
+    const currentTile = this.board[row][c]
+    if (!currentTile || currentTile.type !== type) break
+    horizontalCount++
+  }
+
+  for (let c = col + 1; c < this.cols; c++) {
+    const currentTile = this.board[row][c]
+    if (!currentTile || currentTile.type !== type) break
+    horizontalCount++
+  }
+
+  if (horizontalCount >= 3) {
+    return true
+  }
+
+  let verticalCount = 1
+
+  for (let r = row - 1; r >= 0; r--) {
+    const currentTile = this.board[r][col]
+    if (!currentTile || currentTile.type !== type) break
+    verticalCount++
+  }
+
+  for (let r = row + 1; r < this.rows; r++) {
+    const currentTile = this.board[r][col]
+    if (!currentTile || currentTile.type !== type) break
+    verticalCount++
+  }
+
+  return verticalCount >= 3
+}
+
 private hasAvailableMove(): boolean {
   for (let row = 0; row < this.rows; row++) {
     for (let col = 0; col < this.cols; col++) {
