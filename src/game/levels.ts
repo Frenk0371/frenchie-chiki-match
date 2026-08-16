@@ -15,5 +15,10 @@ export const levels: LevelConfig[] = [
   moves: 20,
   targetScore: 6000,
 },
+{
+  level: 3,
+  moves: 19,
+  targetScore: 7000,
+},
 ]
 

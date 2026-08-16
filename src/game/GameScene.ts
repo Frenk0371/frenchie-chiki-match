@@ -275,6 +275,8 @@ this.comboMultiplier = 1
 this.levelCompleted = false
 this.selectedTile = null
 
+this.isProcessing = false
+
     this.scene.restart()
   })
 }
