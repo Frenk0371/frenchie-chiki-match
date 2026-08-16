@@ -251,6 +251,12 @@ private selectTile(tile: Tile) {
     .setInteractive({ useHandCursor: true })
 
   continueButton.on('pointerup', () => {
+    this.score = 0
+this.moves = 20
+this.comboMultiplier = 1
+this.levelCompleted = false
+this.selectedTile = null
+
     this.scene.restart()
   })
 }
@@ -347,9 +353,7 @@ this.swapTiles(tileA, tileB, true)
   const matches = this.findMatches()
   this.moves--
 this.movesText.setText(`Mosse: ${this.moves}`)
-if (this.moves <= 0 && this.score < this.targetScore) {
-  this.showLevelFailed()
-}
+
 
   console.log('PEDINE DEL TRIS:', matches)
   this.score += matches.length * 100
@@ -357,6 +361,9 @@ this.scoreText.setText(`Punteggio: ${this.score}`)
 if (this.score >= this.targetScore) {
   this.showLevelCompleted()
 
+}
+if (this.moves <= 0 && this.score < this.targetScore) {
+  this.showLevelFailed()
 }
   matches.forEach(tile => {
   tile.circle.destroy()
@@ -682,9 +689,7 @@ this.score += matches.length * 100 * this.comboMultiplier
 this.scoreText.setText(`Punteggio: ${this.score}`)
 if (this.score >= this.targetScore) {
   this.showLevelCompleted()
-
-
-  
+  return
 }
   matches.forEach(tile => {
     tile.circle.destroy()
