@@ -17,7 +17,10 @@ export default class GameScene extends Phaser.Scene {
   
 
   private score = 0
+  private collectedAmount = 0
+
 private scoreText!: Phaser.GameObjects.Text
+private objectiveText!: Phaser.GameObjects.Text
 private comboMultiplier = 1
 private comboText!: Phaser.GameObjects.Text
 private currentLevel = 1
@@ -81,8 +84,14 @@ this.movesText = this.add
     fontStyle: 'bold',
   })
   .setOrigin(0.5)
-this.add
-  .text(540, 320, `Obiettivo: ${this.targetScore}`, {
+this.objectiveText = this.add
+  .text(
+    540,
+    320,
+    this.currentLevelConfig.objective === 'collect'
+      ? `Raccolte: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
+      : `Obiettivo: ${this.targetScore}`,
+    {
     fontFamily: 'Arial',
     fontSize: '24px',
     color: '#ffffff',
@@ -380,17 +389,47 @@ this.movesText.setText(`Mosse: ${this.moves}`)
   console.log('PEDINE DEL TRIS:', matches)
   this.score += matches.length * 100
 this.scoreText.setText(`Punteggio: ${this.score}`)
-if (this.score >= this.targetScore) {
+if (
+  this.currentLevelConfig.objective === 'score' &&
+  this.score >= this.targetScore
+) {
   this.showLevelCompleted()
-
 }
-if (this.moves <= 0 && this.score < this.targetScore) {
+
+if (
+  this.moves <= 0 &&
+  (
+    (this.currentLevelConfig.objective === 'score' &&
+      this.score < this.targetScore) ||
+    (this.currentLevelConfig.objective === 'collect' &&
+      this.collectedAmount < (this.currentLevelConfig.collectAmount ?? 0))
+  )
+) {
   this.showLevelFailed()
 }
+
   matches.forEach(tile => {
+    if (
+  this.currentLevelConfig.objective === 'collect' &&
+  tile.type === this.currentLevelConfig.collectType
+) {
+  this.collectedAmount++
+}
   tile.circle.destroy()
   this.board[tile.row][tile.col] = null as any
    })
+   if (this.currentLevelConfig.objective === 'collect') {
+  this.objectiveText.setText(
+  
+    `Raccolte: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
+  )
+}
+if (
+  this.currentLevelConfig.objective === 'collect' &&
+  this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0)
+) {
+  this.showLevelCompleted()
+}
    this.collapseTiles()
    this.refillBoard()
   this.time.delayedCall(400, () => {
