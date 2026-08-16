@@ -158,6 +158,9 @@ circle.on('pointerup', () => {
         this.board[row][col] = tile
       }
     }
+    if (!this.hasAvailableMove()) {
+  this.shuffleBoard()
+}
   }
 private selectedTile: Tile | null = null
 
