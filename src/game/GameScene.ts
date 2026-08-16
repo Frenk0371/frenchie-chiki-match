@@ -23,6 +23,7 @@ private moves = 20
 private movesText!: Phaser.GameObjects.Text
 private targetScore = 5000
 private levelCompleted = false
+private isProcessing = false
 
 
 
@@ -161,6 +162,9 @@ circle.on('pointerup', () => {
 private selectedTile: Tile | null = null
 
 private selectTile(tile: Tile) {
+  if (this.isProcessing) {
+  return
+}
   if (!this.selectedTile) {
     this.selectedTile = tile
     tile.circle.setScale(1.18)
@@ -292,6 +296,9 @@ private showLevelFailed() {
 }
 
 private swapTiles(tileA: Tile, tileB: Tile, isReverting = false) {
+  if (!isReverting) {
+  this.isProcessing = true
+}
 const rowA = tileA.row
   const colA = tileA.col
   const rowB = tileB.row
@@ -326,7 +333,10 @@ this.board[rowB][colB] = tileA
     duration: 220,
     ease: 'Power2',
     onComplete: () => {
-if (isReverting) return
+if (isReverting) {
+  this.isProcessing = false
+  return
+}
 const matchCreated = this.hasMatch()
 console.log('MATCH TROVATO:', matchCreated)
    if (!matchCreated) {
@@ -473,6 +483,8 @@ private hasAvailableMove(): boolean {
   return false
 }
 private shuffleBoard() {
+  this.isProcessing = true
+
   const tiles: Tile[] = []
 
   for (let row = 0; row < this.rows; row++) {
@@ -522,6 +534,7 @@ private shuffleBoard() {
     (this.hasMatch() || !this.hasAvailableMove()) &&
     attempts < 1000
   )
+  this.isProcessing = false
 }
 
 private findMatches(): Tile[] {
@@ -646,6 +659,8 @@ private checkCascadeMatches() {
   const matches = this.findMatches()
 
   if (matches.length === 0) {
+    this.isProcessing = false
+
   this.comboMultiplier = 0
   this.comboText.setText('')
 
