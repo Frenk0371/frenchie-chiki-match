@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { levels } from './levels'
 
 type Tile = {
   row: number
@@ -19,9 +20,14 @@ export default class GameScene extends Phaser.Scene {
 private scoreText!: Phaser.GameObjects.Text
 private comboMultiplier = 1
 private comboText!: Phaser.GameObjects.Text
-private moves = 20
+private currentLevel = 1
+private get currentLevelConfig() {
+  return levels[this.currentLevel - 1]
+}
+
+private moves = this.currentLevelConfig.moves
 private movesText!: Phaser.GameObjects.Text
-private targetScore = 5000
+private targetScore = this.currentLevelConfig.targetScore
 private levelCompleted = false
 private isProcessing = false
 
@@ -53,7 +59,7 @@ private isProcessing = false
       .setOrigin(0.5)
 
     this.add
-      .text(540, 205, 'Livello 1', {
+      .text(540, 205, `Livello ${this.currentLevel}`, {
         fontFamily: 'Arial',
         fontSize: '32px',
         color: '#ffffff',
@@ -255,7 +261,16 @@ private selectTile(tile: Tile) {
 
   continueButton.on('pointerup', () => {
     this.score = 0
-this.moves = 20
+    if (this.currentLevel >= levels.length) {
+  continueButton.setText('PROSSIMAMENTE')
+  continueButton.disableInteractive()
+  return
+}
+
+    this.currentLevel++
+    this.moves = this.currentLevelConfig.moves
+this.targetScore = this.currentLevelConfig.targetScore
+
 this.comboMultiplier = 1
 this.levelCompleted = false
 this.selectedTile = null
