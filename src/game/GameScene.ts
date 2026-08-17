@@ -18,6 +18,8 @@ export default class GameScene extends Phaser.Scene {
 
   private score = 0
   private collectedAmount = 0
+  private collectedAmount2 = 0
+
 
 private scoreText!: Phaser.GameObjects.Text
 private objectiveText!: Phaser.GameObjects.Text
@@ -88,9 +90,12 @@ this.objectiveText = this.add
   .text(
     540,
     320,
-    this.currentLevelConfig.objective === 'collect'
-      ? `Raccolte: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
-      : `Obiettivo: ${this.targetScore}`,
+    this.currentLevelConfig.objective === 'collectDouble'
+  ? `🩷 Rosa: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}   🩵 Azzurre: ${this.collectedAmount2} / ${this.currentLevelConfig.collectAmount2}`
+
+  : this.currentLevelConfig.objective === 'collect'
+    ? `💚 Verdi: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
+    : `Obiettivo: ${this.targetScore}`,
     {
     fontFamily: 'Arial',
     fontSize: '24px',
@@ -270,6 +275,8 @@ private selectTile(tile: Tile) {
 
   continueButton.on('pointerup', () => {
     this.score = 0
+    this.collectedAmount = 0
+    this.collectedAmount2 = 0
     if (this.currentLevel >= levels.length) {
   continueButton.setText('PROSSIMAMENTE')
   continueButton.disableInteractive()
@@ -321,7 +328,9 @@ private showLevelFailed() {
 
   retryButton.on('pointerup', () => {
   this.score = 0
-  this.moves = 20
+  this.collectedAmount = 0
+  this.collectedAmount2 = 0
+  this.moves = this.currentLevelConfig.moves
   this.comboMultiplier = 1
   this.levelCompleted = false
   this.selectedTile = null
@@ -403,6 +412,13 @@ if (
       this.score < this.targetScore) ||
     (this.currentLevelConfig.objective === 'collect' &&
       this.collectedAmount < (this.currentLevelConfig.collectAmount ?? 0))
+      ||
+(this.currentLevelConfig.objective === 'collectDouble' &&
+  (
+    this.collectedAmount < (this.currentLevelConfig.collectAmount ?? 0) ||
+    this.collectedAmount2 < (this.currentLevelConfig.collectAmount2 ?? 0)
+  ))
+
   )
 ) {
   this.showLevelFailed()
@@ -413,20 +429,54 @@ if (
   this.currentLevelConfig.objective === 'collect' &&
   tile.type === this.currentLevelConfig.collectType
 ) {
-  this.collectedAmount++
+  this.collectedAmount = Math.min(
+  this.collectedAmount + 1,
+  this.currentLevelConfig.collectAmount ?? 0
+)
+
+}
+if (this.currentLevelConfig.objective === 'collectDouble') {
+  if (tile.type === this.currentLevelConfig.collectType) {
+    this.collectedAmount = Math.min(
+  this.collectedAmount + 1,
+  this.currentLevelConfig.collectAmount ?? 0
+)
+
+  }
+
+  if (tile.type === this.currentLevelConfig.collectType2) {
+    this.collectedAmount2 = Math.min(
+  this.collectedAmount2 + 1,
+  this.currentLevelConfig.collectAmount2 ?? 0
+)
+
+  }
 }
   tile.circle.destroy()
   this.board[tile.row][tile.col] = null as any
    })
+   if (this.currentLevelConfig.objective === 'collectDouble') {
+  this.objectiveText.setText(
+    `🩷 Rosa: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}   🩵 Azzurre: ${this.collectedAmount2} / ${this.currentLevelConfig.collectAmount2}`
+
+  )
+}
    if (this.currentLevelConfig.objective === 'collect') {
   this.objectiveText.setText(
   
-    `Raccolte: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
+    `💚 Verdi: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
   )
 }
 if (
   this.currentLevelConfig.objective === 'collect' &&
   this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0)
+) {
+  this.showLevelCompleted()
+}
+if (
+  this.currentLevelConfig.objective === 'collectDouble' &&
+  this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0) &&
+  this.collectedAmount2 >= (this.currentLevelConfig.collectAmount2 ?? 0)
 ) {
   this.showLevelCompleted()
 }
@@ -788,15 +838,74 @@ this.comboText.setText(`COMBO x${this.comboMultiplier}!`)
 this.score += matches.length * 100 * this.comboMultiplier
 
 this.scoreText.setText(`Punteggio: ${this.score}`)
-if (this.score >= this.targetScore) {
+if (
+  this.currentLevelConfig.objective === 'score' &&
+  this.score >= this.targetScore
+) {
   this.showLevelCompleted()
   return
 }
   matches.forEach(tile => {
+    if (
+  this.currentLevelConfig.objective === 'collect' &&
+  tile.type === this.currentLevelConfig.collectType
+) {
+  this.collectedAmount = Math.min(
+  this.collectedAmount + 1,
+  this.currentLevelConfig.collectAmount ?? 0
+)
+
+}
+if (this.currentLevelConfig.objective === 'collectDouble') {
+  if (tile.type === this.currentLevelConfig.collectType) {
+    this.collectedAmount = Math.min(
+  this.collectedAmount + 1,
+  this.currentLevelConfig.collectAmount ?? 0
+)
+
+  }
+
+  if (tile.type === this.currentLevelConfig.collectType2) {
+    this.collectedAmount2 = Math.min(
+  this.collectedAmount2 + 1,
+  this.currentLevelConfig.collectAmount2 ?? 0
+)
+
+  }
+}
+
     tile.circle.destroy()
     this.board[tile.row][tile.col] = null
   })
+  if (this.currentLevelConfig.objective === 'collectDouble') {
+  this.objectiveText.setText(
+    `🩷 Rosa: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}   🩵 Azzurre: ${this.collectedAmount2} / ${this.currentLevelConfig.collectAmount2}`
+  )
+}
+if (this.currentLevelConfig.objective === 'collectDouble') {
+  if (
+    this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0) &&
+    this.collectedAmount2 >= (this.currentLevelConfig.collectAmount2 ?? 0)
+  ) {
+    this.showLevelCompleted()
+    return
+  }
+}
 
+if (this.currentLevelConfig.objective === 'collect') {
+  this.objectiveText.setText(
+    `💚 Verdi: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
+
+  )
+
+  if (
+    this.collectedAmount >=
+    (this.currentLevelConfig.collectAmount ?? 0)
+  ) {
+    this.showLevelCompleted()
+    return
+  }
+}
   this.time.delayedCall(250, () => {
     this.collapseTiles()
 
