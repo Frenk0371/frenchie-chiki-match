@@ -4,12 +4,21 @@ import GameScene from "./game/GameScene";
 import "./App.css";
 import "./Map.css";
 
-type AppView = "home" | "map" | "game";
+type AppView = "home" | "map" | "game" | "leaderboard" | "frenchies";
 
 const menuItems = [
-  { icon: "🗺️", label: "AVVENTURA", available: true },
-  { icon: "🏆", label: "CLASSIFICHE", available: false },
-  { icon: "🐶", label: "FRENCHIES", available: false },
+  { icon: "🗺️", label: "AVVENTURA", view: "map" as AppView },
+  { icon: "🏆", label: "CLASSIFICHE", view: "leaderboard" as AppView },
+  { icon: "🐶", label: "FRENCHIES", view: "frenchies" as AppView },
+];
+
+const wardrobe = [
+  { icon: "✨", name: "Classico" },
+  { icon: "🧢", name: "Sportivo" },
+  { icon: "👑", name: "Re Chiki" },
+  { icon: "🎩", name: "Elegante" },
+  { icon: "😎", name: "Cool" },
+  { icon: "🐰", name: "Coniglietto" },
 ];
 
 const levelNames = [
@@ -38,6 +47,9 @@ function App() {
   );
   const [levelStars, setLevelStars] =
     useState<Record<number, number>>(loadLevelStars);
+  const [selectedOutfit, setSelectedOutfit] = useState(
+    () => localStorage.getItem("chiki-outfit") || "Classico",
+  );
 
   useEffect(() => {
     if (view !== "game" || !gameContainer.current) return;
@@ -89,6 +101,135 @@ function App() {
     setView("game");
   };
 
+  const totalStars = Object.values(levelStars).reduce(
+    (sum, stars) => sum + stars,
+    0,
+  );
+
+  if (view === "leaderboard") {
+    const players = [
+      { name: "Marty", score: 68400, avatar: "🐕" },
+      { name: "Luna", score: 55200, avatar: "🐶" },
+      { name: "Rocky", score: 41900, avatar: "🐾" },
+      { name: "Bulldog King", score: 33750, avatar: "🦴" },
+      {
+        name: "Chiki",
+        score: totalStars * 5000 + unlockedLevel * 1200,
+        avatar: "chiki",
+      },
+    ].sort((a, b) => b.score - a.score);
+    const myPosition =
+      players.findIndex((player) => player.name === "Chiki") + 1;
+
+    return (
+      <main className="feature-screen leaderboard-screen">
+        <header className="feature-title">
+          <button onClick={() => setView("home")} aria-label="Torna alla home">
+            ‹
+          </button>
+          <div>
+            <small>FRENCHIE CHIKI MATCH</small>
+            <strong>CLASSIFICA GENERALE</strong>
+          </div>
+          <span>🏆</span>
+        </header>
+        <section className="podium-card">
+          <div className="podium second">
+            <b>2</b>
+            <span>🐶</span>
+            <strong>{players[1].name}</strong>
+          </div>
+          <div className="podium first">
+            <b>1</b>
+            <span>👑</span>
+            <strong>{players[0].name}</strong>
+          </div>
+          <div className="podium third">
+            <b>3</b>
+            <span>🐕</span>
+            <strong>{players[2].name}</strong>
+          </div>
+        </section>
+        <section className="ranking-list">
+          {players.map((player, index) => (
+            <article
+              className={player.name === "Chiki" ? "me" : ""}
+              key={player.name}
+            >
+              <b>{index + 1}</b>
+              {player.avatar === "chiki" ? (
+                <img src="/chiki-icon.jpeg" alt="Chiki" />
+              ) : (
+                <span>{player.avatar}</span>
+              )}
+              <strong>{player.name}</strong>
+              <em>{player.score.toLocaleString("it-IT")}</em>
+            </article>
+          ))}
+        </section>
+        <div className="my-position">
+          LA TUA POSIZIONE <strong>#{myPosition}</strong>
+        </div>
+      </main>
+    );
+  }
+
+  if (view === "frenchies") {
+    const active =
+      wardrobe.find((item) => item.name === selectedOutfit) ?? wardrobe[0];
+    return (
+      <main className="feature-screen frenchies-screen">
+        <header className="feature-title">
+          <button onClick={() => setView("home")} aria-label="Torna alla home">
+            ‹
+          </button>
+          <div>
+            <small>IL TUO AMICO</small>
+            <strong>CHIKI</strong>
+          </div>
+          <span>🐾</span>
+        </header>
+        <section className="pet-card">
+          <div className="pet-portrait">
+            <img src="/chiki-icon.jpeg" alt="Chiki" />
+            <span>{active.icon}</span>
+          </div>
+          <div>
+            <h2>Chiki</h2>
+            <p>
+              Livello {unlockedLevel} · {totalStars} stelle
+            </p>
+            <b>{active.name}</b>
+          </div>
+        </section>
+        <h2 className="wardrobe-title">GUARDAROBA</h2>
+        <section className="wardrobe-grid">
+          {wardrobe.map((item) => (
+            <button
+              className={selectedOutfit === item.name ? "selected" : ""}
+              key={item.name}
+              onClick={() => {
+                setSelectedOutfit(item.name);
+                localStorage.setItem("chiki-outfit", item.name);
+              }}
+            >
+              <span>{item.icon}</span>
+              <strong>{item.name}</strong>
+              {selectedOutfit === item.name && <em>✓</em>}
+            </button>
+          ))}
+        </section>
+        <div className="collection-progress">
+          <strong>COLLEZIONE</strong>
+          <span>{wardrobe.length}/6 elementi</span>
+          <div>
+            <i />
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   if (view === "game") {
     return (
       <div className="game-shell">
@@ -105,10 +246,6 @@ function App() {
   }
 
   if (view === "map") {
-    const totalStars = Object.values(levelStars).reduce(
-      (sum, stars) => sum + stars,
-      0,
-    );
     return (
       <main className="map-screen">
         <header className="map-title">
@@ -181,8 +318,8 @@ function App() {
         {menuItems.map((item) => (
           <button
             key={item.label}
-            className={item.available ? "available" : ""}
-            onClick={() => (item.available ? setView("map") : soon(item.label))}
+            className="available"
+            onClick={() => setView(item.view)}
           >
             <span>{item.icon}</span>
             {item.label}
