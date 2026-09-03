@@ -1,5 +1,5 @@
-const CACHE_NAME = 'frenchie-chiki-match-v3'
-const APP_SHELL = ['/', '/chiki-icon.jpeg', '/tile-sprites.png', '/manifest.webmanifest']
+const CACHE_NAME = 'frenchie-chiki-match-v4'
+const APP_SHELL = ['/', '/chiki-icon.jpeg', '/manifest.webmanifest', '/level-lock-v2.png']
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)))

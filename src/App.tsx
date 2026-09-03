@@ -261,7 +261,7 @@ function App() {
               >
                 <button disabled={locked} onClick={() => playLevel(level)}>
                   {locked ? (
-                    <img src="/level-lock.png" alt="" aria-hidden="true" />
+                    <img src="/level-lock-v2.png" alt="" aria-hidden="true" />
                   ) : (
                     level
                   )}
