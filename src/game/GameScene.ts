@@ -47,6 +47,15 @@ private isProcessing = false
     0xff8c42,
   ]
 
+  private readonly colorNames = [
+    'Rosa',
+    'Gialle',
+    'Verdi',
+    'Azzurre',
+    'Viola',
+    'Arancioni',
+  ]
+
   constructor() {
     super('GameScene')
   }
@@ -90,12 +99,7 @@ this.objectiveText = this.add
   .text(
     540,
     320,
-    this.currentLevelConfig.objective === 'collectDouble'
-  ? `🩷 Rosa: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}   🩵 Azzurre: ${this.collectedAmount2} / ${this.currentLevelConfig.collectAmount2}`
-
-  : this.currentLevelConfig.objective === 'collect'
-    ? `💚 Verdi: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
-    : `Obiettivo: ${this.targetScore}`,
+    this.getObjectiveLabel(),
     {
     fontFamily: 'Arial',
     fontSize: '24px',
@@ -241,6 +245,24 @@ private selectTile(tile: Tile) {
     }
 
     return false
+  }
+
+  private getObjectiveLabel(): string {
+    const config = this.currentLevelConfig
+
+    if (config.objective === 'score') {
+      return `Obiettivo: ${config.targetScore}`
+    }
+
+    const firstType = config.collectType ?? 0
+    const first = `${this.colorNames[firstType]}: ${this.collectedAmount} / ${config.collectAmount}`
+
+    if (config.objective === 'collectDouble') {
+      const secondType = config.collectType2 ?? 0
+      return `${first}   ${this.colorNames[secondType]}: ${this.collectedAmount2} / ${config.collectAmount2}`
+    }
+
+    return first
   }
 
   private showLevelCompleted() {
@@ -405,25 +427,6 @@ if (
   this.showLevelCompleted()
 }
 
-if (
-  this.moves <= 0 &&
-  (
-    (this.currentLevelConfig.objective === 'score' &&
-      this.score < this.targetScore) ||
-    (this.currentLevelConfig.objective === 'collect' &&
-      this.collectedAmount < (this.currentLevelConfig.collectAmount ?? 0))
-      ||
-(this.currentLevelConfig.objective === 'collectDouble' &&
-  (
-    this.collectedAmount < (this.currentLevelConfig.collectAmount ?? 0) ||
-    this.collectedAmount2 < (this.currentLevelConfig.collectAmount2 ?? 0)
-  ))
-
-  )
-) {
-  this.showLevelFailed()
-}
-
   matches.forEach(tile => {
     if (
   this.currentLevelConfig.objective === 'collect' &&
@@ -453,20 +456,11 @@ if (this.currentLevelConfig.objective === 'collectDouble') {
   }
 }
   tile.circle.destroy()
-  this.board[tile.row][tile.col] = null as any
+  this.board[tile.row][tile.col] = null
    })
-   if (this.currentLevelConfig.objective === 'collectDouble') {
-  this.objectiveText.setText(
-    `🩷 Rosa: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}   🩵 Azzurre: ${this.collectedAmount2} / ${this.currentLevelConfig.collectAmount2}`
-
-  )
-}
-   if (this.currentLevelConfig.objective === 'collect') {
-  this.objectiveText.setText(
-  
-    `💚 Verdi: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
-  )
-}
+   if (this.currentLevelConfig.objective !== 'score') {
+     this.objectiveText.setText(this.getObjectiveLabel())
+   }
 if (
   this.currentLevelConfig.objective === 'collect' &&
   this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0)
@@ -819,8 +813,13 @@ private checkCascadeMatches() {
   if (matches.length === 0) {
     this.isProcessing = false
 
-  this.comboMultiplier = 0
+  this.comboMultiplier = 1
   this.comboText.setText('')
+
+  if (this.moves <= 0 && !this.levelCompleted) {
+    this.showLevelFailed()
+    return
+  }
 
   if (
     this.moves > 0 &&
@@ -877,10 +876,8 @@ if (this.currentLevelConfig.objective === 'collectDouble') {
     tile.circle.destroy()
     this.board[tile.row][tile.col] = null
   })
-  if (this.currentLevelConfig.objective === 'collectDouble') {
-  this.objectiveText.setText(
-    `🩷 Rosa: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}   🩵 Azzurre: ${this.collectedAmount2} / ${this.currentLevelConfig.collectAmount2}`
-  )
+if (this.currentLevelConfig.objective === 'collectDouble') {
+  this.objectiveText.setText(this.getObjectiveLabel())
 }
 if (this.currentLevelConfig.objective === 'collectDouble') {
   if (
@@ -893,10 +890,7 @@ if (this.currentLevelConfig.objective === 'collectDouble') {
 }
 
 if (this.currentLevelConfig.objective === 'collect') {
-  this.objectiveText.setText(
-    `💚 Verdi: ${this.collectedAmount} / ${this.currentLevelConfig.collectAmount}`
-
-  )
+  this.objectiveText.setText(this.getObjectiveLabel())
 
   if (
     this.collectedAmount >=
@@ -920,4 +914,3 @@ if (this.currentLevelConfig.objective === 'collect') {
 }
 
 }
-
