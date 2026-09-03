@@ -288,28 +288,16 @@ function App() {
   return (
     <main className="home-screen">
       <div className="sky-glow" />
-      <header className="player-bar">
-        <div className="player">
-          <img src="/chiki-icon.jpeg" alt="Chiki" />
-          <span>
-            <strong>Chiki</strong>
-            <small>Livello {unlockedLevel}</small>
-          </span>
-        </div>
-        <div className="currencies">
-          <span>❤️ 5</span>
-          <span>🪙 1.250</span>
-        </div>
-      </header>
       <section className="brand-panel" aria-label="Frenchie Chiki Match">
         <h1 className="game-logo">
           <span>FRENCHIE</span>
           <strong>CHIKI</strong>
           <em>MATCH</em>
         </h1>
+        <p className="brand-ribbon">L’AVVENTURA PUZZLE PIÙ TENERA!</p>
         <img src="/chiki-character.webp" alt="Chiki" className="chiki-hero" />
         <button className="play-button" onClick={() => setView("map")}>
-          🐾 GIOCA
+          GIOCA
         </button>
       </section>
       <nav className="main-menu" aria-label="Menu del gioco">
@@ -325,13 +313,17 @@ function App() {
         ))}
       </nav>
       <nav className="utility-menu" aria-label="Altre funzioni">
-        {["📅 EVENTI", "✉️ MESSAGGI", "👥 AMICI", "⚙️ IMPOSTAZIONI"].map(
-          (item) => (
-            <button key={item} onClick={() => soon(item.slice(3))}>
-              {item}
+        {[
+          ["📅", "EVENTI"],
+          ["✉️", "MESSAGGI"],
+          ["👥", "AMICI"],
+          ["⚙️", "IMPOSTAZIONI"],
+        ].map(([icon, label]) => (
+            <button key={label} onClick={() => soon(label)}>
+              <span>{icon}</span>
+              <small>{label}</small>
             </button>
-          ),
-        )}
+          ))}
       </nav>
       {notice && (
         <div className="toast" role="status">

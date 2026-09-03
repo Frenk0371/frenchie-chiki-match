@@ -9,8 +9,8 @@
   min-height: 100dvh;
   margin: auto;
   overflow: hidden;
-  padding: calc(14px + env(safe-area-inset-top)) 15px
-    calc(18px + env(safe-area-inset-bottom));
+  padding: calc(8px + env(safe-area-inset-top)) 14px
+    calc(12px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   background: linear-gradient(#69caff 0 33%, #72d858 33% 100%);
@@ -96,11 +96,11 @@
 .brand-panel {
   position: relative;
   z-index: 1;
-  margin: auto;
+  margin: 0 auto auto;
   text-align: center;
   display: grid;
   justify-items: center;
-  gap: 28px;
+  gap: 5px;
 }
 .official-icon {
   width: min(59vw, 270px);
@@ -115,7 +115,7 @@
 .brand-panel h1 {
   display: grid;
   line-height: 0.67;
-  margin: -18px 0 28px;
+  margin: 8px 0 5px;
   filter: drop-shadow(0 7px 0 #432630);
 }
 .brand-panel h1 span,
@@ -127,25 +127,25 @@
   letter-spacing: -2px;
 }
 .brand-panel h1 span {
-  font-size: 37px;
+  font-size: clamp(48px, 14vw, 72px);
   color: #fff4db;
 }
 .brand-panel h1 strong {
-  font-size: 48px;
+  font-size: clamp(67px, 19vw, 96px);
   color: #ffc52f;
 }
 .brand-panel h1 em {
-  font-size: 35px;
+  font-size: clamp(45px, 13vw, 66px);
   color: #44c5ff;
 }
 .play-button {
-  min-width: 220px;
+  width: min(78vw, 390px);
   padding: 13px 34px;
   border: 4px solid #fff;
   border-radius: 28px;
   background: linear-gradient(#8ced58, #4dbf2d);
   color: #fff;
-  font: 900 25px inherit;
+  font: 900 32px inherit;
   text-shadow: 0 2px 0 #23751a;
   box-shadow:
     0 7px 0 #27851e,
@@ -165,6 +165,7 @@
 }
 .main-menu {
   grid-template-columns: repeat(3, 1fr);
+  margin-top: 8px;
 }
 .main-menu button {
   border: 3px solid #fff6b9;
@@ -172,7 +173,7 @@
   padding: 10px 3px 8px;
   background: linear-gradient(#6782ad, #36527f);
   color: #fff;
-  font: 900 11px inherit;
+  font: 900 14px inherit;
   box-shadow: 0 5px 0 #263554;
   cursor: pointer;
 }
@@ -196,6 +197,39 @@
   padding: 10px 2px;
   font: 800 9px inherit;
   cursor: pointer;
+}
+.brand-ribbon {
+  position: relative;
+  min-width: min(82vw, 410px);
+  margin: 0 0 2px;
+  padding: 9px 22px 10px;
+  border: 3px solid #bc7ddd;
+  border-radius: 8px;
+  background: linear-gradient(#9848c5, #65238f);
+  box-shadow: 0 5px 0 #41145f, 0 8px 14px #24103355;
+  color: #fff7dd;
+  font: 400 clamp(13px, 3.8vw, 19px)/1 "Lilita One", "Fredoka", sans-serif;
+  letter-spacing: 0.4px;
+  text-shadow: 0 2px 0 #3f165c;
+}
+.brand-ribbon::before,
+.brand-ribbon::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 7px;
+  width: 34px;
+  height: 30px;
+  background: #6b2595;
+  border: 3px solid #a761cd;
+}
+.brand-ribbon::before {
+  left: -24px;
+  transform: skewY(-12deg);
+}
+.brand-ribbon::after {
+  right: -24px;
+  transform: skewY(12deg);
 }
 .toast {
   position: fixed;
@@ -452,6 +486,117 @@
   text-align: center;
   margin: 30px 0 12px;
   text-shadow: 0 3px #47215e;
+}
+
+/* Home cinematografica: logo, mascotte e comandi come un vero casual game */
+.home-screen .brand-panel {
+  width: 100%;
+  margin: 0 auto auto;
+  gap: 4px;
+}
+.home-screen .game-logo {
+  margin: 4px 0 2px !important;
+  line-height: 0.66 !important;
+}
+.home-screen .game-logo span {
+  font-size: clamp(48px, 14vw, 72px);
+}
+.home-screen .game-logo strong {
+  font-size: clamp(68px, 19vw, 98px);
+}
+.home-screen .game-logo em {
+  font-size: clamp(45px, 13vw, 67px);
+}
+.home-screen .brand-ribbon {
+  margin: 7px 0 4px;
+}
+.home-screen .chiki-hero {
+  width: min(62vw, 295px);
+  height: min(58vw, 280px);
+}
+.home-screen .play-button {
+  width: min(78vw, 390px);
+  margin-top: 3px;
+  padding: 16px 40px;
+  font-size: 34px;
+}
+.home-screen .main-menu {
+  gap: 10px;
+  margin-top: 9px;
+}
+.home-screen .main-menu button {
+  min-height: 96px;
+  border-radius: 25px;
+  font-size: 14px;
+}
+.home-screen .main-menu button span {
+  font-size: 35px;
+}
+.home-screen .utility-menu {
+  gap: 7px;
+  margin-top: 11px;
+}
+.home-screen .utility-menu button {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+}
+.home-screen .utility-menu button span {
+  width: clamp(54px, 16vw, 72px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 4px solid #6d8196;
+  border-radius: 50%;
+  background: linear-gradient(#526a82 0 13%, #344d65 14% 60%, #23384c 61%);
+  box-shadow:
+    inset 0 4px #8296a8,
+    inset 0 -5px #16283a,
+    0 5px 0 #112236,
+    0 8px 13px #10233366;
+  font-size: clamp(23px, 7vw, 32px);
+  filter: drop-shadow(0 3px 1px #0004);
+}
+.home-screen .utility-menu button small {
+  font: 400 clamp(9px, 2.8vw, 12px)/1 "Lilita One", "Fredoka", sans-serif;
+  color: #fff;
+  text-shadow: 0 2px 0 #152a3d, 0 3px 4px #0008;
+}
+
+@media (max-height: 760px) {
+  .home-screen .game-logo span {
+    font-size: 43px;
+  }
+  .home-screen .game-logo strong {
+    font-size: 61px;
+  }
+  .home-screen .game-logo em {
+    font-size: 41px;
+  }
+  .home-screen .brand-ribbon {
+    padding-block: 7px;
+  }
+  .home-screen .chiki-hero {
+    width: 210px;
+    height: 195px;
+  }
+  .home-screen .play-button {
+    padding-block: 12px;
+    font-size: 29px;
+  }
+  .home-screen .main-menu button {
+    min-height: 82px;
+  }
+  .home-screen .utility-menu button span {
+    width: 52px;
+  }
 }
 .wardrobe-grid {
   display: grid;
