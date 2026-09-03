@@ -1,1 +1,154 @@
-.map-screen{position:relative;width:min(100vw,560px);min-height:100dvh;margin:auto;overflow:hidden;background:linear-gradient(#70cbfa 0 18%,#7bd861 18% 100%);color:#fff}.map-title{position:relative;z-index:2;display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:8px;padding:calc(12px + env(safe-area-inset-top)) 13px 12px;background:linear-gradient(#8751ba,#663498);box-shadow:0 6px 0 #49266d}.map-title button{width:40px;height:40px;border:3px solid #fff;border-radius:50%;background:#a875cf;color:#fff;font-size:30px;line-height:28px}.map-title div{display:grid;line-height:1}.map-title small{font-size:11px;color:#eddcff}.map-title strong{font-size:18px}.map-title span{font-size:13px;font-weight:900;background:#3b2258;padding:8px;border-radius:14px}.adventure-path{position:relative;min-height:calc(100dvh - 76px);padding:50px 35px;background:radial-gradient(circle at 13% 15%,#ff99c3 0 3%,transparent 3.5%),radial-gradient(circle at 88% 30%,#ffe45a 0 4%,transparent 4.5%),linear-gradient(110deg,transparent 45%,#dbbe7d 46% 55%,transparent 56%)}.level-stop{position:relative;z-index:1;display:flex;align-items:center;gap:12px;width:75%;margin:0 auto 31px}.level-stop:nth-child(even){flex-direction:row-reverse}.level-stop button{width:76px;height:76px;flex:0 0 76px;border:6px solid #fff;border-radius:50%;background:linear-gradient(#9bf06b,#54bd36);color:#fff;font-size:27px;font-weight:1000;box-shadow:0 7px 0 #338b27,0 12px 20px #1c542d66}.level-stop span{min-width:125px;padding:8px 11px;border:3px solid #f0c75c;border-radius:14px;background:#fff8d5;color:#54364f;text-align:center;font-size:12px;font-weight:900;box-shadow:0 4px 0 #aa7734}.level-stop.locked{filter:grayscale(.75);opacity:.78}.level-stop:not(.locked):last-child button{animation:levelPulse 1.5s infinite}@keyframes levelPulse{50%{transform:scale(1.1);filter:brightness(1.12)}}
+.map-screen {
+  position: relative;
+  width: min(100vw, 560px);
+  min-height: 100dvh;
+  margin: auto;
+  overflow: hidden;
+  color: #fff;
+  background: #70cffa;
+}
+.map-title {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: calc(13px + env(safe-area-inset-top)) 15px 14px;
+  background: linear-gradient(160deg, #9b5bd1, #59257f);
+  border-bottom: 4px solid #3d185e;
+  box-shadow: 0 8px 18px #25103b66;
+}
+.map-title button {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: linear-gradient(#a867d3, #653292);
+  color: #fff;
+  font-size: 36px;
+  line-height: 31px;
+  box-shadow: 0 5px 0 #40205f;
+}
+.map-title div {
+  display: grid;
+  line-height: 1;
+  text-shadow: 0 2px 0 #3b174f;
+}
+.map-title small {
+  font-size: 12px;
+  color: #f2dcff;
+  letter-spacing: 0.7px;
+}
+.map-title strong {
+  font-size: clamp(18px, 5vw, 25px);
+}
+.map-title > span {
+  padding: 10px 12px;
+  border: 2px solid #a878c6;
+  border-radius: 18px;
+  background: #321549;
+  font-size: 15px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.adventure-path {
+  position: relative;
+  min-height: calc(100dvh - 88px);
+  padding: 54px 30px 80px;
+  background-image:
+    linear-gradient(#ffffff10, #225f2940), url("/garden-game-bg.png");
+  background-position: center;
+  background-size: cover;
+}
+.adventure-path::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #ffffff12, transparent 22% 78%, #ffffff12);
+  pointer-events: none;
+}
+.level-stop {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 82%;
+  margin: 0 auto 35px;
+}
+.level-stop:nth-child(even) {
+  flex-direction: row-reverse;
+}
+.level-stop button {
+  width: 86px;
+  height: 86px;
+  flex: 0 0 86px;
+  border: 7px solid #fff8d4;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #a4f36b, #42b928);
+  color: #fff;
+  font-size: 32px;
+  font-weight: 1000;
+  text-shadow: 0 3px 0 #23751d;
+  box-shadow:
+    0 8px 0 #2e8126,
+    0 13px 25px #163c2866;
+}
+.level-stop > span {
+  display: grid;
+  min-width: 150px;
+  padding: 10px 14px 8px;
+  border: 4px solid #f2c453;
+  border-radius: 18px;
+  background: linear-gradient(#fffbea, #ffe8aa);
+  color: #53314d;
+  text-align: center;
+  box-shadow:
+    0 6px 0 #a96d29,
+    0 10px 18px #46321e44;
+}
+.level-stop > span strong {
+  font-size: 14px;
+  line-height: 1.1;
+}
+.level-stars {
+  min-height: 18px;
+  margin-top: 5px;
+  color: #e8aa13;
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+.level-stop.locked {
+  filter: grayscale(0.55);
+  opacity: 0.82;
+}
+.level-stop.locked button {
+  background: linear-gradient(#d9e4d0, #8eaa82);
+  text-shadow: none;
+  box-shadow:
+    0 8px 0 #64765d,
+    0 13px 22px #263f2b55;
+}
+.level-stop:not(.locked):last-of-type button {
+  animation: levelPulse 1.5s infinite;
+}
+@keyframes levelPulse {
+  50% {
+    transform: scale(1.08);
+    filter: brightness(1.12);
+  }
+}
+@media (max-height: 750px) {
+  .adventure-path {
+    padding-top: 32px;
+  }
+  .level-stop {
+    margin-bottom: 22px;
+  }
+  .level-stop button {
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
+  }
+}

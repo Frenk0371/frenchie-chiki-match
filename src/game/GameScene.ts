@@ -449,7 +449,7 @@ export default class GameScene extends Phaser.Scene {
     this.levelCompleted = true;
     window.dispatchEvent(
       new CustomEvent("chiki-level-complete", {
-        detail: { level: this.currentLevel },
+        detail: { level: this.currentLevel, stars: this.calculateStars() },
       }),
     );
 
@@ -523,6 +523,13 @@ export default class GameScene extends Phaser.Scene {
 
       this.scene.restart();
     });
+  }
+
+  private calculateStars() {
+    const movesRatio = this.moves / Math.max(1, this.currentLevelConfig.moves);
+    if (movesRatio >= 0.45) return 3;
+    if (movesRatio >= 0.15) return 2;
+    return 1;
   }
   private showLevelFailed() {
     if (this.levelCompleted) return;

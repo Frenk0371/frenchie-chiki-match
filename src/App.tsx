@@ -20,6 +20,14 @@ const levelNames = [
   "Sfida di Chiki",
 ];
 
+const loadLevelStars = (): Record<number, number> => {
+  try {
+    return JSON.parse(localStorage.getItem("chiki-level-stars") || "{}");
+  } catch {
+    return {};
+  }
+};
+
 function App() {
   const gameContainer = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<AppView>("home");
@@ -28,6 +36,8 @@ function App() {
   const [unlockedLevel, setUnlockedLevel] = useState(() =>
     Number(localStorage.getItem("chiki-unlocked-level") || "1"),
   );
+  const [levelStars, setLevelStars] =
+    useState<Record<number, number>>(loadLevelStars);
 
   useEffect(() => {
     if (view !== "game" || !gameContainer.current) return;
@@ -48,7 +58,17 @@ function App() {
 
   useEffect(() => {
     const completed = (event: Event) => {
-      const level = (event as CustomEvent<{ level: number }>).detail.level;
+      const { level, stars } = (
+        event as CustomEvent<{ level: number; stars: number }>
+      ).detail;
+      setLevelStars((current) => {
+        const updated = {
+          ...current,
+          [level]: Math.max(current[level] || 0, stars),
+        };
+        localStorage.setItem("chiki-level-stars", JSON.stringify(updated));
+        return updated;
+      });
       setUnlockedLevel((current) => {
         const unlocked = Math.max(current, Math.min(5, level + 1));
         localStorage.setItem("chiki-unlocked-level", String(unlocked));
@@ -85,6 +105,10 @@ function App() {
   }
 
   if (view === "map") {
+    const totalStars = Object.values(levelStars).reduce(
+      (sum, stars) => sum + stars,
+      0,
+    );
     return (
       <main className="map-screen">
         <header className="map-title">
@@ -95,7 +119,7 @@ function App() {
             <small>MONDO 1</small>
             <strong>GIARDINO FIORITO</strong>
           </div>
-          <span>⭐ 0/15</span>
+          <span>⭐ {totalStars}/15</span>
         </header>
         <div className="adventure-path">
           {levelNames.map((name, index) => {
@@ -109,7 +133,16 @@ function App() {
                 <button disabled={locked} onClick={() => playLevel(level)}>
                   {locked ? "🔒" : level}
                 </button>
-                <span>{locked ? "Da sbloccare" : name}</span>
+                <span>
+                  <strong>{locked ? "Da sbloccare" : name}</strong>
+                  {!locked && (
+                    <small className="level-stars">
+                      {[1, 2, 3].map((star) =>
+                        star <= (levelStars[level] || 0) ? "⭐" : "☆",
+                      )}
+                    </small>
+                  )}
+                </span>
               </div>
             );
           })}
