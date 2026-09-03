@@ -39,6 +39,10 @@ export default class GameScene extends Phaser.Scene {
 
   private moves = this.currentLevelConfig.moves;
   private movesText!: Phaser.GameObjects.Text;
+  private progressFill!: Phaser.GameObjects.Rectangle;
+  private shuffleUses = 3;
+  private hammerUses = 3;
+  private rocketUses = 2;
   private targetScore = this.currentLevelConfig.targetScore;
   private levelCompleted = false;
   private isProcessing = false;
@@ -135,6 +139,16 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
+    const progress = this.add.graphics();
+    progress.fillStyle(0x28143b, 0.9);
+    progress.fillRoundedRect(230, 337, 620, 30, 15);
+    progress.lineStyle(4, 0xffffff, 0.9);
+    progress.strokeRoundedRect(230, 337, 620, 30, 15);
+    this.progressFill = this.add
+      .rectangle(240, 352, 0, 18, 0xffcf36, 1)
+      .setOrigin(0, 0.5);
+    this.add.text(188, 327, "⭐", { fontSize: "44px" });
+
     this.comboText = this.add
       .text(540, 350, "", {
         fontFamily: "Arial",
@@ -144,6 +158,146 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
     this.createBoard();
+    this.createBoosterTray();
+  }
+
+  private createBoosterTray() {
+    const tray = this.add.graphics();
+    tray.fillStyle(0x3f205c, 0.95);
+    tray.fillRoundedRect(105, 1408, 870, 235, 42);
+    tray.lineStyle(7, 0xffffff, 0.92);
+    tray.strokeRoundedRect(105, 1408, 870, 235, 42);
+
+    this.add
+      .text(540, 1442, "AIUTI DI CHIKI", {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontSize: "29px",
+        color: "#ffffff",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
+
+    this.createBoosterButton(
+      270,
+      "🔀",
+      "MESCOLA",
+      () => {
+        if (this.shuffleUses <= 0 || this.isProcessing || this.levelCompleted)
+          return;
+        this.shuffleUses--;
+        this.shuffleBoard();
+        this.scene.restart();
+      },
+      () => this.shuffleUses,
+    );
+
+    this.createBoosterButton(
+      540,
+      "🔨",
+      "MARTELLO",
+      () => {
+        if (
+          this.hammerUses <= 0 ||
+          !this.selectedTile ||
+          this.isProcessing ||
+          this.levelCompleted
+        )
+          return;
+        this.hammerUses--;
+        const tile = this.selectedTile;
+        this.selectedTile = null;
+        tile.circle.destroy();
+        this.board[tile.row][tile.col] = null;
+        this.collapseTiles();
+        this.time.delayedCall(330, () => {
+          this.refillBoard();
+          this.time.delayedCall(380, () => this.checkCascadeMatches());
+        });
+      },
+      () => this.hammerUses,
+    );
+
+    this.createBoosterButton(
+      810,
+      "🚀",
+      "RAZZO",
+      () => {
+        if (this.rocketUses <= 0 || this.isProcessing || this.levelCompleted)
+          return;
+        this.rocketUses--;
+        this.isProcessing = true;
+        const row = Phaser.Math.Between(0, this.rows - 1);
+        for (let col = 0; col < this.cols; col++) {
+          const tile = this.board[row][col];
+          if (tile) tile.circle.destroy();
+          this.board[row][col] = null;
+        }
+        this.collapseTiles();
+        this.time.delayedCall(330, () => {
+          this.refillBoard();
+          this.time.delayedCall(380, () => this.checkCascadeMatches());
+        });
+      },
+      () => this.rocketUses,
+    );
+  }
+
+  private createBoosterButton(
+    x: number,
+    icon: string,
+    label: string,
+    action: () => void,
+    remaining: () => number,
+  ) {
+    const button = this.add
+      .rectangle(x, 1540, 220, 135, 0xf3b72d, 1)
+      .setStrokeStyle(6, 0xffefae, 1)
+      .setInteractive({ useHandCursor: true });
+    this.add.text(x - 78, 1490, icon, { fontSize: "55px" });
+    const count = this.add
+      .text(x + 68, 1502, String(remaining()), {
+        fontFamily: "Arial",
+        fontSize: "28px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        backgroundColor: "#6b2c78",
+        padding: { x: 10, y: 5 },
+      })
+      .setOrigin(0.5);
+    this.add
+      .text(x, 1584, label, {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontSize: "22px",
+        color: "#4b2846",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
+    button.on("pointerup", () => {
+      action();
+      count.setText(String(remaining()));
+      this.tweens.add({
+        targets: button,
+        scaleX: 0.94,
+        scaleY: 0.94,
+        yoyo: true,
+        duration: 90,
+      });
+    });
+  }
+
+  private updateProgress() {
+    const config = this.currentLevelConfig;
+    let ratio = this.score / Math.max(1, config.targetScore);
+    if (config.objective === "collect") {
+      ratio = this.collectedAmount / Math.max(1, config.collectAmount ?? 1);
+    } else if (config.objective === "collectDouble") {
+      const first =
+        this.collectedAmount / Math.max(1, config.collectAmount ?? 1);
+      const second =
+        this.collectedAmount2 / Math.max(1, config.collectAmount2 ?? 1);
+      ratio = (first + second) / 2;
+    }
+    this.progressFill.width = 600 * Phaser.Math.Clamp(ratio, 0, 1);
   }
 
   private createBoard() {
@@ -299,30 +453,53 @@ export default class GameScene extends Phaser.Scene {
       }),
     );
 
-    this.add
-      .rectangle(540, 800, 700, 300, 0x000000, 0.75)
-      .setStrokeStyle(5, 0xffffff);
+    this.add.rectangle(540, 960, 1080, 1920, 0x160c22, 0.72);
+    const card = this.add.graphics();
+    card.fillStyle(0x5b277d, 1);
+    card.fillRoundedRect(150, 540, 780, 720, 55);
+    card.lineStyle(10, 0xffdc55, 1);
+    card.strokeRoundedRect(150, 540, 780, 720, 55);
+    this.add.image(540, 755, "tile-chiki").setDisplaySize(250, 250);
 
     this.add
-      .text(540, 730, "🎉 LIVELLO COMPLETATO! 🎉", {
-        fontFamily: "Arial",
-        fontSize: "42px",
+      .text(540, 620, "LIVELLO COMPLETATO!", {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontSize: "48px",
         color: "#ffffff",
         fontStyle: "bold",
       })
       .setOrigin(0.5);
 
+    this.add
+      .text(540, 920, "⭐  ⭐  ⭐", {
+        fontSize: "76px",
+      })
+      .setOrigin(0.5);
+    this.add
+      .text(540, 1015, `${this.score} PUNTI`, {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontSize: "38px",
+        color: "#fff3c8",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
+
+    const continuePlate = this.add
+      .rectangle(540, 1140, 430, 100, 0x5ed137, 1)
+      .setStrokeStyle(7, 0xffffff, 1)
+      .setInteractive({ useHandCursor: true });
+
     const continueButton = this.add
-      .text(540, 850, "CONTINUA", {
-        fontFamily: "Arial",
+      .text(540, 1140, "CONTINUA", {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
         fontSize: "34px",
         color: "#ffffff",
-        backgroundColor: "#28a745",
-        padding: { x: 30, y: 18 },
         fontStyle: "bold",
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
+
+    continuePlate.on("pointerup", () => continueButton.emit("pointerup"));
 
     continueButton.on("pointerup", () => {
       this.score = 0;
@@ -352,21 +529,28 @@ export default class GameScene extends Phaser.Scene {
 
     this.levelCompleted = true;
 
-    this.add
-      .rectangle(540, 800, 700, 300, 0x000000, 0.75)
-      .setStrokeStyle(5, 0xffffff);
+    this.add.rectangle(540, 960, 1080, 1920, 0x160c22, 0.72);
+    const card = this.add.graphics();
+    card.fillStyle(0x4c2767, 1);
+    card.fillRoundedRect(170, 610, 740, 520, 55);
+    card.lineStyle(9, 0xffffff, 1);
+    card.strokeRoundedRect(170, 610, 740, 520, 55);
 
     this.add
-      .text(540, 730, "😢 LIVELLO FALLITO", {
-        fontFamily: "Arial",
-        fontSize: "42px",
+      .text(540, 735, "RIPROVIAMO!", {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontSize: "52px",
         color: "#ffffff",
         fontStyle: "bold",
       })
       .setOrigin(0.5);
+    this.add
+      .image(540, 875, "tile-chiki")
+      .setDisplaySize(190, 190)
+      .setTint(0xb9b9b9);
 
     const retryButton = this.add
-      .text(540, 850, "RIPROVA", {
+      .text(540, 1035, "RIPROVA", {
         fontFamily: "Arial",
         fontSize: "34px",
         color: "#ffffff",
@@ -448,6 +632,7 @@ export default class GameScene extends Phaser.Scene {
           console.log("PEDINE DEL TRIS:", matches);
           this.score += matches.length * 100;
           this.scoreText.setText(`${this.score}\nPUNTI`);
+          this.updateProgress();
           if (
             this.currentLevelConfig.objective === "score" &&
             this.score >= this.targetScore
@@ -485,6 +670,7 @@ export default class GameScene extends Phaser.Scene {
           });
           if (this.currentLevelConfig.objective !== "score") {
             this.objectiveText.setText(this.getObjectiveLabel());
+            this.updateProgress();
           }
           if (
             this.currentLevelConfig.objective === "collect" &&
@@ -825,6 +1011,7 @@ export default class GameScene extends Phaser.Scene {
     this.score += matches.length * 100 * this.comboMultiplier;
 
     this.scoreText.setText(`${this.score}\nPUNTI`);
+    this.updateProgress();
     if (
       this.currentLevelConfig.objective === "score" &&
       this.score >= this.targetScore
@@ -863,6 +1050,7 @@ export default class GameScene extends Phaser.Scene {
     });
     if (this.currentLevelConfig.objective === "collectDouble") {
       this.objectiveText.setText(this.getObjectiveLabel());
+      this.updateProgress();
     }
     if (this.currentLevelConfig.objective === "collectDouble") {
       if (
@@ -876,6 +1064,7 @@ export default class GameScene extends Phaser.Scene {
 
     if (this.currentLevelConfig.objective === "collect") {
       this.objectiveText.setText(this.getObjectiveLabel());
+      this.updateProgress();
 
       if (
         this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0)

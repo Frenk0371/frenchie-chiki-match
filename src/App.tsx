@@ -38,7 +38,10 @@ function App() {
       parent: gameContainer.current,
       backgroundColor: "#87CEEB",
       scene: [new GameScene(selectedLevel)],
-      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+      scale: {
+        mode: Phaser.Scale.ENVELOP,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+      },
     });
     return () => game.destroy(true);
   }, [view, selectedLevel]);
