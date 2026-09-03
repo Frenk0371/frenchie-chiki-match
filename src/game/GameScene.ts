@@ -1,141 +1,128 @@
-import Phaser from 'phaser'
-import { levels } from './levels'
+import Phaser from "phaser";
+import { levels } from "./levels";
 
 type Tile = {
-  row: number
-  col: number
-  type: number
-  circle: Phaser.GameObjects.Image
-}
+  row: number;
+  col: number;
+  type: number;
+  circle: Phaser.GameObjects.Image;
+};
 
 export default class GameScene extends Phaser.Scene {
-  private readonly rows = 8
-  private readonly cols = 7
-  private readonly tileSize = 120
+  private readonly rows = 8;
+  private readonly cols = 7;
+  private readonly tileSize = 120;
+  private readonly boardY = 390;
+  private readonly tileKeys = ["heart", "bone", "clover", "flower", "gem", "chiki"];
 
-  private board: (Tile | null)[][] = []
-  
+  private board: (Tile | null)[][] = [];
 
-  private score = 0
-  private collectedAmount = 0
-  private collectedAmount2 = 0
+  private score = 0;
+  private collectedAmount = 0;
+  private collectedAmount2 = 0;
 
+  private scoreText!: Phaser.GameObjects.Text;
+  private objectiveText!: Phaser.GameObjects.Text;
+  private comboMultiplier = 1;
+  private comboText!: Phaser.GameObjects.Text;
+  private currentLevel = 1;
+  private get currentLevelConfig() {
+    return levels[this.currentLevel - 1];
+  }
 
-private scoreText!: Phaser.GameObjects.Text
-private objectiveText!: Phaser.GameObjects.Text
-private comboMultiplier = 1
-private comboText!: Phaser.GameObjects.Text
-private currentLevel = 1
-private get currentLevelConfig() {
-  return levels[this.currentLevel - 1]
-}
-
-private moves = this.currentLevelConfig.moves
-private movesText!: Phaser.GameObjects.Text
-private targetScore = this.currentLevelConfig.targetScore
-private levelCompleted = false
-private isProcessing = false
-
-
+  private moves = this.currentLevelConfig.moves;
+  private movesText!: Phaser.GameObjects.Text;
+  private targetScore = this.currentLevelConfig.targetScore;
+  private levelCompleted = false;
+  private isProcessing = false;
 
   private readonly colors = [
-    0xff5c8a,
-    0xffc857,
-    0x5dd39e,
-    0x5dade2,
-    0x9b5de5,
-    0xff8c42,
-  ]
+    0xff5c8a, 0xffc857, 0x5dd39e, 0x5dade2, 0x9b5de5, 0xff8c42,
+  ];
 
   private readonly colorNames = [
-    'Cuori rossi',
-    'Ossa dorate',
-    'Quadrifogli verdi',
-    'Fiori azzurri',
-    'Gemme viola',
-    'Chiki',
-  ]
+    "Cuori rossi",
+    "Ossa dorate",
+    "Quadrifogli verdi",
+    "Fiori azzurri",
+    "Gemme viola",
+    "Chiki",
+  ];
 
   constructor(startLevel = 1) {
-    super('GameScene')
-    this.currentLevel = Phaser.Math.Clamp(startLevel, 1, levels.length)
-    this.moves = this.currentLevelConfig.moves
-    this.targetScore = this.currentLevelConfig.targetScore
+    super("GameScene");
+    this.currentLevel = Phaser.Math.Clamp(startLevel, 1, levels.length);
+    this.moves = this.currentLevelConfig.moves;
+    this.targetScore = this.currentLevelConfig.targetScore;
   }
 
   preload() {
-    this.load.spritesheet('tile-sprites', '/tile-sprites.png', {
-      frameWidth: 512,
-      frameHeight: 512,
-    })
+    this.tileKeys.forEach((key) =>
+      this.load.image(`tile-${key}`, `/tiles/${key}.png`),
+    );
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#87CEEB')
+    this.cameras.main.setBackgroundColor("#87CEEB");
 
     this.add
-      .text(540, 130, '🐶 Frenchie Chiki Match', {
-        fontFamily: 'Arial',
-        fontSize: '52px',
-        color: '#ffffff',
-        fontStyle: 'bold',
+      .text(540, 130, "🐶 Frenchie Chiki Match", {
+        fontFamily: "Arial",
+        fontSize: "52px",
+        color: "#ffffff",
+        fontStyle: "bold",
       })
-      .setOrigin(0.5)
+      .setOrigin(0.5);
 
     this.add
       .text(540, 205, `Livello ${this.currentLevel}`, {
-        fontFamily: 'Arial',
-        fontSize: '32px',
-        color: '#ffffff',
+        fontFamily: "Arial",
+        fontSize: "32px",
+        color: "#ffffff",
       })
-      .setOrigin(0.5)
-this.scoreText = this.add
-  .text(540, 250, 'Punteggio: 0', {
-    fontFamily: 'Arial',
-    fontSize: '28px',
-    color: '#ffffff',
-    fontStyle: 'bold',
-  })
-  .setOrigin(0.5)
-this.movesText = this.add
-  .text(540, 285, `Mosse: ${this.moves}`, {
-    fontFamily: 'Arial',
-    fontSize: '26px',
-    color: '#ffffff',
-    fontStyle: 'bold',
-  })
-  .setOrigin(0.5)
-this.objectiveText = this.add
-  .text(
-    540,
-    320,
-    this.getObjectiveLabel(),
-    {
-    fontFamily: 'Arial',
-    fontSize: '24px',
-    color: '#ffffff',
-    fontStyle: 'bold',
-  })
-  .setOrigin(0.5)
+      .setOrigin(0.5);
+    this.scoreText = this.add
+      .text(540, 250, "Punteggio: 0", {
+        fontFamily: "Arial",
+        fontSize: "28px",
+        color: "#ffffff",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
+    this.movesText = this.add
+      .text(540, 285, `Mosse: ${this.moves}`, {
+        fontFamily: "Arial",
+        fontSize: "26px",
+        color: "#ffffff",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
+    this.objectiveText = this.add
+      .text(540, 320, this.getObjectiveLabel(), {
+        fontFamily: "Arial",
+        fontSize: "24px",
+        color: "#ffffff",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
 
-  this.comboText = this.add
-  .text(540, 300, '', {
-    fontFamily: 'Arial',
-    fontSize: '26px',
-    color: '#ffff00',
-    fontStyle: 'bold',
-  })
-  .setOrigin(0.5)
-    this.createBoard()
-    
+    this.comboText = this.add
+      .text(540, 300, "", {
+        fontFamily: "Arial",
+        fontSize: "26px",
+        color: "#ffff00",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
+    this.createBoard();
   }
 
   private createBoard() {
-    const boardWidth = this.cols * this.tileSize
-    const boardHeight = this.rows * this.tileSize
+    const boardWidth = this.cols * this.tileSize;
+    const boardHeight = this.rows * this.tileSize;
 
-    const startX = (1080 - boardWidth) / 2
-    const startY = 360
+    const startX = (1080 - boardWidth) / 2;
+    const startY = this.boardY;
 
     this.add
       .rectangle(
@@ -144,106 +131,97 @@ this.objectiveText = this.add
         boardWidth + 40,
         boardHeight + 40,
         0xffffff,
-        0.25
+        0.25,
       )
-      .setStrokeStyle(6, 0xffffff, 0.7)
+      .setStrokeStyle(6, 0xffffff, 0.7);
 
-    this.board = []
+    this.board = [];
 
     for (let row = 0; row < this.rows; row++) {
-      this.board[row] = []
+      this.board[row] = [];
 
       for (let col = 0; col < this.cols; col++) {
-        let type: number
+        let type: number;
 
         do {
-          type = Phaser.Math.Between(0, this.colors.length - 1)
-        } while (this.createsInitialMatch(row, col, type))
+          type = Phaser.Math.Between(0, this.colors.length - 1);
+        } while (this.createsInitialMatch(row, col, type));
 
-        const x =
-          startX + col * this.tileSize + this.tileSize / 2
+        const x = startX + col * this.tileSize + this.tileSize / 2;
 
-        const y =
-          startY + row * this.tileSize + this.tileSize / 2
+        const y = startY + row * this.tileSize + this.tileSize / 2;
 
         const circle = this.add
-          .image(x, y, 'tile-sprites', type)
-          .setDisplaySize(108, 108)
-          .setInteractive({ useHandCursor: true })
+          .image(x, y, `tile-${this.tileKeys[type]}`)
+          .setDisplaySize(110, 110)
+          .setInteractive({ useHandCursor: true });
 
         const tile: Tile = {
           row,
           col,
           type,
           circle,
-        }
+        };
 
-        
+        circle.on("pointerup", () => {
+          if (this.moves <= 0 || this.levelCompleted) {
+            return;
+          }
 
-circle.on('pointerup', () => {
-  if (this.moves <= 0 || this.levelCompleted) {
-    return
-  }
+          this.selectTile(tile);
+        });
 
-  this.selectTile(tile)
-})
-
-
-        this.board[row][col] = tile
+        this.board[row][col] = tile;
       }
     }
     if (!this.hasAvailableMove()) {
-  this.shuffleBoard()
-}
+      this.shuffleBoard();
+    }
   }
-private selectedTile: Tile | null = null
+  private selectedTile: Tile | null = null;
 
-private selectTile(tile: Tile) {
-  if (this.isProcessing) {
-  return
-}
-  if (!this.selectedTile) {
-    this.selectedTile = tile
-    tile.circle.setScale(1.18)
-    return
+  private selectTile(tile: Tile) {
+    if (this.isProcessing) {
+      return;
+    }
+    if (!this.selectedTile) {
+      this.selectedTile = tile;
+      tile.circle.setScale(1.18);
+      return;
+    }
+
+    if (this.selectedTile === tile) {
+      this.selectedTile.circle.setScale(1);
+      this.selectedTile = null;
+      return;
+    }
+
+    const rowDistance = Math.abs(this.selectedTile.row - tile.row);
+    const colDistance = Math.abs(this.selectedTile.col - tile.col);
+    const areAdjacent = rowDistance + colDistance === 1;
+
+    if (!areAdjacent) {
+      this.selectedTile.circle.setScale(1);
+      this.selectedTile = tile;
+      tile.circle.setScale(1.18);
+      return;
+    }
+
+    const firstTile = this.selectedTile;
+
+    firstTile.circle.setScale(1);
+    this.selectedTile = null;
+
+    this.swapTiles(firstTile, tile);
   }
 
-  if (this.selectedTile === tile) {
-    this.selectedTile.circle.setScale(1)
-    this.selectedTile = null
-    return
-  }
-
-  const rowDistance = Math.abs(this.selectedTile.row - tile.row)
-  const colDistance = Math.abs(this.selectedTile.col - tile.col)
-  const areAdjacent = rowDistance + colDistance === 1
-
-  if (!areAdjacent) {
-    this.selectedTile.circle.setScale(1)
-    this.selectedTile = tile
-    tile.circle.setScale(1.18)
-    return
-  }
-
-  const firstTile = this.selectedTile
-
-  firstTile.circle.setScale(1)
-  this.selectedTile = null
-
-  this.swapTiles(firstTile, tile)
-}
-
-  private createsInitialMatch(
-    row: number,
-    col: number,
-    type: number
-  ): boolean {
+  private createsInitialMatch(row: number, col: number, type: number): boolean {
     if (
       col >= 2 &&
       this.board[row]?.[col - 1]?.type === type &&
       this.board[row]?.[col - 2]?.type === type
     ) {
-      return true
+      return true;
     }
 
     if (
@@ -251,677 +229,635 @@ private selectTile(tile: Tile) {
       this.board[row - 1]?.[col]?.type === type &&
       this.board[row - 2]?.[col]?.type === type
     ) {
-      return true
+      return true;
     }
 
-    return false
+    return false;
   }
 
   private getObjectiveLabel(): string {
-    const config = this.currentLevelConfig
+    const config = this.currentLevelConfig;
 
-    if (config.objective === 'score') {
-      return `Obiettivo: ${config.targetScore}`
+    if (config.objective === "score") {
+      return `Obiettivo: ${config.targetScore}`;
     }
 
-    const firstType = config.collectType ?? 0
-    const first = `${this.colorNames[firstType]}: ${this.collectedAmount} / ${config.collectAmount}`
+    const firstType = config.collectType ?? 0;
+    const first = `${this.colorNames[firstType]}: ${this.collectedAmount} / ${config.collectAmount}`;
 
-    if (config.objective === 'collectDouble') {
-      const secondType = config.collectType2 ?? 0
-      return `${first}   ${this.colorNames[secondType]}: ${this.collectedAmount2} / ${config.collectAmount2}`
+    if (config.objective === "collectDouble") {
+      const secondType = config.collectType2 ?? 0;
+      return `${first}   ${this.colorNames[secondType]}: ${this.collectedAmount2} / ${config.collectAmount2}`;
     }
 
-    return first
+    return first;
   }
 
   private showLevelCompleted() {
-  if (this.levelCompleted) return
+    if (this.levelCompleted) return;
 
-  this.levelCompleted = true
-  window.dispatchEvent(new CustomEvent('chiki-level-complete', { detail: { level: this.currentLevel } }))
+    this.levelCompleted = true;
+    window.dispatchEvent(
+      new CustomEvent("chiki-level-complete", {
+        detail: { level: this.currentLevel },
+      }),
+    );
 
-  this.add
-    .rectangle(540, 800, 700, 300, 0x000000, 0.75)
-    .setStrokeStyle(5, 0xffffff)
+    this.add
+      .rectangle(540, 800, 700, 300, 0x000000, 0.75)
+      .setStrokeStyle(5, 0xffffff);
 
-  this.add
-    .text(540, 730, '🎉 LIVELLO COMPLETATO! 🎉', {
-      fontFamily: 'Arial',
-      fontSize: '42px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-    })
-    .setOrigin(0.5)
+    this.add
+      .text(540, 730, "🎉 LIVELLO COMPLETATO! 🎉", {
+        fontFamily: "Arial",
+        fontSize: "42px",
+        color: "#ffffff",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
 
-  const continueButton = this.add
-    .text(540, 850, 'CONTINUA', {
-      fontFamily: 'Arial',
-      fontSize: '34px',
-      color: '#ffffff',
-      backgroundColor: '#28a745',
-      padding: { x: 30, y: 18 },
-      fontStyle: 'bold',
-    })
-    .setOrigin(0.5)
-    .setInteractive({ useHandCursor: true })
+    const continueButton = this.add
+      .text(540, 850, "CONTINUA", {
+        fontFamily: "Arial",
+        fontSize: "34px",
+        color: "#ffffff",
+        backgroundColor: "#28a745",
+        padding: { x: 30, y: 18 },
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
 
-  continueButton.on('pointerup', () => {
-    this.score = 0
-    this.collectedAmount = 0
-    this.collectedAmount2 = 0
-    if (this.currentLevel >= levels.length) {
-  continueButton.setText('PROSSIMAMENTE')
-  continueButton.disableInteractive()
-  return
-}
-
-    this.currentLevel++
-    this.moves = this.currentLevelConfig.moves
-this.targetScore = this.currentLevelConfig.targetScore
-
-this.comboMultiplier = 1
-this.levelCompleted = false
-this.selectedTile = null
-
-this.isProcessing = false
-
-    this.scene.restart()
-  })
-}
-private showLevelFailed() {
-  if (this.levelCompleted) return
-
-  this.levelCompleted = true
-
-  this.add
-    .rectangle(540, 800, 700, 300, 0x000000, 0.75)
-    .setStrokeStyle(5, 0xffffff)
-
-  this.add
-    .text(540, 730, '😢 LIVELLO FALLITO', {
-      fontFamily: 'Arial',
-      fontSize: '42px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-    })
-    .setOrigin(0.5)
-
-  const retryButton = this.add
-    .text(540, 850, 'RIPROVA', {
-      fontFamily: 'Arial',
-      fontSize: '34px',
-      color: '#ffffff',
-      backgroundColor: '#dc3545',
-      padding: { x: 30, y: 18 },
-      fontStyle: 'bold',
-    })
-    .setOrigin(0.5)
-    .setInteractive({ useHandCursor: true })
-
-  retryButton.on('pointerup', () => {
-  this.score = 0
-  this.collectedAmount = 0
-  this.collectedAmount2 = 0
-  this.moves = this.currentLevelConfig.moves
-  this.comboMultiplier = 1
-  this.levelCompleted = false
-  this.selectedTile = null
-
-  this.scene.restart()
-})
-}
-
-private swapTiles(tileA: Tile, tileB: Tile, isReverting = false) {
-  if (!isReverting) {
-  this.isProcessing = true
-}
-const rowA = tileA.row
-  const colA = tileA.col
-  const rowB = tileB.row
-  const colB = tileB.col
-this.board[rowA][colA] = tileB
-this.board[rowB][colB] = tileA
-
-  tileA.row = rowB
-  tileA.col = colB
-
-  tileB.row = rowA
-  tileB.col = colA
-
-  const xA = tileA.circle.x
-  const yA = tileA.circle.y
-
-  const xB = tileB.circle.x
-  const yB = tileB.circle.y
-
-  this.tweens.add({
-    targets: tileA.circle,
-    x: xB,
-    y: yB,
-    duration: 220,
-    ease: 'Power2',
-  })
-
-  this.tweens.add({
-    targets: tileB.circle,
-    x: xA,
-    y: yA,
-    duration: 220,
-    ease: 'Power2',
-    onComplete: () => {
-if (isReverting) {
-  this.isProcessing = false
-  return
-}
-const matchCreated =
-  this.tileHasMatch(tileA) || this.tileHasMatch(tileB)
-
-console.log('MATCH TROVATO:', matchCreated)
-   if (!matchCreated) {
-console.log('MOSSA NON VALIDA')
-this.swapTiles(tileA, tileB, true)
-   }
-   if (matchCreated) {
-  const matches = this.findMatches()
-  this.moves--
-this.movesText.setText(`Mosse: ${this.moves}`)
-
-
-  console.log('PEDINE DEL TRIS:', matches)
-  this.score += matches.length * 100
-this.scoreText.setText(`Punteggio: ${this.score}`)
-if (
-  this.currentLevelConfig.objective === 'score' &&
-  this.score >= this.targetScore
-) {
-  this.showLevelCompleted()
-}
-
-  matches.forEach(tile => {
-    if (
-  this.currentLevelConfig.objective === 'collect' &&
-  tile.type === this.currentLevelConfig.collectType
-) {
-  this.collectedAmount = Math.min(
-  this.collectedAmount + 1,
-  this.currentLevelConfig.collectAmount ?? 0
-)
-
-}
-if (this.currentLevelConfig.objective === 'collectDouble') {
-  if (tile.type === this.currentLevelConfig.collectType) {
-    this.collectedAmount = Math.min(
-  this.collectedAmount + 1,
-  this.currentLevelConfig.collectAmount ?? 0
-)
-
-  }
-
-  if (tile.type === this.currentLevelConfig.collectType2) {
-    this.collectedAmount2 = Math.min(
-  this.collectedAmount2 + 1,
-  this.currentLevelConfig.collectAmount2 ?? 0
-)
-
-  }
-}
-  tile.circle.destroy()
-  this.board[tile.row][tile.col] = null
-   })
-   if (this.currentLevelConfig.objective !== 'score') {
-     this.objectiveText.setText(this.getObjectiveLabel())
-   }
-if (
-  this.currentLevelConfig.objective === 'collect' &&
-  this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0)
-) {
-  this.showLevelCompleted()
-}
-if (
-  this.currentLevelConfig.objective === 'collectDouble' &&
-  this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0) &&
-  this.collectedAmount2 >= (this.currentLevelConfig.collectAmount2 ?? 0)
-) {
-  this.showLevelCompleted()
-}
-   this.collapseTiles()
-   this.refillBoard()
-  this.time.delayedCall(400, () => {
-  this.checkCascadeMatches()
-})
-
-
-}
-
-}
-})
-
-  
-
-  
-
-}
-private hasMatch(): boolean {
-  // Controllo orizzontale
-  for (let row = 0; row < this.rows; row++) {
-    for (let col = 0; col < this.cols - 2; col++) {
-      const tile = this.board[row][col]
-if (!tile) continue
-const type = tile.type
-
-      const tileB = this.board[row][col + 1]
-const tileC = this.board[row][col + 2]
-
-if (
-  tileB &&
-  tileC &&
-  tileB.type === type &&
-  tileC.type === type
-) {
-        return true
+    continueButton.on("pointerup", () => {
+      this.score = 0;
+      this.collectedAmount = 0;
+      this.collectedAmount2 = 0;
+      if (this.currentLevel >= levels.length) {
+        continueButton.setText("PROSSIMAMENTE");
+        continueButton.disableInteractive();
+        return;
       }
+
+      this.currentLevel++;
+      this.moves = this.currentLevelConfig.moves;
+      this.targetScore = this.currentLevelConfig.targetScore;
+
+      this.comboMultiplier = 1;
+      this.levelCompleted = false;
+      this.selectedTile = null;
+
+      this.isProcessing = false;
+
+      this.scene.restart();
+    });
+  }
+  private showLevelFailed() {
+    if (this.levelCompleted) return;
+
+    this.levelCompleted = true;
+
+    this.add
+      .rectangle(540, 800, 700, 300, 0x000000, 0.75)
+      .setStrokeStyle(5, 0xffffff);
+
+    this.add
+      .text(540, 730, "😢 LIVELLO FALLITO", {
+        fontFamily: "Arial",
+        fontSize: "42px",
+        color: "#ffffff",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
+
+    const retryButton = this.add
+      .text(540, 850, "RIPROVA", {
+        fontFamily: "Arial",
+        fontSize: "34px",
+        color: "#ffffff",
+        backgroundColor: "#dc3545",
+        padding: { x: 30, y: 18 },
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+
+    retryButton.on("pointerup", () => {
+      this.score = 0;
+      this.collectedAmount = 0;
+      this.collectedAmount2 = 0;
+      this.moves = this.currentLevelConfig.moves;
+      this.comboMultiplier = 1;
+      this.levelCompleted = false;
+      this.selectedTile = null;
+
+      this.scene.restart();
+    });
+  }
+
+  private swapTiles(tileA: Tile, tileB: Tile, isReverting = false) {
+    if (!isReverting) {
+      this.isProcessing = true;
     }
-  }
+    const rowA = tileA.row;
+    const colA = tileA.col;
+    const rowB = tileB.row;
+    const colB = tileB.col;
+    this.board[rowA][colA] = tileB;
+    this.board[rowB][colB] = tileA;
 
-  // Controllo verticale
-  for (let col = 0; col < this.cols; col++) {
-    for (let row = 0; row < this.rows - 2; row++) {
-      const tile = this.board[row][col]
-if (!tile) continue
-const type = tile.type
+    tileA.row = rowB;
+    tileA.col = colB;
 
+    tileB.row = rowA;
+    tileB.col = colA;
 
-      const tileB = this.board[row + 1][col]
-const tileC = this.board[row + 2][col]
+    const xA = tileA.circle.x;
+    const yA = tileA.circle.y;
 
+    const xB = tileB.circle.x;
+    const yB = tileB.circle.y;
 
-if (
-  tileB &&
-  tileC &&
-  tileB.type === type &&
-  tileC.type === type
-) {
+    this.tweens.add({
+      targets: tileA.circle,
+      x: xB,
+      y: yB,
+      duration: 220,
+      ease: "Power2",
+    });
 
-        return true
-      }
-    }
-  }
+    this.tweens.add({
+      targets: tileB.circle,
+      x: xA,
+      y: yA,
+      duration: 220,
+      ease: "Power2",
+      onComplete: () => {
+        if (isReverting) {
+          this.isProcessing = false;
+          return;
+        }
+        const matchCreated =
+          this.tileHasMatch(tileA) || this.tileHasMatch(tileB);
 
-  return false
-}
-private tileHasMatch(tile: Tile): boolean {
-  const row = tile.row
-  const col = tile.col
-  const type = tile.type
+        console.log("MATCH TROVATO:", matchCreated);
+        if (!matchCreated) {
+          console.log("MOSSA NON VALIDA");
+          this.swapTiles(tileA, tileB, true);
+        }
+        if (matchCreated) {
+          const matches = this.findMatches();
+          this.moves--;
+          this.movesText.setText(`Mosse: ${this.moves}`);
 
-  let horizontalCount = 1
-
-  for (let c = col - 1; c >= 0; c--) {
-    const currentTile = this.board[row][c]
-    if (!currentTile || currentTile.type !== type) break
-    horizontalCount++
-  }
-
-  for (let c = col + 1; c < this.cols; c++) {
-    const currentTile = this.board[row][c]
-    if (!currentTile || currentTile.type !== type) break
-    horizontalCount++
-  }
-
-  if (horizontalCount >= 3) {
-    return true
-  }
-
-  let verticalCount = 1
-
-  for (let r = row - 1; r >= 0; r--) {
-    const currentTile = this.board[r][col]
-    if (!currentTile || currentTile.type !== type) break
-    verticalCount++
-  }
-
-  for (let r = row + 1; r < this.rows; r++) {
-    const currentTile = this.board[r][col]
-    if (!currentTile || currentTile.type !== type) break
-    verticalCount++
-  }
-
-  return verticalCount >= 3
-}
-
-private hasAvailableMove(): boolean {
-  for (let row = 0; row < this.rows; row++) {
-    for (let col = 0; col < this.cols; col++) {
-      const tile = this.board[row][col]
-
-      if (!tile) continue
-
-      // Prova lo scambio con la pedina a destra
-      if (col < this.cols - 1) {
-        const rightTile = this.board[row][col + 1]
-
-        if (rightTile) {
-          const typeA = tile.type
-          const typeB = rightTile.type
-
-          tile.type = typeB
-          rightTile.type = typeA
-
-          const createsMatch = this.hasMatch()
-
-          tile.type = typeA
-          rightTile.type = typeB
-
-          if (createsMatch) {
-            return true
+          console.log("PEDINE DEL TRIS:", matches);
+          this.score += matches.length * 100;
+          this.scoreText.setText(`Punteggio: ${this.score}`);
+          if (
+            this.currentLevelConfig.objective === "score" &&
+            this.score >= this.targetScore
+          ) {
+            this.showLevelCompleted();
           }
+
+          matches.forEach((tile) => {
+            if (
+              this.currentLevelConfig.objective === "collect" &&
+              tile.type === this.currentLevelConfig.collectType
+            ) {
+              this.collectedAmount = Math.min(
+                this.collectedAmount + 1,
+                this.currentLevelConfig.collectAmount ?? 0,
+              );
+            }
+            if (this.currentLevelConfig.objective === "collectDouble") {
+              if (tile.type === this.currentLevelConfig.collectType) {
+                this.collectedAmount = Math.min(
+                  this.collectedAmount + 1,
+                  this.currentLevelConfig.collectAmount ?? 0,
+                );
+              }
+
+              if (tile.type === this.currentLevelConfig.collectType2) {
+                this.collectedAmount2 = Math.min(
+                  this.collectedAmount2 + 1,
+                  this.currentLevelConfig.collectAmount2 ?? 0,
+                );
+              }
+            }
+            tile.circle.destroy();
+            this.board[tile.row][tile.col] = null;
+          });
+          if (this.currentLevelConfig.objective !== "score") {
+            this.objectiveText.setText(this.getObjectiveLabel());
+          }
+          if (
+            this.currentLevelConfig.objective === "collect" &&
+            this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0)
+          ) {
+            this.showLevelCompleted();
+          }
+          if (
+            this.currentLevelConfig.objective === "collectDouble" &&
+            this.collectedAmount >=
+              (this.currentLevelConfig.collectAmount ?? 0) &&
+            this.collectedAmount2 >=
+              (this.currentLevelConfig.collectAmount2 ?? 0)
+          ) {
+            this.showLevelCompleted();
+          }
+          this.collapseTiles();
+          this.refillBoard();
+          this.time.delayedCall(400, () => {
+            this.checkCascadeMatches();
+          });
+        }
+      },
+    });
+  }
+  private hasMatch(): boolean {
+    // Controllo orizzontale
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols - 2; col++) {
+        const tile = this.board[row][col];
+        if (!tile) continue;
+        const type = tile.type;
+
+        const tileB = this.board[row][col + 1];
+        const tileC = this.board[row][col + 2];
+
+        if (tileB && tileC && tileB.type === type && tileC.type === type) {
+          return true;
         }
       }
+    }
 
-      // Prova lo scambio con la pedina sotto
-      if (row < this.rows - 1) {
-        const bottomTile = this.board[row + 1][col]
+    // Controllo verticale
+    for (let col = 0; col < this.cols; col++) {
+      for (let row = 0; row < this.rows - 2; row++) {
+        const tile = this.board[row][col];
+        if (!tile) continue;
+        const type = tile.type;
 
-        if (bottomTile) {
-          const typeA = tile.type
-          const typeB = bottomTile.type
+        const tileB = this.board[row + 1][col];
+        const tileC = this.board[row + 2][col];
 
-          tile.type = typeB
-          bottomTile.type = typeA
+        if (tileB && tileC && tileB.type === type && tileC.type === type) {
+          return true;
+        }
+      }
+    }
 
-          const createsMatch = this.hasMatch()
+    return false;
+  }
+  private tileHasMatch(tile: Tile): boolean {
+    const row = tile.row;
+    const col = tile.col;
+    const type = tile.type;
 
-          tile.type = typeA
-          bottomTile.type = typeB
+    let horizontalCount = 1;
 
-          if (createsMatch) {
-            return true
+    for (let c = col - 1; c >= 0; c--) {
+      const currentTile = this.board[row][c];
+      if (!currentTile || currentTile.type !== type) break;
+      horizontalCount++;
+    }
+
+    for (let c = col + 1; c < this.cols; c++) {
+      const currentTile = this.board[row][c];
+      if (!currentTile || currentTile.type !== type) break;
+      horizontalCount++;
+    }
+
+    if (horizontalCount >= 3) {
+      return true;
+    }
+
+    let verticalCount = 1;
+
+    for (let r = row - 1; r >= 0; r--) {
+      const currentTile = this.board[r][col];
+      if (!currentTile || currentTile.type !== type) break;
+      verticalCount++;
+    }
+
+    for (let r = row + 1; r < this.rows; r++) {
+      const currentTile = this.board[r][col];
+      if (!currentTile || currentTile.type !== type) break;
+      verticalCount++;
+    }
+
+    return verticalCount >= 3;
+  }
+
+  private hasAvailableMove(): boolean {
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const tile = this.board[row][col];
+
+        if (!tile) continue;
+
+        // Prova lo scambio con la pedina a destra
+        if (col < this.cols - 1) {
+          const rightTile = this.board[row][col + 1];
+
+          if (rightTile) {
+            const typeA = tile.type;
+            const typeB = rightTile.type;
+
+            tile.type = typeB;
+            rightTile.type = typeA;
+
+            const createsMatch = this.hasMatch();
+
+            tile.type = typeA;
+            rightTile.type = typeB;
+
+            if (createsMatch) {
+              return true;
+            }
+          }
+        }
+
+        // Prova lo scambio con la pedina sotto
+        if (row < this.rows - 1) {
+          const bottomTile = this.board[row + 1][col];
+
+          if (bottomTile) {
+            const typeA = tile.type;
+            const typeB = bottomTile.type;
+
+            tile.type = typeB;
+            bottomTile.type = typeA;
+
+            const createsMatch = this.hasMatch();
+
+            tile.type = typeA;
+            bottomTile.type = typeB;
+
+            if (createsMatch) {
+              return true;
+            }
           }
         }
       }
     }
+
+    return false;
   }
+  private shuffleBoard() {
+    this.isProcessing = true;
 
-  return false
-}
-private shuffleBoard() {
-  this.isProcessing = true
-
-  const tiles: Tile[] = []
-
-  for (let row = 0; row < this.rows; row++) {
-    for (let col = 0; col < this.cols; col++) {
-      const tile = this.board[row][col]
-
-      if (tile) {
-        tiles.push(tile)
-      }
-    }
-  }
-
-  let attempts = 0
-
-  do {
-    Phaser.Utils.Array.Shuffle(tiles)
-
-    let index = 0
+    const tiles: Tile[] = [];
 
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
-        const tile = tiles[index]
+        const tile = this.board[row][col];
 
-        this.board[row][col] = tile
-
-        tile.row = row
-        tile.col = col
-
-        const boardWidth = this.cols * this.tileSize
-        const startX = (1080 - boardWidth) / 2
-        const startY = 360
-
-        const x =
-          startX + col * this.tileSize + this.tileSize / 2
-
-        const y =
-          startY + row * this.tileSize + this.tileSize / 2
-
-        tile.circle.setPosition(x, y)
-
-        index++
+        if (tile) {
+          tiles.push(tile);
+        }
       }
     }
 
-    attempts++
-  } while (
-    (this.hasMatch() || !this.hasAvailableMove()) &&
-    attempts < 1000
-  )
-  this.isProcessing = false
-}
+    let attempts = 0;
 
-private findMatches(): Tile[] {
-  const matches = new Set<Tile>()
+    do {
+      Phaser.Utils.Array.Shuffle(tiles);
 
-  // Cerca i match orizzontali
-  for (let row = 0; row < this.rows; row++) {
-    for (let col = 0; col < this.cols - 2; col++) {
-      const tileA = this.board[row][col]
-      const tileB = this.board[row][col + 1]
-      const tileC = this.board[row][col + 2]
-if (!tileA || !tileB || !tileC) continue
+      let index = 0;
 
-      if (
-        tileA.type === tileB.type &&
-        tileA.type === tileC.type
-      ) {
-        matches.add(tileA)
-        matches.add(tileB)
-        matches.add(tileC)
+      for (let row = 0; row < this.rows; row++) {
+        for (let col = 0; col < this.cols; col++) {
+          const tile = tiles[index];
+
+          this.board[row][col] = tile;
+
+          tile.row = row;
+          tile.col = col;
+
+          const boardWidth = this.cols * this.tileSize;
+          const startX = (1080 - boardWidth) / 2;
+          const startY = this.boardY;
+
+          const x = startX + col * this.tileSize + this.tileSize / 2;
+
+          const y = startY + row * this.tileSize + this.tileSize / 2;
+
+          tile.circle.setPosition(x, y);
+
+          index++;
+        }
+      }
+
+      attempts++;
+    } while ((this.hasMatch() || !this.hasAvailableMove()) && attempts < 1000);
+    this.isProcessing = false;
+  }
+
+  private findMatches(): Tile[] {
+    const matches = new Set<Tile>();
+
+    // Cerca i match orizzontali
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols - 2; col++) {
+        const tileA = this.board[row][col];
+        const tileB = this.board[row][col + 1];
+        const tileC = this.board[row][col + 2];
+        if (!tileA || !tileB || !tileC) continue;
+
+        if (tileA.type === tileB.type && tileA.type === tileC.type) {
+          matches.add(tileA);
+          matches.add(tileB);
+          matches.add(tileC);
+        }
+      }
+    }
+
+    // Cerca i match verticali
+    for (let col = 0; col < this.cols; col++) {
+      for (let row = 0; row < this.rows - 2; row++) {
+        const tileA = this.board[row][col];
+        const tileB = this.board[row + 1][col];
+        const tileC = this.board[row + 2][col];
+        if (!tileA || !tileB || !tileC) continue;
+
+        if (tileA.type === tileB.type && tileA.type === tileC.type) {
+          matches.add(tileA);
+          matches.add(tileB);
+          matches.add(tileC);
+        }
+      }
+    }
+
+    return Array.from(matches);
+  }
+  private collapseTiles() {
+    for (let col = 0; col < this.cols; col++) {
+      let emptyRow = this.rows - 1;
+
+      for (let row = this.rows - 1; row >= 0; row--) {
+        const tile = this.board[row][col];
+
+        if (tile) {
+          if (row !== emptyRow) {
+            this.board[emptyRow][col] = tile;
+            this.board[row][col] = null;
+
+            tile.row = emptyRow;
+            this.tweens.add({
+              targets: tile.circle,
+              y: tile.circle.y + (emptyRow - row) * this.tileSize,
+              duration: 300,
+              ease: "Bounce.easeOut",
+            });
+          }
+
+          emptyRow--;
+        }
       }
     }
   }
+  private refillBoard() {
+    const boardWidth = this.cols * this.tileSize;
+    const startX = (1080 - boardWidth) / 2;
+    const startY = this.boardY;
 
-  // Cerca i match verticali
-  for (let col = 0; col < this.cols; col++) {
-    for (let row = 0; row < this.rows - 2; row++) {
-      const tileA = this.board[row][col]
-      const tileB = this.board[row + 1][col]
-      const tileC = this.board[row + 2][col]
-if (!tileA || !tileB || !tileC) continue
+    for (let col = 0; col < this.cols; col++) {
+      for (let row = 0; row < this.rows; row++) {
+        if (this.board[row][col] !== null) continue;
 
-      if (
-        tileA.type === tileB.type &&
-        tileA.type === tileC.type
-      ) {
-        matches.add(tileA)
-        matches.add(tileB)
-        matches.add(tileC)
+        const type = Phaser.Math.Between(0, this.colors.length - 1);
+
+        const x = startX + col * this.tileSize + this.tileSize / 2;
+
+        const finalY = startY + row * this.tileSize + this.tileSize / 2;
+
+        const circle = this.add
+          .image(x, finalY - this.tileSize * 2, `tile-${this.tileKeys[type]}`)
+          .setDisplaySize(110, 110)
+          .setInteractive({ useHandCursor: true });
+
+        const tile: Tile = {
+          row,
+          col,
+          type,
+          circle,
+        };
+
+        circle.on("pointerup", () => {
+          if (this.moves <= 0 || this.levelCompleted) {
+            return;
+          }
+
+          this.selectTile(tile);
+        });
+
+        this.board[row][col] = tile;
+
+        this.tweens.add({
+          targets: circle,
+          y: finalY,
+          duration: 300,
+          ease: "Bounce.easeOut",
+        });
       }
     }
   }
+  private checkCascadeMatches() {
+    const matches = this.findMatches();
 
-  return Array.from(matches)
-}
-private collapseTiles() {
-  for (let col = 0; col < this.cols; col++) {
-    let emptyRow = this.rows - 1
+    if (matches.length === 0) {
+      this.isProcessing = false;
 
-    for (let row = this.rows - 1; row >= 0; row--) {
-      const tile = this.board[row][col]
+      this.comboMultiplier = 1;
+      this.comboText.setText("");
 
-      if (tile) {
-        if (row !== emptyRow) {
-          this.board[emptyRow][col] = tile
-          this.board[row][col] = null
+      if (this.moves <= 0 && !this.levelCompleted) {
+        this.showLevelFailed();
+        return;
+      }
 
-          tile.row = emptyRow
-          this.tweens.add({
-  targets: tile.circle,
-  y: tile.circle.y + (emptyRow - row) * this.tileSize,
-  duration: 300,
-  ease: 'Bounce.easeOut',
-})
+      if (this.moves > 0 && !this.levelCompleted && !this.hasAvailableMove()) {
+        console.log("NESSUNA MOSSA DISPONIBILE");
+        this.shuffleBoard();
+      }
+
+      return;
+    }
+    this.comboMultiplier++;
+    this.comboText.setText(`COMBO x${this.comboMultiplier}!`);
+    this.score += matches.length * 100 * this.comboMultiplier;
+
+    this.scoreText.setText(`Punteggio: ${this.score}`);
+    if (
+      this.currentLevelConfig.objective === "score" &&
+      this.score >= this.targetScore
+    ) {
+      this.showLevelCompleted();
+      return;
+    }
+    matches.forEach((tile) => {
+      if (
+        this.currentLevelConfig.objective === "collect" &&
+        tile.type === this.currentLevelConfig.collectType
+      ) {
+        this.collectedAmount = Math.min(
+          this.collectedAmount + 1,
+          this.currentLevelConfig.collectAmount ?? 0,
+        );
+      }
+      if (this.currentLevelConfig.objective === "collectDouble") {
+        if (tile.type === this.currentLevelConfig.collectType) {
+          this.collectedAmount = Math.min(
+            this.collectedAmount + 1,
+            this.currentLevelConfig.collectAmount ?? 0,
+          );
         }
 
-        emptyRow--
-      }
-    }
-  }
-}
-private refillBoard() {
-  const boardWidth = this.cols * this.tileSize
-  const startX = (1080 - boardWidth) / 2
-  const startY = 360
-
-  for (let col = 0; col < this.cols; col++) {
-    for (let row = 0; row < this.rows; row++) {
-      if (this.board[row][col] !== null) continue
-
-      const type = Phaser.Math.Between(0, this.colors.length - 1)
-
-      const x =
-        startX + col * this.tileSize + this.tileSize / 2
-
-      const finalY =
-        startY + row * this.tileSize + this.tileSize / 2
-
-      const circle = this.add
-        .image(x, finalY - this.tileSize * 2, 'tile-sprites', type)
-        .setDisplaySize(108, 108)
-        .setInteractive({ useHandCursor: true })
-
-      const tile: Tile = {
-        row,
-        col,
-        type,
-        circle,
+        if (tile.type === this.currentLevelConfig.collectType2) {
+          this.collectedAmount2 = Math.min(
+            this.collectedAmount2 + 1,
+            this.currentLevelConfig.collectAmount2 ?? 0,
+          );
+        }
       }
 
-      circle.on('pointerup', () => {
-  if (this.moves <= 0 || this.levelCompleted) {
-    return
-  }
-
-  this.selectTile(tile)
-})
-
-
-      this.board[row][col] = tile
-
-      this.tweens.add({
-        targets: circle,
-        y: finalY,
-        duration: 300,
-        ease: 'Bounce.easeOut',
-      })
+      tile.circle.destroy();
+      this.board[tile.row][tile.col] = null;
+    });
+    if (this.currentLevelConfig.objective === "collectDouble") {
+      this.objectiveText.setText(this.getObjectiveLabel());
     }
+    if (this.currentLevelConfig.objective === "collectDouble") {
+      if (
+        this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0) &&
+        this.collectedAmount2 >= (this.currentLevelConfig.collectAmount2 ?? 0)
+      ) {
+        this.showLevelCompleted();
+        return;
+      }
+    }
+
+    if (this.currentLevelConfig.objective === "collect") {
+      this.objectiveText.setText(this.getObjectiveLabel());
+
+      if (
+        this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0)
+      ) {
+        this.showLevelCompleted();
+        return;
+      }
+    }
+    this.time.delayedCall(250, () => {
+      this.collapseTiles();
+
+      this.time.delayedCall(350, () => {
+        this.refillBoard();
+
+        this.time.delayedCall(400, () => {
+          this.checkCascadeMatches();
+        });
+      });
+    });
   }
-}
-private checkCascadeMatches() {
-  const matches = this.findMatches()
-
-  if (matches.length === 0) {
-    this.isProcessing = false
-
-  this.comboMultiplier = 1
-  this.comboText.setText('')
-
-  if (this.moves <= 0 && !this.levelCompleted) {
-    this.showLevelFailed()
-    return
-  }
-
-  if (
-    this.moves > 0 &&
-    !this.levelCompleted &&
-    !this.hasAvailableMove()
-  ) {
-    console.log('NESSUNA MOSSA DISPONIBILE')
-    this.shuffleBoard()
-  }
-
-  return
-}
-this.comboMultiplier++
-this.comboText.setText(`COMBO x${this.comboMultiplier}!`)
-this.score += matches.length * 100 * this.comboMultiplier
-
-this.scoreText.setText(`Punteggio: ${this.score}`)
-if (
-  this.currentLevelConfig.objective === 'score' &&
-  this.score >= this.targetScore
-) {
-  this.showLevelCompleted()
-  return
-}
-  matches.forEach(tile => {
-    if (
-  this.currentLevelConfig.objective === 'collect' &&
-  tile.type === this.currentLevelConfig.collectType
-) {
-  this.collectedAmount = Math.min(
-  this.collectedAmount + 1,
-  this.currentLevelConfig.collectAmount ?? 0
-)
-
-}
-if (this.currentLevelConfig.objective === 'collectDouble') {
-  if (tile.type === this.currentLevelConfig.collectType) {
-    this.collectedAmount = Math.min(
-  this.collectedAmount + 1,
-  this.currentLevelConfig.collectAmount ?? 0
-)
-
-  }
-
-  if (tile.type === this.currentLevelConfig.collectType2) {
-    this.collectedAmount2 = Math.min(
-  this.collectedAmount2 + 1,
-  this.currentLevelConfig.collectAmount2 ?? 0
-)
-
-  }
-}
-
-    tile.circle.destroy()
-    this.board[tile.row][tile.col] = null
-  })
-if (this.currentLevelConfig.objective === 'collectDouble') {
-  this.objectiveText.setText(this.getObjectiveLabel())
-}
-if (this.currentLevelConfig.objective === 'collectDouble') {
-  if (
-    this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0) &&
-    this.collectedAmount2 >= (this.currentLevelConfig.collectAmount2 ?? 0)
-  ) {
-    this.showLevelCompleted()
-    return
-  }
-}
-
-if (this.currentLevelConfig.objective === 'collect') {
-  this.objectiveText.setText(this.getObjectiveLabel())
-
-  if (
-    this.collectedAmount >=
-    (this.currentLevelConfig.collectAmount ?? 0)
-  ) {
-    this.showLevelCompleted()
-    return
-  }
-}
-  this.time.delayedCall(250, () => {
-    this.collapseTiles()
-
-    this.time.delayedCall(350, () => {
-      this.refillBoard()
-
-      this.time.delayedCall(400, () => {
-        this.checkCascadeMatches()
-      })
-    })
-  })
-}
-
 }
