@@ -56,8 +56,11 @@ private isProcessing = false
     'Arancioni',
   ]
 
-  constructor() {
+  constructor(startLevel = 1) {
     super('GameScene')
+    this.currentLevel = Phaser.Math.Clamp(startLevel, 1, levels.length)
+    this.moves = this.currentLevelConfig.moves
+    this.targetScore = this.currentLevelConfig.targetScore
   }
 
   create() {
@@ -269,6 +272,7 @@ private selectTile(tile: Tile) {
   if (this.levelCompleted) return
 
   this.levelCompleted = true
+  window.dispatchEvent(new CustomEvent('chiki-level-complete', { detail: { level: this.currentLevel } }))
 
   this.add
     .rectangle(540, 800, 700, 300, 0x000000, 0.75)
