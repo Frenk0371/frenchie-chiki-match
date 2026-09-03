@@ -516,3 +516,103 @@
   height: 100%;
   background: linear-gradient(90deg, #69d839, #ffd83d);
 }
+
+.game-logo {
+  margin: 0 !important;
+  line-height: 0.68 !important;
+  filter: drop-shadow(0 6px 0 #382029) !important;
+}
+.game-logo span,
+.game-logo strong,
+.game-logo em {
+  display: block;
+}
+.chiki-hero {
+  width: min(54vw, 250px);
+  height: min(46vw, 230px);
+  object-fit: contain;
+  filter: drop-shadow(0 13px 10px #17381966);
+}
+.brand-panel {
+  gap: 13px;
+}
+.ranking-board {
+  margin: 28px 14px;
+  padding: 14px 10px 18px;
+  border: 5px solid #4b5665;
+  border-radius: 22px;
+  background: linear-gradient(#202936f2, #111823f4);
+  box-shadow:
+    0 8px 0 #090d14,
+    0 15px 28px #0006;
+}
+.ranking-board h2 {
+  margin: 2px 7px 13px;
+  color: #ffe067;
+  font-size: 20px;
+}
+.ranking-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin: 0 4px 12px;
+}
+.ranking-tabs button {
+  padding: 7px 2px;
+  border: 2px solid #596474;
+  border-radius: 9px;
+  background: #303a48;
+  color: #fff;
+  font: 900 10px inherit;
+}
+.ranking-tabs button.active {
+  border-color: #e9b7ff;
+  background: linear-gradient(#a451c7, #702a91);
+}
+.ranking-board .ranking-list {
+  margin: 0;
+  gap: 7px;
+}
+.ranking-board .ranking-list article {
+  padding: 8px 10px;
+  border: 2px solid #3e4857;
+  border-radius: 10px;
+  background: linear-gradient(#283341, #202a36);
+  color: #fff;
+  box-shadow: none;
+}
+.ranking-board .ranking-list article.me {
+  border-color: #d28bea;
+  background: linear-gradient(90deg, #9345bd, #632887);
+}
+.ranking-board .my-position {
+  margin: 15px 4px 0;
+  background: #171f2b;
+  border: 2px solid #495463;
+}
+.podium-card {
+  display: none;
+}
+.pet-portrait {
+  height: 180px;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  background: radial-gradient(circle, #fff9d9, #efbd68);
+}
+.pet-portrait img {
+  width: 145px;
+  height: 175px;
+  border: 0;
+  object-fit: contain;
+}
+.pet-portrait span {
+  z-index: 2;
+}
+.pet-card {
+  grid-template-columns: 160px 1fr;
+}
+.leaderboard-screen {
+  background-image:
+    linear-gradient(#18202bcc, #111822dd), url("/garden-game-bg.jpg");
+}

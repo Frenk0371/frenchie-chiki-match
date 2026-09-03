@@ -133,43 +133,35 @@ function App() {
           </div>
           <span>🏆</span>
         </header>
-        <section className="podium-card">
-          <div className="podium second">
-            <b>2</b>
-            <span>🐶</span>
-            <strong>{players[1].name}</strong>
+        <section className="ranking-board">
+          <h2>🏆 CLASSIFICA GENERALE</h2>
+          <nav className="ranking-tabs">
+            <button className="active">GENERALE</button>
+            <button>LIVELLO</button>
+            <button>STELLE</button>
+            <button>SFIDA</button>
+          </nav>
+          <div className="ranking-list">
+            {players.map((player, index) => (
+              <article
+                className={player.name === "Chiki" ? "me" : ""}
+                key={player.name}
+              >
+                <b>{index + 1}</b>
+                {player.avatar === "chiki" ? (
+                  <img src="/chiki-icon.jpeg" alt="Chiki" />
+                ) : (
+                  <span>{player.avatar}</span>
+                )}
+                <strong>{player.name}</strong>
+                <em>{player.score.toLocaleString("it-IT")}</em>
+              </article>
+            ))}
           </div>
-          <div className="podium first">
-            <b>1</b>
-            <span>👑</span>
-            <strong>{players[0].name}</strong>
-          </div>
-          <div className="podium third">
-            <b>3</b>
-            <span>🐕</span>
-            <strong>{players[2].name}</strong>
+          <div className="my-position">
+            LA TUA POSIZIONE <strong>#{myPosition}</strong>
           </div>
         </section>
-        <section className="ranking-list">
-          {players.map((player, index) => (
-            <article
-              className={player.name === "Chiki" ? "me" : ""}
-              key={player.name}
-            >
-              <b>{index + 1}</b>
-              {player.avatar === "chiki" ? (
-                <img src="/chiki-icon.jpeg" alt="Chiki" />
-              ) : (
-                <span>{player.avatar}</span>
-              )}
-              <strong>{player.name}</strong>
-              <em>{player.score.toLocaleString("it-IT")}</em>
-            </article>
-          ))}
-        </section>
-        <div className="my-position">
-          LA TUA POSIZIONE <strong>#{myPosition}</strong>
-        </div>
       </main>
     );
   }
@@ -191,7 +183,7 @@ function App() {
         </header>
         <section className="pet-card">
           <div className="pet-portrait">
-            <img src="/chiki-icon.jpeg" alt="Chiki" />
+            <img src="/chiki-character.webp" alt="Chiki" />
             <span>{active.icon}</span>
           </div>
           <div>
@@ -305,11 +297,12 @@ function App() {
         </div>
       </header>
       <section className="brand-panel" aria-label="Frenchie Chiki Match">
-        <img
-          src="/chiki-icon.jpeg"
-          alt="Icona Frenchie Chiki Match"
-          className="official-icon"
-        />
+        <h1 className="game-logo">
+          <span>FRENCHIE</span>
+          <strong>CHIKI</strong>
+          <em>MATCH</em>
+        </h1>
+        <img src="/chiki-character.webp" alt="Chiki" className="chiki-hero" />
         <button className="play-button" onClick={() => setView("map")}>
           🐾 GIOCA
         </button>

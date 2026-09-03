@@ -69,6 +69,7 @@ export default class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.image("garden-bg", "/garden-game-bg.jpg");
+    this.load.image("chiki-character", "/chiki-character.webp");
     this.tileKeys.forEach((key) =>
       this.load.image(`tile-${key}`, `/tiles/${key}.png`),
     );
@@ -459,7 +460,7 @@ export default class GameScene extends Phaser.Scene {
     card.fillRoundedRect(150, 540, 780, 720, 55);
     card.lineStyle(10, 0xffdc55, 1);
     card.strokeRoundedRect(150, 540, 780, 720, 55);
-    this.add.image(540, 755, "tile-chiki").setDisplaySize(250, 250);
+    this.add.image(540, 785, "chiki-character").setDisplaySize(300, 315);
 
     this.add
       .text(540, 620, "LIVELLO COMPLETATO!", {
@@ -552,8 +553,8 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
     this.add
-      .image(540, 875, "tile-chiki")
-      .setDisplaySize(190, 190)
+      .image(540, 875, "chiki-character")
+      .setDisplaySize(190, 198)
       .setTint(0xb9b9b9);
 
     const retryButton = this.add
