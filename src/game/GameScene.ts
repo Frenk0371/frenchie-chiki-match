@@ -5,7 +5,7 @@ type Tile = {
   row: number
   col: number
   type: number
-  circle: Phaser.GameObjects.Arc
+  circle: Phaser.GameObjects.Image
 }
 
 export default class GameScene extends Phaser.Scene {
@@ -48,12 +48,12 @@ private isProcessing = false
   ]
 
   private readonly colorNames = [
-    'Rosa',
-    'Gialle',
-    'Verdi',
-    'Azzurre',
-    'Viola',
-    'Arancioni',
+    'Cuori rossi',
+    'Ossa dorate',
+    'Quadrifogli verdi',
+    'Fiori azzurri',
+    'Gemme viola',
+    'Chiki',
   ]
 
   constructor(startLevel = 1) {
@@ -61,6 +61,13 @@ private isProcessing = false
     this.currentLevel = Phaser.Math.Clamp(startLevel, 1, levels.length)
     this.moves = this.currentLevelConfig.moves
     this.targetScore = this.currentLevelConfig.targetScore
+  }
+
+  preload() {
+    this.load.spritesheet('tile-sprites', '/tile-sprites.png', {
+      frameWidth: 512,
+      frameHeight: 512,
+    })
   }
 
   create() {
@@ -160,8 +167,8 @@ this.objectiveText = this.add
           startY + row * this.tileSize + this.tileSize / 2
 
         const circle = this.add
-          .circle(x, y, 48, this.colors[type])
-          .setStrokeStyle(6, 0xffffff, 0.9)
+          .image(x, y, 'tile-sprites', type)
+          .setDisplaySize(108, 108)
           .setInteractive({ useHandCursor: true })
 
         const tile: Tile = {
@@ -780,8 +787,8 @@ private refillBoard() {
         startY + row * this.tileSize + this.tileSize / 2
 
       const circle = this.add
-        .circle(x, finalY - this.tileSize * 2, 48, this.colors[type])
-        .setStrokeStyle(6, 0xffffff, 0.9)
+        .image(x, finalY - this.tileSize * 2, 'tile-sprites', type)
+        .setDisplaySize(108, 108)
         .setInteractive({ useHandCursor: true })
 
       const tile: Tile = {

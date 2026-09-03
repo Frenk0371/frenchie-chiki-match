@@ -1,0 +1,17 @@
+{
+  "name": "Frenchie Chiki Match",
+  "short_name": "Chiki Match",
+  "description": "L'avventura puzzle di Chiki",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#132741",
+  "theme_color": "#7148a6",
+  "icons": [
+    {
+      "src": "/chiki-icon.jpeg",
+      "sizes": "1536x1536",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
