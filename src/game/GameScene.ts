@@ -68,7 +68,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("garden-bg", "/garden-game-bg.png");
+    this.load.image("garden-bg", "/garden-game-bg.jpg");
     this.tileKeys.forEach((key) =>
       this.load.image(`tile-${key}`, `/tiles/${key}.png`),
     );

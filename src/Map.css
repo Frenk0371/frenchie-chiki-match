@@ -57,7 +57,7 @@
   min-height: calc(100dvh - 88px);
   padding: 54px 30px 80px;
   background-image:
-    linear-gradient(#ffffff10, #225f2940), url("/garden-game-bg.png");
+    linear-gradient(#ffffff10, #225f2940), url("/garden-game-bg.jpg");
   background-position: center;
   background-size: cover;
 }
