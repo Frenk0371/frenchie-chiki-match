@@ -16,8 +16,13 @@
   gap: 10px;
   padding: calc(13px + env(safe-area-inset-top)) 15px 14px;
   background: linear-gradient(160deg, #9b5bd1, #59257f);
-  border-bottom: 4px solid #3d185e;
-  box-shadow: 0 8px 18px #25103b66;
+  border-top: 3px solid #c98df0;
+  border-bottom: 7px solid #3d185e;
+  box-shadow:
+    inset 0 6px #c881ed,
+    inset 0 -7px #4a1b70,
+    0 8px 0 #27103d,
+    0 15px 24px #25103b66;
 }
 .map-title button {
   width: 48px;
@@ -44,18 +49,19 @@
   font-size: clamp(18px, 5vw, 25px);
 }
 .map-title > span {
-  padding: 10px 12px;
-  border: 2px solid #a878c6;
-  border-radius: 18px;
-  background: #321549;
-  font-size: 15px;
+  padding: 11px 14px;
+  border: 4px solid #cda8e3;
+  border-radius: 21px;
+  background: linear-gradient(#51256f, #29103d);
+  box-shadow: inset 0 3px #71408d, 0 4px 0 #1e0b2d;
+  font-size: 17px;
   font-weight: 900;
   white-space: nowrap;
 }
 .adventure-path {
   position: relative;
   min-height: calc(100dvh - 88px);
-  padding: 54px 30px 80px;
+  padding: 48px 25px 80px;
   background-image:
     linear-gradient(#ffffff10, #225f2940), url("/garden-game-bg.jpg");
   background-position: center;
@@ -65,7 +71,9 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #ffffff12, transparent 22% 78%, #ffffff12);
+  background:
+    linear-gradient(90deg, #ffffff18, transparent 22% 78%, #ffffff18),
+    radial-gradient(circle at 50% 10%, #fff7d845, transparent 22%);
   pointer-events: none;
 }
 .level-stop {
@@ -73,44 +81,74 @@
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 15px;
-  width: 82%;
-  margin: 0 auto 35px;
+  gap: 13px;
+  width: 90%;
+  margin: 0 auto 31px;
 }
 .level-stop:nth-child(even) {
   flex-direction: row-reverse;
 }
 .level-stop button {
-  width: 86px;
-  height: 86px;
-  flex: 0 0 86px;
-  border: 7px solid #fff8d4;
+  position: relative;
+  width: 94px;
+  height: 94px;
+  flex: 0 0 94px;
+  border: 8px solid #fff6b7;
   border-radius: 50%;
-  background: linear-gradient(145deg, #a4f36b, #42b928);
+  background: linear-gradient(#b8ff75 0 14%, #67df36 15% 58%, #35aa20 59%);
   color: #fff;
-  font-size: 32px;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 42px;
   font-weight: 1000;
   text-shadow: 0 3px 0 #23751d;
   box-shadow:
+    inset 0 6px #e4ffc4,
+    inset 0 -7px #268919,
     0 8px 0 #2e8126,
     0 13px 25px #163c2866;
 }
+.level-stop button::after {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  top: 10px;
+  height: 6px;
+  border-radius: 8px;
+  background: #ffffff9e;
+}
+.level-stop button img {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 2px #34454a66);
+}
 .level-stop > span {
   display: grid;
-  min-width: 150px;
-  padding: 10px 14px 8px;
-  border: 4px solid #f2c453;
-  border-radius: 18px;
-  background: linear-gradient(#fffbea, #ffe8aa);
+  min-width: 175px;
+  padding: 10px 16px 9px;
+  border: 6px solid #f5b930;
+  border-radius: 22px;
+  background: linear-gradient(#fffdf0 0 15%, #fff1bd 16% 62%, #f2c35d 63%);
   color: #53314d;
   text-align: center;
   box-shadow:
-    0 6px 0 #a96d29,
+    inset 0 4px #fff,
+    inset 0 -5px #d89528,
+    0 7px 0 #9c5f21,
     0 10px 18px #46321e44;
 }
+.level-stop > span em {
+  font-style: normal;
+  font: 400 10px/1 "Lilita One", "Fredoka", sans-serif;
+  color: #a66622;
+  letter-spacing: 0.8px;
+}
 .level-stop > span strong {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.1;
+  color: #4b2850;
+  text-shadow: 0 2px #fff8dc;
 }
 .level-stars {
   min-height: 18px;
@@ -120,15 +158,22 @@
   letter-spacing: 2px;
 }
 .level-stop.locked {
-  filter: grayscale(0.55);
-  opacity: 0.82;
+  opacity: 0.9;
 }
 .level-stop.locked button {
-  background: linear-gradient(#d9e4d0, #8eaa82);
+  border-color: #eff9f5;
+  background: linear-gradient(#cfe8ea 0 14%, #9bbbc0 15% 58%, #6e8e94 59%);
   text-shadow: none;
   box-shadow:
+    inset 0 6px #efffff,
+    inset 0 -7px #587a7f,
     0 8px 0 #64765d,
     0 13px 22px #263f2b55;
+}
+.level-stop.locked > span {
+  border-color: #d9b96d;
+  background: linear-gradient(#fffdf0, #e9e1c7 62%, #c9ba91 63%);
+  box-shadow: inset 0 4px #fff, inset 0 -5px #aa9a72, 0 7px 0 #85734f;
 }
 .level-stop:not(.locked):last-of-type button {
   animation: levelPulse 1.5s infinite;

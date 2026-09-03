@@ -260,10 +260,15 @@ function App() {
                 key={level}
               >
                 <button disabled={locked} onClick={() => playLevel(level)}>
-                  {locked ? "🔒" : level}
+                  {locked ? (
+                    <img src="/level-lock.png" alt="" aria-hidden="true" />
+                  ) : (
+                    level
+                  )}
                 </button>
                 <span>
-                  <strong>{locked ? "Da sbloccare" : name}</strong>
+                  <em>LIVELLO {level}</em>
+                  <strong>{locked ? "DA SBLOCCARE" : name.toUpperCase()}</strong>
                   {!locked && (
                     <small className="level-stars">
                       {[1, 2, 3].map((star) =>
