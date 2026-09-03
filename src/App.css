@@ -499,13 +499,13 @@
   line-height: 0.66 !important;
 }
 .home-screen .game-logo span {
-  font-size: clamp(48px, 14vw, 72px);
+  font-size: clamp(43px, 12.7vw, 66px);
 }
 .home-screen .game-logo strong {
-  font-size: clamp(68px, 19vw, 98px);
+  font-size: clamp(61px, 17.3vw, 89px);
 }
 .home-screen .game-logo em {
-  font-size: clamp(45px, 13vw, 67px);
+  font-size: clamp(41px, 11.8vw, 61px);
 }
 .home-screen .brand-ribbon {
   margin: 7px 0 4px;
@@ -530,7 +530,20 @@
   font-size: 14px;
 }
 .home-screen .main-menu button span {
-  font-size: 35px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+}
+.home-screen .main-menu button span img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 2px #10233b66);
+}
+.home-screen .main-menu button:nth-child(3) span img {
+  width: 61px;
+  height: 61px;
+  border-radius: 17px;
 }
 .home-screen .utility-menu {
   gap: 7px;
@@ -572,13 +585,13 @@
 
 @media (max-height: 760px) {
   .home-screen .game-logo span {
-    font-size: 43px;
+    font-size: 39px;
   }
   .home-screen .game-logo strong {
-    font-size: 61px;
+    font-size: 55px;
   }
   .home-screen .game-logo em {
-    font-size: 41px;
+    font-size: 37px;
   }
   .home-screen .brand-ribbon {
     padding-block: 7px;

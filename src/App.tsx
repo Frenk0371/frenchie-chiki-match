@@ -7,9 +7,9 @@ import "./Map.css";
 type AppView = "home" | "map" | "game" | "leaderboard" | "frenchies";
 
 const menuItems = [
-  { icon: "🗺️", label: "AVVENTURA", view: "map" as AppView },
-  { icon: "🏆", label: "CLASSIFICHE", view: "leaderboard" as AppView },
-  { icon: "🐶", label: "FRENCHIES", view: "frenchies" as AppView },
+  { icon: "/menu-adventure.png", label: "AVVENTURA", view: "map" as AppView },
+  { icon: "/menu-trophy.png", label: "CLASSIFICHE", view: "leaderboard" as AppView },
+  { icon: "/tiles/chiki.png", label: "FRENCHIES", view: "frenchies" as AppView },
 ];
 
 const wardrobe = [
@@ -307,7 +307,7 @@ function App() {
             className="available"
             onClick={() => setView(item.view)}
           >
-            <span>{item.icon}</span>
+            <span><img src={item.icon} alt="" aria-hidden="true" /></span>
             {item.label}
           </button>
         ))}
