@@ -84,27 +84,29 @@ export default class GameScene extends Phaser.Scene {
     this.add.rectangle(540, 960, 1080, 1920, 0x16324a, 0.13);
 
     const hud = this.add.graphics();
-    hud.fillStyle(0x241033, 0.75);
-    hud.fillRoundedRect(120, 67, 840, 98, 42);
-    hud.fillStyle(0x44205f, 0.96);
+    hud.fillStyle(0x06182f, 0.9);
+    hud.fillRoundedRect(120, 70, 840, 104, 42);
+    hud.fillStyle(0x09518f, 1);
     hud.fillRoundedRect(120, 56, 840, 98, 42);
-    hud.fillStyle(0xb77adb, 0.5);
-    hud.fillRoundedRect(145, 66, 790, 13, 7);
-    hud.lineStyle(6, 0xffffff, 0.94);
+    hud.fillStyle(0x1d8cd0, 1);
+    hud.fillRoundedRect(145, 66, 790, 15, 8);
+    hud.lineStyle(8, 0xffad12, 1);
     hud.strokeRoundedRect(120, 56, 840, 98, 42);
+    hud.lineStyle(3, 0xffed70, 1);
+    hud.strokeRoundedRect(130, 65, 820, 78, 35);
 
-    hud.fillStyle(0x9b6529, 0.65);
-    hud.fillRoundedRect(112, 190, 270, 142, 30);
-    hud.fillRoundedRect(405, 190, 270, 142, 30);
-    hud.fillRoundedRect(698, 190, 270, 142, 30);
-    hud.fillStyle(0xfff2d3, 0.99);
-    hud.fillRoundedRect(112, 178, 270, 142, 30);
-    hud.fillRoundedRect(405, 178, 270, 142, 30);
-    hud.fillRoundedRect(698, 178, 270, 142, 30);
-    hud.lineStyle(5, 0xf2c553, 1);
-    hud.strokeRoundedRect(112, 178, 270, 142, 30);
-    hud.strokeRoundedRect(405, 178, 270, 142, 30);
-    hud.strokeRoundedRect(698, 178, 270, 142, 30);
+    [112, 405, 698].forEach((x) => {
+      hud.fillStyle(0x5f350e, 0.72);
+      hud.fillRoundedRect(x, 194, 270, 142, 30);
+      hud.fillStyle(0x0870b6, 1);
+      hud.fillRoundedRect(x, 178, 270, 142, 30);
+      hud.fillStyle(0xfff5d6, 1);
+      hud.fillRoundedRect(x + 10, 188, 250, 115, 23);
+      hud.fillStyle(0xffffff, 0.75);
+      hud.fillRoundedRect(x + 30, 194, 210, 8, 4);
+      hud.lineStyle(6, 0xffba2e, 1);
+      hud.strokeRoundedRect(x, 178, 270, 142, 30);
+    });
 
     this.add
       .text(540, 105, "🐾 FRENCHIE CHIKI MATCH", {
@@ -112,12 +114,12 @@ export default class GameScene extends Phaser.Scene {
         fontSize: "42px",
         color: "#ffffff",
         fontStyle: "bold",
-        stroke: "#32183f",
+        stroke: "#07325d",
         strokeThickness: 7,
         shadow: {
           offsetX: 0,
           offsetY: 6,
-          color: "#24102e",
+          color: "#031a32",
           blur: 0,
           fill: true,
         },
@@ -164,14 +166,22 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const progress = this.add.graphics();
-    progress.fillStyle(0x28143b, 0.9);
+    progress.fillStyle(0x06284c, 0.95);
     progress.fillRoundedRect(230, 337, 620, 30, 15);
-    progress.lineStyle(4, 0xffffff, 0.9);
+    progress.lineStyle(5, 0xffbd2f, 1);
     progress.strokeRoundedRect(230, 337, 620, 30, 15);
     this.progressFill = this.add
-      .rectangle(240, 352, 0, 18, 0xffcf36, 1)
+      .rectangle(240, 352, 0, 18, 0x65da31, 1)
       .setOrigin(0, 0.5);
-    this.add.text(188, 327, "⭐", { fontSize: "44px" });
+    this.add
+      .text(193, 350, "★", {
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
+        fontSize: "50px",
+        color: "#ffd438",
+        stroke: "#a65d00",
+        strokeThickness: 6,
+      })
+      .setOrigin(0.5);
 
     this.comboText = this.add
       .text(540, 350, "", {
@@ -187,21 +197,25 @@ export default class GameScene extends Phaser.Scene {
 
   private createBoosterTray() {
     const tray = this.add.graphics();
-    tray.fillStyle(0x1f0d2c, 0.82);
+    tray.fillStyle(0x06182f, 0.9);
     tray.fillRoundedRect(105, 1422, 870, 235, 42);
-    tray.fillStyle(0x3f205c, 0.95);
+    tray.fillStyle(0x09518f, 1);
     tray.fillRoundedRect(105, 1408, 870, 235, 42);
-    tray.fillStyle(0x9761b6, 0.4);
+    tray.fillStyle(0x2699dc, 0.75);
     tray.fillRoundedRect(135, 1419, 810, 13, 7);
-    tray.lineStyle(7, 0xffffff, 0.92);
+    tray.lineStyle(8, 0xffb51f, 1);
     tray.strokeRoundedRect(105, 1408, 870, 235, 42);
+    tray.lineStyle(3, 0xffec75, 1);
+    tray.strokeRoundedRect(116, 1419, 848, 211, 34);
 
     this.add
       .text(540, 1442, "AIUTI DI CHIKI", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "29px",
-        color: "#ffffff",
+        color: "#fff5d2",
         fontStyle: "bold",
+        stroke: "#06305a",
+        strokeThickness: 6,
       })
       .setOrigin(0.5);
 
@@ -278,15 +292,15 @@ export default class GameScene extends Phaser.Scene {
     remaining: () => number,
   ) {
     const plate = this.add.graphics();
-    plate.fillStyle(0x8a4b13, 0.9);
+    plate.fillStyle(0x07335e, 0.95);
     plate.fillRoundedRect(x - 110, 1484, 220, 135, 28);
-    plate.fillStyle(0xf7a91d, 1);
+    plate.fillStyle(0x1687cd, 1);
     plate.fillRoundedRect(x - 110, 1474, 220, 135, 28);
-    plate.fillStyle(0xffd85c, 1);
+    plate.fillStyle(0xffc83d, 1);
     plate.fillRoundedRect(x - 101, 1482, 202, 103, 22);
     plate.fillStyle(0xffffff, 0.55);
     plate.fillRoundedRect(x - 82, 1488, 164, 8, 4);
-    plate.lineStyle(6, 0xfff1a5, 1);
+    plate.lineStyle(6, 0xffed91, 1);
     plate.strokeRoundedRect(x - 110, 1474, 220, 135, 28);
     const button = this.add
       .zone(x, 1540, 220, 135)
@@ -298,16 +312,20 @@ export default class GameScene extends Phaser.Scene {
         fontSize: "28px",
         color: "#ffffff",
         fontStyle: "bold",
-        backgroundColor: "#71308a",
+        backgroundColor: "#76359a",
         padding: { x: 10, y: 5 },
+        stroke: "#3c1553",
+        strokeThickness: 4,
       })
       .setOrigin(0.5);
     this.add
       .text(x, 1582, label, {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "22px",
-        color: "#53262d",
+        color: "#4b2850",
         fontStyle: "bold",
+        stroke: "#fff4c8",
+        strokeThickness: 2,
       })
       .setOrigin(0.5);
     button.on("pointerup", () => {
