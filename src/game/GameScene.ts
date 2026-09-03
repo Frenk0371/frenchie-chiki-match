@@ -13,7 +13,14 @@ export default class GameScene extends Phaser.Scene {
   private readonly cols = 7;
   private readonly tileSize = 120;
   private readonly boardY = 390;
-  private readonly tileKeys = ["heart", "bone", "clover", "flower", "gem", "chiki"];
+  private readonly tileKeys = [
+    "heart",
+    "bone",
+    "clover",
+    "flower",
+    "gem",
+    "chiki",
+  ];
 
   private board: (Tile | null)[][] = [];
 
@@ -57,57 +64,79 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image("garden-bg", "/garden-game-bg.png");
     this.tileKeys.forEach((key) =>
       this.load.image(`tile-${key}`, `/tiles/${key}.png`),
     );
   }
 
   create() {
-    this.cameras.main.setBackgroundColor("#87CEEB");
+    this.add.image(540, 960, "garden-bg").setDisplaySize(1080, 1920);
+    this.add.rectangle(540, 960, 1080, 1920, 0x16324a, 0.13);
+
+    const hud = this.add.graphics();
+    hud.fillStyle(0x44205f, 0.96);
+    hud.fillRoundedRect(120, 56, 840, 98, 42);
+    hud.lineStyle(6, 0xffffff, 0.94);
+    hud.strokeRoundedRect(120, 56, 840, 98, 42);
+
+    hud.fillStyle(0xfff2d3, 0.98);
+    hud.fillRoundedRect(112, 178, 270, 142, 30);
+    hud.fillRoundedRect(405, 178, 270, 142, 30);
+    hud.fillRoundedRect(698, 178, 270, 142, 30);
+    hud.lineStyle(5, 0xf2c553, 1);
+    hud.strokeRoundedRect(112, 178, 270, 142, 30);
+    hud.strokeRoundedRect(405, 178, 270, 142, 30);
+    hud.strokeRoundedRect(698, 178, 270, 142, 30);
 
     this.add
-      .text(540, 130, "🐶 Frenchie Chiki Match", {
-        fontFamily: "Arial",
-        fontSize: "52px",
+      .text(540, 105, "🐾 FRENCHIE CHIKI MATCH", {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontSize: "42px",
         color: "#ffffff",
         fontStyle: "bold",
       })
       .setOrigin(0.5);
 
     this.add
-      .text(540, 205, `Livello ${this.currentLevel}`, {
-        fontFamily: "Arial",
-        fontSize: "32px",
-        color: "#ffffff",
+      .text(247, 218, `LIVELLO ${this.currentLevel}`, {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontSize: "25px",
+        color: "#56315f",
+        fontStyle: "bold",
       })
       .setOrigin(0.5);
     this.scoreText = this.add
-      .text(540, 250, "Punteggio: 0", {
-        fontFamily: "Arial",
+      .text(247, 271, "0\nPUNTI", {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
         fontSize: "28px",
-        color: "#ffffff",
+        color: "#402749",
         fontStyle: "bold",
+        align: "center",
       })
       .setOrigin(0.5);
     this.movesText = this.add
-      .text(540, 285, `Mosse: ${this.moves}`, {
-        fontFamily: "Arial",
-        fontSize: "26px",
-        color: "#ffffff",
+      .text(540, 250, `${this.moves}\nMOSSE`, {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontSize: "32px",
+        color: "#7a2b79",
         fontStyle: "bold",
+        align: "center",
       })
       .setOrigin(0.5);
     this.objectiveText = this.add
-      .text(540, 320, this.getObjectiveLabel(), {
-        fontFamily: "Arial",
-        fontSize: "24px",
-        color: "#ffffff",
+      .text(833, 250, this.getObjectiveLabel(), {
+        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontSize: "21px",
+        color: "#402749",
         fontStyle: "bold",
+        align: "center",
+        wordWrap: { width: 235 },
       })
       .setOrigin(0.5);
 
     this.comboText = this.add
-      .text(540, 300, "", {
+      .text(540, 350, "", {
         fontFamily: "Arial",
         fontSize: "26px",
         color: "#ffff00",
@@ -124,16 +153,23 @@ export default class GameScene extends Phaser.Scene {
     const startX = (1080 - boardWidth) / 2;
     const startY = this.boardY;
 
-    this.add
-      .rectangle(
-        540,
-        startY + boardHeight / 2,
-        boardWidth + 40,
-        boardHeight + 40,
-        0xffffff,
-        0.25,
-      )
-      .setStrokeStyle(6, 0xffffff, 0.7);
+    const boardPanel = this.add.graphics();
+    boardPanel.fillStyle(0x102e50, 0.92);
+    boardPanel.fillRoundedRect(
+      startX - 24,
+      startY - 24,
+      boardWidth + 48,
+      boardHeight + 48,
+      28,
+    );
+    boardPanel.lineStyle(8, 0xffdf6f, 1);
+    boardPanel.strokeRoundedRect(
+      startX - 24,
+      startY - 24,
+      boardWidth + 48,
+      boardHeight + 48,
+      28,
+    );
 
     this.board = [];
 
@@ -407,11 +443,11 @@ export default class GameScene extends Phaser.Scene {
         if (matchCreated) {
           const matches = this.findMatches();
           this.moves--;
-          this.movesText.setText(`Mosse: ${this.moves}`);
+          this.movesText.setText(`${this.moves}\nMOSSE`);
 
           console.log("PEDINE DEL TRIS:", matches);
           this.score += matches.length * 100;
-          this.scoreText.setText(`Punteggio: ${this.score}`);
+          this.scoreText.setText(`${this.score}\nPUNTI`);
           if (
             this.currentLevelConfig.objective === "score" &&
             this.score >= this.targetScore
@@ -788,7 +824,7 @@ export default class GameScene extends Phaser.Scene {
     this.comboText.setText(`COMBO x${this.comboMultiplier}!`);
     this.score += matches.length * 100 * this.comboMultiplier;
 
-    this.scoreText.setText(`Punteggio: ${this.score}`);
+    this.scoreText.setText(`${this.score}\nPUNTI`);
     if (
       this.currentLevelConfig.objective === "score" &&
       this.score >= this.targetScore
