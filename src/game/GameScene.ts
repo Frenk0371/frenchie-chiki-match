@@ -222,12 +222,12 @@ export default class GameScene extends Phaser.Scene {
     }
     if (!this.selectedTile) {
       this.selectedTile = tile;
-      tile.circle.setScale(1.18);
+      tile.circle.setDisplaySize(118, 118);
       return;
     }
 
     if (this.selectedTile === tile) {
-      this.selectedTile.circle.setScale(1);
+      this.selectedTile.circle.setDisplaySize(110, 110);
       this.selectedTile = null;
       return;
     }
@@ -237,15 +237,15 @@ export default class GameScene extends Phaser.Scene {
     const areAdjacent = rowDistance + colDistance === 1;
 
     if (!areAdjacent) {
-      this.selectedTile.circle.setScale(1);
+      this.selectedTile.circle.setDisplaySize(110, 110);
       this.selectedTile = tile;
-      tile.circle.setScale(1.18);
+      tile.circle.setDisplaySize(118, 118);
       return;
     }
 
     const firstTile = this.selectedTile;
 
-    firstTile.circle.setScale(1);
+    firstTile.circle.setDisplaySize(110, 110);
     this.selectedTile = null;
 
     this.swapTiles(firstTile, tile);
