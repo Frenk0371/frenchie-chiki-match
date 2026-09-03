@@ -80,12 +80,20 @@ export default class GameScene extends Phaser.Scene {
     this.add.rectangle(540, 960, 1080, 1920, 0x16324a, 0.13);
 
     const hud = this.add.graphics();
+    hud.fillStyle(0x241033, 0.75);
+    hud.fillRoundedRect(120, 67, 840, 98, 42);
     hud.fillStyle(0x44205f, 0.96);
     hud.fillRoundedRect(120, 56, 840, 98, 42);
+    hud.fillStyle(0xb77adb, 0.5);
+    hud.fillRoundedRect(145, 66, 790, 13, 7);
     hud.lineStyle(6, 0xffffff, 0.94);
     hud.strokeRoundedRect(120, 56, 840, 98, 42);
 
-    hud.fillStyle(0xfff2d3, 0.98);
+    hud.fillStyle(0x9b6529, 0.65);
+    hud.fillRoundedRect(112, 190, 270, 142, 30);
+    hud.fillRoundedRect(405, 190, 270, 142, 30);
+    hud.fillRoundedRect(698, 190, 270, 142, 30);
+    hud.fillStyle(0xfff2d3, 0.99);
     hud.fillRoundedRect(112, 178, 270, 142, 30);
     hud.fillRoundedRect(405, 178, 270, 142, 30);
     hud.fillRoundedRect(698, 178, 270, 142, 30);
@@ -164,8 +172,12 @@ export default class GameScene extends Phaser.Scene {
 
   private createBoosterTray() {
     const tray = this.add.graphics();
+    tray.fillStyle(0x1f0d2c, 0.82);
+    tray.fillRoundedRect(105, 1422, 870, 235, 42);
     tray.fillStyle(0x3f205c, 0.95);
     tray.fillRoundedRect(105, 1408, 870, 235, 42);
+    tray.fillStyle(0x9761b6, 0.4);
+    tray.fillRoundedRect(135, 1419, 810, 13, 7);
     tray.lineStyle(7, 0xffffff, 0.92);
     tray.strokeRoundedRect(105, 1408, 870, 235, 42);
 
@@ -250,39 +262,43 @@ export default class GameScene extends Phaser.Scene {
     action: () => void,
     remaining: () => number,
   ) {
+    const plate = this.add.graphics();
+    plate.fillStyle(0x8a4b13, 0.9);
+    plate.fillRoundedRect(x - 110, 1484, 220, 135, 28);
+    plate.fillStyle(0xf7a91d, 1);
+    plate.fillRoundedRect(x - 110, 1474, 220, 135, 28);
+    plate.fillStyle(0xffd85c, 1);
+    plate.fillRoundedRect(x - 101, 1482, 202, 103, 22);
+    plate.fillStyle(0xffffff, 0.55);
+    plate.fillRoundedRect(x - 82, 1488, 164, 8, 4);
+    plate.lineStyle(6, 0xfff1a5, 1);
+    plate.strokeRoundedRect(x - 110, 1474, 220, 135, 28);
     const button = this.add
-      .rectangle(x, 1540, 220, 135, 0xf3b72d, 1)
-      .setStrokeStyle(6, 0xffefae, 1)
+      .zone(x, 1540, 220, 135)
       .setInteractive({ useHandCursor: true });
-    this.add.text(x - 78, 1490, icon, { fontSize: "55px" });
+    this.add.text(x - 72, 1492, icon, { fontSize: "52px" });
     const count = this.add
       .text(x + 68, 1502, String(remaining()), {
         fontFamily: "Arial",
         fontSize: "28px",
         color: "#ffffff",
         fontStyle: "bold",
-        backgroundColor: "#6b2c78",
+        backgroundColor: "#71308a",
         padding: { x: 10, y: 5 },
       })
       .setOrigin(0.5);
     this.add
-      .text(x, 1584, label, {
+      .text(x, 1582, label, {
         fontFamily: '"Arial Rounded MT Bold", Arial',
         fontSize: "22px",
-        color: "#4b2846",
+        color: "#53262d",
         fontStyle: "bold",
       })
       .setOrigin(0.5);
     button.on("pointerup", () => {
       action();
       count.setText(String(remaining()));
-      this.tweens.add({
-        targets: button,
-        scaleX: 0.94,
-        scaleY: 0.94,
-        yoyo: true,
-        duration: 90,
-      });
+      this.cameras.main.shake(70, 0.0012);
     });
   }
 
@@ -309,6 +325,14 @@ export default class GameScene extends Phaser.Scene {
     const startY = this.boardY;
 
     const boardPanel = this.add.graphics();
+    boardPanel.fillStyle(0x061426, 0.7);
+    boardPanel.fillRoundedRect(
+      startX - 24,
+      startY - 12,
+      boardWidth + 48,
+      boardHeight + 48,
+      28,
+    );
     boardPanel.fillStyle(0x102e50, 0.92);
     boardPanel.fillRoundedRect(
       startX - 24,
@@ -324,6 +348,14 @@ export default class GameScene extends Phaser.Scene {
       boardWidth + 48,
       boardHeight + 48,
       28,
+    );
+    boardPanel.lineStyle(4, 0x426e9e, 0.75);
+    boardPanel.strokeRoundedRect(
+      startX - 14,
+      startY - 14,
+      boardWidth + 28,
+      boardHeight + 28,
+      21,
     );
 
     this.board = [];
