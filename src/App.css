@@ -618,7 +618,7 @@
 
 /* Glossy casual-game design system */
 button {
-  font-family: "Fredoka", sans-serif;
+  font-family: "Lilita One", "Fredoka", sans-serif;
   -webkit-tap-highlight-color: transparent;
   transition:
     transform 0.12s ease,
@@ -851,6 +851,7 @@ button:active {
 .ranking-list em,
 .wardrobe-title,
 .wardrobe-grid strong {
+  font-family: "Lilita One", "Fredoka", sans-serif;
   font-weight: 700;
   letter-spacing: 0.25px;
 }

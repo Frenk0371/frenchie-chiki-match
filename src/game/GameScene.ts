@@ -70,6 +70,9 @@ export default class GameScene extends Phaser.Scene {
   preload() {
     this.load.image("garden-bg", "/garden-game-bg.jpg");
     this.load.image("chiki-character", "/chiki-character.webp");
+    this.load.image("booster-shuffle", "/booster-shuffle.webp");
+    this.load.image("booster-hammer", "/booster-hammer.webp");
+    this.load.image("booster-rocket", "/booster-rocket.webp");
     this.tileKeys.forEach((key) =>
       this.load.image(`tile-${key}`, `/tiles/${key}.png`),
     );
@@ -104,7 +107,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.add
       .text(540, 105, "🐾 FRENCHIE CHIKI MATCH", {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "42px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -122,7 +125,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.add
       .text(247, 218, `LIVELLO ${this.currentLevel}`, {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "25px",
         color: "#56315f",
         fontStyle: "bold",
@@ -130,7 +133,7 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.scoreText = this.add
       .text(247, 271, "0\nPUNTI", {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "28px",
         color: "#402749",
         fontStyle: "bold",
@@ -139,7 +142,7 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.movesText = this.add
       .text(540, 250, `${this.moves}\nMOSSE`, {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "39px",
         color: "#7a2b79",
         fontStyle: "bold",
@@ -150,7 +153,7 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.objectiveText = this.add
       .text(833, 250, this.getObjectiveLabel(), {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "21px",
         color: "#402749",
         fontStyle: "bold",
@@ -171,7 +174,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.comboText = this.add
       .text(540, 350, "", {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "26px",
         color: "#ffff00",
         fontStyle: "bold",
@@ -194,7 +197,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.add
       .text(540, 1442, "AIUTI DI CHIKI", {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "29px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -203,7 +206,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.createBoosterButton(
       270,
-      "🔀",
+      "booster-shuffle",
       "MESCOLA",
       () => {
         if (this.shuffleUses <= 0 || this.isProcessing || this.levelCompleted)
@@ -217,7 +220,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.createBoosterButton(
       540,
-      "🔨",
+      "booster-hammer",
       "MARTELLO",
       () => {
         if (
@@ -243,7 +246,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.createBoosterButton(
       810,
-      "🚀",
+      "booster-rocket",
       "RAZZO",
       () => {
         if (this.rocketUses <= 0 || this.isProcessing || this.levelCompleted)
@@ -268,7 +271,7 @@ export default class GameScene extends Phaser.Scene {
 
   private createBoosterButton(
     x: number,
-    icon: string,
+    iconKey: string,
     label: string,
     action: () => void,
     remaining: () => number,
@@ -287,10 +290,10 @@ export default class GameScene extends Phaser.Scene {
     const button = this.add
       .zone(x, 1540, 220, 135)
       .setInteractive({ useHandCursor: true });
-    this.add.text(x - 72, 1492, icon, { fontSize: "52px" });
+    this.add.image(x - 48, 1525, iconKey).setDisplaySize(102, 102);
     const count = this.add
       .text(x + 68, 1502, String(remaining()), {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "28px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -300,7 +303,7 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.add
       .text(x, 1582, label, {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "22px",
         color: "#53262d",
         fontStyle: "bold",
@@ -507,7 +510,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.add
       .text(540, 620, "LIVELLO COMPLETATO!", {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "48px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -521,7 +524,7 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.add
       .text(540, 1015, `${this.score} PUNTI`, {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "38px",
         color: "#fff3c8",
         fontStyle: "bold",
@@ -535,7 +538,7 @@ export default class GameScene extends Phaser.Scene {
 
     const continueButton = this.add
       .text(540, 1140, "CONTINUA", {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "34px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -589,7 +592,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.add
       .text(540, 735, "RIPROVIAMO!", {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "52px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -602,7 +605,7 @@ export default class GameScene extends Phaser.Scene {
 
     const retryButton = this.add
       .text(540, 1035, "RIPROVA", {
-        fontFamily: '"Fredoka", sans-serif',
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "34px",
         color: "#ffffff",
         backgroundColor: "#dc3545",
