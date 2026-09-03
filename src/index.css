@@ -1,1 +1,16 @@
-*{box-sizing:border-box}html,body,#root{margin:0;min-width:320px;min-height:100%;background:#132741;overscroll-behavior:none}button{font:inherit}
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100%;
+  background: #132741;
+  overscroll-behavior: none;
+  font-family: "Fredoka", sans-serif;
+}
+button {
+  font: inherit;
+}

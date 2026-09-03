@@ -1,6 +1,5 @@
 :root {
-  font-family:
-    ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+  font-family: "Fredoka", sans-serif;
   color: #fff;
   background: #132741;
 }
@@ -619,7 +618,7 @@
 
 /* Glossy casual-game design system */
 button {
-  font-family: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  font-family: "Fredoka", sans-serif;
   -webkit-tap-highlight-color: transparent;
   transition:
     transform 0.12s ease,
@@ -836,4 +835,69 @@ button:active {
     inset 0 -6px #080d14,
     0 9px 0 #090d14,
     0 15px 28px #0006;
+}
+
+.player strong,
+.currencies,
+.map-title strong,
+.feature-title strong,
+.play-button,
+.main-menu button,
+.utility-menu button,
+.level-stop > span strong,
+.ranking-board h2,
+.ranking-tabs button,
+.ranking-list strong,
+.ranking-list em,
+.wardrobe-title,
+.wardrobe-grid strong {
+  font-weight: 700;
+  letter-spacing: 0.25px;
+}
+.map-title strong,
+.feature-title strong {
+  letter-spacing: 0.8px;
+  text-shadow:
+    0 3px 0 #351446,
+    0 5px 8px #19092199;
+}
+.play-button {
+  letter-spacing: 1px;
+  -webkit-text-stroke: 1px #28651d;
+  text-shadow:
+    0 3px 0 #1f6418,
+    0 5px 6px #143c1688;
+}
+.main-menu button {
+  -webkit-text-stroke: 0.45px #183552;
+  text-shadow:
+    0 2px 0 #173b61,
+    0 4px 5px #102941aa;
+}
+.utility-menu button {
+  text-shadow: 0 2px 0 #101c29;
+}
+.level-stop > span strong {
+  font-size: 16px;
+  text-shadow: 0 2px 0 #fff;
+}
+.level-stop button {
+  font-family: "Fredoka", sans-serif;
+  -webkit-text-stroke: 2px #23741d;
+  text-shadow:
+    0 3px 0 #1c6417,
+    0 5px 6px #123e1299;
+}
+.ranking-board h2 {
+  -webkit-text-stroke: 1px #8b5512;
+  text-shadow: 0 3px 0 #56320b;
+}
+.ranking-list em {
+  text-shadow: 0 2px 0 #4d2c00;
+}
+.wardrobe-title {
+  -webkit-text-stroke: 1px #4b1f66;
+  text-shadow:
+    0 3px 0 #321441,
+    0 6px 9px #1c0c2a88;
 }

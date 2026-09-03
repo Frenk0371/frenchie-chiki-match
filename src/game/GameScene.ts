@@ -104,16 +104,25 @@ export default class GameScene extends Phaser.Scene {
 
     this.add
       .text(540, 105, "🐾 FRENCHIE CHIKI MATCH", {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "42px",
         color: "#ffffff",
         fontStyle: "bold",
+        stroke: "#32183f",
+        strokeThickness: 7,
+        shadow: {
+          offsetX: 0,
+          offsetY: 6,
+          color: "#24102e",
+          blur: 0,
+          fill: true,
+        },
       })
       .setOrigin(0.5);
 
     this.add
       .text(247, 218, `LIVELLO ${this.currentLevel}`, {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "25px",
         color: "#56315f",
         fontStyle: "bold",
@@ -121,7 +130,7 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.scoreText = this.add
       .text(247, 271, "0\nPUNTI", {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "28px",
         color: "#402749",
         fontStyle: "bold",
@@ -130,16 +139,18 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.movesText = this.add
       .text(540, 250, `${this.moves}\nMOSSE`, {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
-        fontSize: "32px",
+        fontFamily: '"Fredoka", sans-serif',
+        fontSize: "39px",
         color: "#7a2b79",
         fontStyle: "bold",
         align: "center",
+        stroke: "#fff4ce",
+        strokeThickness: 2,
       })
       .setOrigin(0.5);
     this.objectiveText = this.add
       .text(833, 250, this.getObjectiveLabel(), {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "21px",
         color: "#402749",
         fontStyle: "bold",
@@ -160,7 +171,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.comboText = this.add
       .text(540, 350, "", {
-        fontFamily: "Arial",
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "26px",
         color: "#ffff00",
         fontStyle: "bold",
@@ -183,7 +194,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.add
       .text(540, 1442, "AIUTI DI CHIKI", {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "29px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -279,7 +290,7 @@ export default class GameScene extends Phaser.Scene {
     this.add.text(x - 72, 1492, icon, { fontSize: "52px" });
     const count = this.add
       .text(x + 68, 1502, String(remaining()), {
-        fontFamily: "Arial",
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "28px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -289,7 +300,7 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.add
       .text(x, 1582, label, {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "22px",
         color: "#53262d",
         fontStyle: "bold",
@@ -462,7 +473,7 @@ export default class GameScene extends Phaser.Scene {
     const config = this.currentLevelConfig;
 
     if (config.objective === "score") {
-      return `Obiettivo: ${config.targetScore}`;
+      return `OBIETTIVO\n${config.targetScore}`;
     }
 
     const firstType = config.collectType ?? 0;
@@ -496,7 +507,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.add
       .text(540, 620, "LIVELLO COMPLETATO!", {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "48px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -510,7 +521,7 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.add
       .text(540, 1015, `${this.score} PUNTI`, {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "38px",
         color: "#fff3c8",
         fontStyle: "bold",
@@ -524,7 +535,7 @@ export default class GameScene extends Phaser.Scene {
 
     const continueButton = this.add
       .text(540, 1140, "CONTINUA", {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "34px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -578,7 +589,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.add
       .text(540, 735, "RIPROVIAMO!", {
-        fontFamily: '"Arial Rounded MT Bold", Arial',
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "52px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -591,7 +602,7 @@ export default class GameScene extends Phaser.Scene {
 
     const retryButton = this.add
       .text(540, 1035, "RIPROVA", {
-        fontFamily: "Arial",
+        fontFamily: '"Fredoka", sans-serif',
         fontSize: "34px",
         color: "#ffffff",
         backgroundColor: "#dc3545",
