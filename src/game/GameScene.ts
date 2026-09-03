@@ -73,6 +73,7 @@ export default class GameScene extends Phaser.Scene {
     this.load.image("booster-shuffle", "/booster-shuffle.webp");
     this.load.image("booster-hammer", "/booster-hammer.webp");
     this.load.image("booster-rocket", "/booster-rocket.webp");
+    this.load.image("victory-reward", "/victory-reward.png");
     this.tileKeys.forEach((key) =>
       this.load.image(`tile-${key}`, `/tiles/${key}.png`),
     );
@@ -500,48 +501,51 @@ export default class GameScene extends Phaser.Scene {
       }),
     );
 
-    this.add.rectangle(540, 960, 1080, 1920, 0x160c22, 0.72);
-    const card = this.add.graphics();
-    card.fillStyle(0x5b277d, 1);
-    card.fillRoundedRect(150, 540, 780, 720, 55);
-    card.lineStyle(10, 0xffdc55, 1);
-    card.strokeRoundedRect(150, 540, 780, 720, 55);
-    this.add.image(540, 785, "chiki-character").setDisplaySize(300, 315);
+    this.add.rectangle(540, 960, 1080, 1920, 0x071322, 0.82);
+    this.drawResultPanel(410, 1010);
 
     this.add
-      .text(540, 620, "LIVELLO COMPLETATO!", {
+      .text(540, 500, `LIVELLO ${this.currentLevel}`, {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
-        fontSize: "48px",
-        color: "#ffffff",
-        fontStyle: "bold",
+        fontSize: "78px",
+        color: "#fff4c9",
+        stroke: "#102d55",
+        strokeThickness: 13,
+        shadow: { offsetX: 0, offsetY: 8, color: "#061a35", fill: true },
       })
       .setOrigin(0.5);
 
     this.add
-      .text(540, 920, "⭐  ⭐  ⭐", {
-        fontSize: "76px",
-      })
-      .setOrigin(0.5);
-    this.add
-      .text(540, 1015, `${this.score} PUNTI`, {
+      .text(540, 635, "BEN FATTO!", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
-        fontSize: "38px",
-        color: "#fff3c8",
-        fontStyle: "bold",
+        fontSize: "68px",
+        color: "#fff7d5",
+        stroke: "#17456f",
+        strokeThickness: 13,
+        shadow: { offsetX: 0, offsetY: 8, color: "#d18b00", fill: true },
       })
       .setOrigin(0.5);
-
-    const continuePlate = this.add
-      .rectangle(540, 1140, 430, 100, 0x5ed137, 1)
-      .setStrokeStyle(7, 0xffffff, 1)
-      .setInteractive({ useHandCursor: true });
-
-    const continueButton = this.add
-      .text(540, 1140, "CONTINUA", {
+    this.add.image(540, 850, "victory-reward").setDisplaySize(410, 410);
+    this.add
+      .text(540, 1035, `${this.calculateStars()} STELLE  •  ${this.score} PUNTI`, {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "34px",
-        color: "#ffffff",
-        fontStyle: "bold",
+        color: "#fff7d5",
+        stroke: "#12365e",
+        strokeThickness: 7,
+      })
+      .setOrigin(0.5);
+
+    const continuePlate = this.drawGlossyButton(540, 1195, 480, 126, "green");
+
+    const continueButton = this.add
+      .text(540, 1187, "CONTINUA", {
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
+        fontSize: "55px",
+        color: "#fff8d5",
+        stroke: "#255c13",
+        strokeThickness: 9,
+        shadow: { offsetX: 0, offsetY: 6, color: "#17440e", fill: true },
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
@@ -583,38 +587,48 @@ export default class GameScene extends Phaser.Scene {
 
     this.levelCompleted = true;
 
-    this.add.rectangle(540, 960, 1080, 1920, 0x160c22, 0.72);
-    const card = this.add.graphics();
-    card.fillStyle(0x4c2767, 1);
-    card.fillRoundedRect(170, 610, 740, 520, 55);
-    card.lineStyle(9, 0xffffff, 1);
-    card.strokeRoundedRect(170, 610, 740, 520, 55);
+    this.add.rectangle(540, 960, 1080, 1920, 0x071322, 0.82);
+    this.drawResultPanel(500, 850);
 
     this.add
-      .text(540, 735, "RIPROVIAMO!", {
+      .text(540, 590, "MOSSE FINITE!", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
-        fontSize: "52px",
-        color: "#ffffff",
-        fontStyle: "bold",
+        fontSize: "72px",
+        color: "#fff4c9",
+        stroke: "#102d55",
+        strokeThickness: 13,
+        shadow: { offsetX: 0, offsetY: 8, color: "#061a35", fill: true },
       })
       .setOrigin(0.5);
     this.add
-      .image(540, 875, "chiki-character")
-      .setDisplaySize(190, 198)
-      .setTint(0xb9b9b9);
+      .image(540, 815, "chiki-character")
+      .setDisplaySize(260, 273);
+
+    this.add
+      .text(540, 975, "CHIKI HA BISOGNO DI TE", {
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
+        fontSize: "35px",
+        color: "#fff7d5",
+        stroke: "#12365e",
+        strokeThickness: 7,
+      })
+      .setOrigin(0.5);
+
+    const retryPlate = this.drawGlossyButton(540, 1105, 460, 120, "red");
 
     const retryButton = this.add
-      .text(540, 1035, "RIPROVA", {
+      .text(540, 1097, "RIPROVA", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
-        fontSize: "34px",
-        color: "#ffffff",
-        backgroundColor: "#dc3545",
-        padding: { x: 30, y: 18 },
-        fontStyle: "bold",
+        fontSize: "52px",
+        color: "#fff8d5",
+        stroke: "#7b171d",
+        strokeThickness: 9,
+        shadow: { offsetX: 0, offsetY: 6, color: "#4c0d12", fill: true },
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
+    retryPlate.on("pointerup", () => retryButton.emit("pointerup"));
     retryButton.on("pointerup", () => {
       this.score = 0;
       this.collectedAmount = 0;
@@ -626,6 +640,55 @@ export default class GameScene extends Phaser.Scene {
 
       this.scene.restart();
     });
+  }
+
+  private drawResultPanel(y: number, height: number) {
+    const x = 105;
+    const width = 870;
+    const top = y - height / 2;
+    const panel = this.add.graphics();
+    panel.fillStyle(0x071b35, 0.9);
+    panel.fillRoundedRect(x + 12, top + 24, width, height, 62);
+    panel.fillStyle(0x1766ad, 1);
+    panel.fillRoundedRect(x, top, width, height, 62);
+    panel.fillStyle(0x0e4d8a, 1);
+    panel.fillRoundedRect(x + 20, top + 20, width - 40, height - 40, 48);
+    panel.lineStyle(13, 0xffa900, 1);
+    panel.strokeRoundedRect(x + 8, top + 8, width - 16, height - 16, 56);
+    panel.lineStyle(7, 0xffe45f, 1);
+    panel.strokeRoundedRect(x + 23, top + 23, width - 46, height - 46, 44);
+
+    panel.fillStyle(0x0b3d72, 0.8);
+    panel.fillRoundedRect(60, top - 28, 960, 220, 58);
+    panel.fillStyle(0x1970bd, 1);
+    panel.fillRoundedRect(45, top - 48, 990, 205, 58);
+    panel.fillStyle(0x238bd5, 1);
+    panel.fillRoundedRect(65, top - 31, 950, 48, 24);
+    panel.lineStyle(10, 0xffa900, 1);
+    panel.strokeRoundedRect(50, top - 43, 980, 195, 55);
+    panel.lineStyle(5, 0xffe45f, 1);
+    panel.strokeRoundedRect(62, top - 31, 956, 171, 46);
+  }
+
+  private drawGlossyButton(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    color: "green" | "red",
+  ) {
+    const palette =
+      color === "green"
+        ? { shadow: 0x174f10, base: 0x2f9d18, face: 0x63d92f, shine: 0xb8ff79 }
+        : { shadow: 0x621219, base: 0xa91f29, face: 0xeb3944, shine: 0xff8a86 };
+    const button = this.add
+      .rectangle(x, y + 12, width, height, palette.shadow, 1)
+      .setInteractive({ useHandCursor: true });
+    this.add.rectangle(x, y, width, height, palette.base, 1);
+    this.add.rectangle(x, y - 10, width - 18, height - 24, palette.face, 1);
+    this.add.rectangle(x, y - height * 0.28, width * 0.7, 10, palette.shine, 0.8);
+    button.setStrokeStyle(7, 0xfff4c7, 1);
+    return button;
   }
 
   private swapTiles(tileA: Tile, tileB: Tile, isReverting = false) {
