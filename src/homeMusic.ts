@@ -1,6 +1,8 @@
 let audioContext: AudioContext | null = null;
 let musicTimer: number | null = null;
 let musicStep = 0;
+let musicRequested = false;
+let unlockListenersArmed = false;
 
 const melody = [
   523.25, 659.25, 783.99, 659.25,
@@ -32,7 +34,7 @@ const playTone = (
   oscillator.type = type;
   oscillator.frequency.setValueAtTime(frequency, startAt);
   filter.type = "lowpass";
-  filter.frequency.setValueAtTime(2800, startAt);
+  filter.frequency.setValueAtTime(3000, startAt);
 
   gain.gain.setValueAtTime(0.0001, startAt);
   gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, volume), startAt + 0.025);
@@ -47,23 +49,83 @@ const playTone = (
 
 const playMusicStep = () => {
   const context = getAudioContext();
-  if (!context || context.state !== "running") return;
+  if (!context || context.state !== "running" || !musicRequested) return;
 
   const now = context.currentTime;
   const note = melody[musicStep % melody.length];
-  playTone(context, note, now, 0.28, 0.027, "triangle");
-  playTone(context, note * 2, now + 0.012, 0.18, 0.008, "sine");
+
+  // Volume volutamente più presente rispetto alla prima versione.
+  playTone(context, note, now, 0.31, 0.055, "triangle");
+  playTone(context, note * 2, now + 0.012, 0.2, 0.016, "sine");
 
   if (musicStep % 4 === 0) {
     const bassNote = bass[Math.floor(musicStep / 4) % bass.length];
-    playTone(context, bassNote, now, 0.48, 0.018, "sine");
+    playTone(context, bassNote, now, 0.52, 0.034, "sine");
   }
 
   if (musicStep % 8 === 6) {
-    playTone(context, note * 1.5, now + 0.09, 0.16, 0.009, "triangle");
+    playTone(context, note * 1.5, now + 0.09, 0.18, 0.018, "triangle");
   }
 
   musicStep += 1;
+};
+
+const startMusicLoop = () => {
+  const context = getAudioContext();
+  if (!context || context.state !== "running" || !musicRequested) return false;
+  if (musicTimer !== null) return true;
+
+  playMusicStep();
+  musicTimer = window.setInterval(playMusicStep, 360);
+  return true;
+};
+
+const disarmUnlockListeners = () => {
+  if (!unlockListenersArmed || typeof window === "undefined") return;
+  unlockListenersArmed = false;
+  window.removeEventListener("pointerdown", tryUnlockRequestedMusic);
+  window.removeEventListener("touchstart", tryUnlockRequestedMusic);
+  window.removeEventListener("touchend", tryUnlockRequestedMusic);
+  window.removeEventListener("click", tryUnlockRequestedMusic);
+  window.removeEventListener("keydown", tryUnlockRequestedMusic);
+};
+
+const resumeRequestedMusic = async () => {
+  if (!musicRequested) {
+    disarmUnlockListeners();
+    return false;
+  }
+
+  const context = getAudioContext();
+  if (!context) return false;
+
+  try {
+    if (context.state !== "running") await context.resume();
+  } catch {
+    return false;
+  }
+
+  if (context.state !== "running") return false;
+  const started = startMusicLoop();
+  if (started) disarmUnlockListeners();
+  return started;
+};
+
+function tryUnlockRequestedMusic() {
+  void resumeRequestedMusic();
+}
+
+const armUnlockListeners = () => {
+  if (unlockListenersArmed || typeof window === "undefined") return;
+  unlockListenersArmed = true;
+
+  // iOS può bloccare l'audio in autoplay: manteniamo il tentativo armato
+  // fino alla prima vera interazione, qualunque essa sia.
+  window.addEventListener("pointerdown", tryUnlockRequestedMusic, { passive: true });
+  window.addEventListener("touchstart", tryUnlockRequestedMusic, { passive: true });
+  window.addEventListener("touchend", tryUnlockRequestedMusic, { passive: true });
+  window.addEventListener("click", tryUnlockRequestedMusic, { passive: true });
+  window.addEventListener("keydown", tryUnlockRequestedMusic);
 };
 
 export const unlockHomeAudio = async () => {
@@ -80,17 +142,17 @@ export const unlockHomeAudio = async () => {
 };
 
 export const startHomeMusic = async () => {
-  const unlocked = await unlockHomeAudio();
-  const context = getAudioContext();
-  if (!unlocked || !context || context.state !== "running") return false;
-  if (musicTimer !== null) return true;
+  musicRequested = true;
 
-  playMusicStep();
-  musicTimer = window.setInterval(playMusicStep, 360);
-  return true;
+  const started = await resumeRequestedMusic();
+  if (!started) armUnlockListeners();
+  return started;
 };
 
 export const stopHomeMusic = () => {
+  musicRequested = false;
+  disarmUnlockListeners();
+
   if (musicTimer !== null) {
     window.clearInterval(musicTimer);
     musicTimer = null;
