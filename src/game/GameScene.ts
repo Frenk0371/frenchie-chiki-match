@@ -23,6 +23,7 @@ export default class GameScene extends Phaser.Scene {
   private readonly boardY = 390;
   private readonly tileKeys = ["heart", "bone", "clover", "flower", "gem", "chiki"];
   private readonly colorNames = ["CUORI", "OSSA", "TRIFOGLI", "FIORI", "GEMME", "CHIKI"];
+  private readonly swipeThreshold = 34;
 
   private board: (Tile | null)[][] = [];
   private iceCells = new Map<string, IceCell>();
@@ -46,6 +47,12 @@ export default class GameScene extends Phaser.Scene {
   private selectedTile: Tile | null = null;
   private levelCompleted = false;
   private isProcessing = false;
+
+  private gestureTile: Tile | null = null;
+  private gesturePointerId: number | null = null;
+  private gestureStartX = 0;
+  private gestureStartY = 0;
+  private gestureTriggered = false;
 
   private shuffleUses = 3;
   private hammerUses = 3;
@@ -80,6 +87,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.createHud();
     this.createBoard();
+    this.setupSwipeInput();
     this.createIceLayer();
     this.createBoosterTray();
     this.updateObjectiveAndProgress();
@@ -98,6 +106,7 @@ export default class GameScene extends Phaser.Scene {
     this.iceBrokenCells = 0;
     this.iceTotalCells = 0;
     this.iceCells.clear();
+    this.resetGestureState();
   }
 
   private createHud() {
@@ -256,9 +265,13 @@ export default class GameScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
 
     const tile: Tile = { row, col, type, circle };
-    circle.on("pointerup", () => {
+    circle.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       if (this.moves <= 0 || this.levelCompleted || this.isProcessing) return;
-      this.selectTile(tile);
+      this.gestureTile = tile;
+      this.gesturePointerId = pointer.id;
+      this.gestureStartX = pointer.x;
+      this.gestureStartY = pointer.y;
+      this.gestureTriggered = false;
     });
 
     if (fromAbove) {
@@ -266,6 +279,92 @@ export default class GameScene extends Phaser.Scene {
     }
 
     return tile;
+  }
+
+  private setupSwipeInput() {
+    this.input.on("pointermove", this.handleGestureMove, this);
+    this.input.on("pointerup", this.handleGestureEnd, this);
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.off("pointermove", this.handleGestureMove, this);
+      this.input.off("pointerup", this.handleGestureEnd, this);
+      this.resetGestureState();
+    });
+  }
+
+  private handleGestureMove(pointer: Phaser.Input.Pointer) {
+    if (
+      !this.gestureTile ||
+      this.gesturePointerId !== pointer.id ||
+      this.gestureTriggered ||
+      !pointer.isDown
+    ) return;
+
+    if (this.moves <= 0 || this.levelCompleted || this.isProcessing) {
+      this.resetGestureState();
+      return;
+    }
+
+    const dx = pointer.x - this.gestureStartX;
+    const dy = pointer.y - this.gestureStartY;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    if (Math.max(absX, absY) < this.swipeThreshold) return;
+
+    const tile = this.gestureTile;
+    this.gestureTriggered = true;
+    this.gestureTile = null;
+    this.clearSelectedTile();
+
+    let targetRow = tile.row;
+    let targetCol = tile.col;
+
+    if (absX >= absY) targetCol += dx > 0 ? 1 : -1;
+    else targetRow += dy > 0 ? 1 : -1;
+
+    if (
+      targetRow < 0 ||
+      targetRow >= this.rows ||
+      targetCol < 0 ||
+      targetCol >= this.cols
+    ) return;
+
+    const neighbor = this.board[targetRow]?.[targetCol];
+    if (!neighbor) return;
+
+    this.trySwap(tile, neighbor);
+  }
+
+  private handleGestureEnd(pointer: Phaser.Input.Pointer) {
+    if (this.gesturePointerId === null || this.gesturePointerId !== pointer.id) return;
+
+    const tile = this.gestureTile;
+    const wasSwipe = this.gestureTriggered;
+    this.resetGestureState();
+
+    if (
+      !wasSwipe &&
+      tile &&
+      this.moves > 0 &&
+      !this.levelCompleted &&
+      !this.isProcessing
+    ) {
+      this.selectTile(tile);
+    }
+  }
+
+  private resetGestureState() {
+    this.gestureTile = null;
+    this.gesturePointerId = null;
+    this.gestureStartX = 0;
+    this.gestureStartY = 0;
+    this.gestureTriggered = false;
+  }
+
+  private clearSelectedTile() {
+    if (this.selectedTile?.circle.active) this.selectedTile.circle.setDisplaySize(110, 110);
+    this.selectedTile = null;
   }
 
   private createIceLayer() {
