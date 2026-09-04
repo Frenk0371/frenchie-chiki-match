@@ -11,7 +11,6 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="apple-touch-icon" href="./music-house-192.png" />
   <link rel="icon" type="image/png" href="./music-house-192.png" />
-  <link rel="preconnect" href="https://musicbrainz.org" />
   <title>Music House</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./auth.css" />
@@ -38,7 +37,7 @@
 
   <section id="playerShell" class="player-shell" aria-label="Player" hidden>
     <button class="player-grabber" id="expandPlayer" aria-label="Espandi player"></button>
-    <div class="video-frame"><div id="ytPlayer"></div></div>
+    <div class="video-frame player-cover"><img id="currentCover" src="./music-house-192.png" alt="Copertina del brano" /></div>
     <div class="now-meta" id="nowMeta"></div>
     <div class="player-controls">
       <button id="prevBtn" aria-label="Brano precedente">⏮</button>
@@ -64,7 +63,7 @@
     <section class="modal-card account-modal-card" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
       <div class="modal-head"><h2 id="accountTitle">Account Music House</h2><button data-close-modal="accountModal">✕</button></div>
       <div id="accountGuestView">
-        <p class="help auth-intro">Accedi per tenere separate playlist, preferiti, album e cronologia di ogni persona della famiglia. Puoi continuare a usare Music House anche senza account.</p>
+        <p class="help auth-intro">Accedi per tenere separate playlist, preferiti, album e cronologia di ogni persona della famiglia.</p>
         <label class="field-label" for="displayName">Nome</label>
         <input id="displayName" class="text-field" type="text" autocomplete="name" placeholder="Es. Francesco" />
         <label class="field-label auth-gap" for="accountEmail">Email</label>
@@ -77,7 +76,16 @@
       </div>
       <div id="accountUserView" hidden>
         <div class="account-profile"><div class="account-avatar" id="accountAvatar">M</div><div><strong id="accountName">Music House</strong><small id="accountEmailCurrent"></small></div></div>
-        <p class="help">Le tue playlist, i preferiti e gli album salvati vengono sincronizzati nel tuo profilo.</p>
+        <p class="help">Playlist, preferiti, album e cronologia vengono sincronizzati nel tuo profilo.</p>
+
+        <div class="spotify-card">
+          <div class="spotify-mark">♪</div>
+          <div class="spotify-copy"><strong>Spotify</strong><small id="spotifyStatus">Verifica collegamento…</small></div>
+          <button class="spotify-connect" id="spotifyConnectBtn">Collega</button>
+          <button class="spotify-disconnect" id="spotifyDisconnectBtn" hidden>Scollega</button>
+        </div>
+        <p id="spotifyHelp" class="help spotify-help">Ogni account Music House collega una sola volta il proprio Spotify Premium. Nessuna API key per gli utenti.</p>
+
         <button class="secondary-btn danger-btn" id="signOutBtn">Esci dall’account</button>
       </div>
     </section>
@@ -85,13 +93,14 @@
 
   <div id="toast" class="toast" hidden></div>
 
-  <script src="https://www.youtube.com/iframe_api"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <script src="./app-core.js"></script>
   <script src="./app-search-ui.js"></script>
+  <script src="./app-auth.js"></script>
+  <script src="./app-spotify.js"></script>
   <script src="./app-search-api.js"></script>
   <script src="./app-library.js"></script>
-  <script src="./app-auth.js"></script>
   <script src="./app-player.js"></script>
 </body>
 </html>
