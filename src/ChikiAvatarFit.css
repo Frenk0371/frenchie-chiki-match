@@ -1,0 +1,117 @@
+/* Final wearable fit pass.
+   The previous shirt still read as a flat card placed over Chiki's chest.
+   Keep the modular avatar system, but make clothes behave like a fitted dog vest/bib:
+   narrower at the neck, rounded over the chest, ending before the front legs. */
+
+.avatar-outfit {
+  left: 50% !important;
+  top: 51.8% !important;
+  width: 31% !important;
+  height: 20.5% !important;
+  transform: translateX(-50%) !important;
+  border-width: 2.5px !important;
+  border-radius: 46% 46% 40% 40% / 24% 24% 52% 52% !important;
+  clip-path: polygon(
+    25% 0,
+    39% 0,
+    50% 10%,
+    61% 0,
+    75% 0,
+    87% 12%,
+    94% 28%,
+    89% 48%,
+    82% 76%,
+    73% 94%,
+    50% 100%,
+    27% 94%,
+    18% 76%,
+    11% 48%,
+    6% 28%,
+    13% 12%
+  ) !important;
+  box-shadow:
+    inset 8px 0 10px #6d275528,
+    inset -8px 0 10px #6d275528,
+    inset 0 3px #ffd9ef,
+    inset 0 -4px #7f2d70,
+    0 2px 2px #0002 !important;
+  filter: drop-shadow(0 2px 1px #0002) !important;
+}
+
+/* No artificial sleeves: on a seated Frenchie they make the garment look pasted on. */
+.avatar-outfit::before,
+.avatar-outfit::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Sportiva: fitted raspberry/pink vest with a small gold badge. */
+.avatar-piece-outfit_sport {
+  background:
+    radial-gradient(circle at 72% 19%, #fff3a6 0 3.5%, #e8bc43 4% 6%, transparent 6.5%),
+    linear-gradient(90deg, transparent 46%, #ffffff32 47% 53%, transparent 54%),
+    radial-gradient(ellipse at 50% 44%, #e987cf 0 42%, #d164b5 60%, #ad438f 100%) !important;
+  border-color: #6f2f83 !important;
+}
+
+/* Raincoat: short, rounded and practical rather than human-shaped. */
+.avatar-piece-outfit_rain {
+  background:
+    linear-gradient(90deg, transparent 46%, #fff7c442 47% 53%, transparent 54%),
+    radial-gradient(ellipse at 50% 44%, #ffe37d 0 42%, #f2bd46 62%, #ce8c23 100%) !important;
+  border-color: #9b6a22 !important;
+}
+
+/* Marinara: compact sailor bib with soft stripes. */
+.avatar-piece-outfit_sailor {
+  background:
+    linear-gradient(90deg, transparent 46%, #ffffff46 47% 53%, transparent 54%),
+    repeating-linear-gradient(0deg, #fff8f1 0 13%, #86ace0 13% 26%) !important;
+  border-color: #344f7f !important;
+}
+
+/* Principessina gets a slightly wider skirt-like lower edge, but still hugs the chest. */
+.avatar-piece-outfit_royal {
+  top: 51.4% !important;
+  width: 33% !important;
+  height: 22% !important;
+  clip-path: polygon(
+    25% 0,
+    39% 0,
+    50% 10%,
+    61% 0,
+    75% 0,
+    88% 13%,
+    91% 34%,
+    84% 58%,
+    96% 100%,
+    50% 92%,
+    4% 100%,
+    16% 58%,
+    9% 34%,
+    12% 13%
+  ) !important;
+}
+
+/* Other looks keep the same fitted geometry so switching outfits never produces a floating rectangle. */
+.avatar-piece-outfit_wizard,
+.avatar-piece-outfit_explorer,
+.avatar-piece-outfit_winter {
+  top: 51.8% !important;
+  width: 31% !important;
+  height: 20.5% !important;
+}
+
+/* The collar sits just above the garment neckline, visually connecting the wearable to Chiki. */
+.avatar-collar {
+  top: 48.9% !important;
+  width: 31% !important;
+  height: 7.4% !important;
+}
+
+/* Profile and purchase preview use the exact same body-relative geometry. */
+.chiki-avatar-profile .avatar-outfit,
+.chiki-avatar-celebration .avatar-outfit,
+.chiki-avatar-room .avatar-outfit {
+  transform: translateX(-50%) !important;
+}
