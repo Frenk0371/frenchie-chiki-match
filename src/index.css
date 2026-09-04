@@ -14,3 +14,43 @@ body,
 button {
   font: inherit;
 }
+
+/* Home logo: più grande, più tridimensionale e più vicino ai casual game premium. */
+.home-screen .brand-panel .game-logo {
+  margin-top: 0 !important;
+  filter:
+    drop-shadow(0 5px 0 #6d351f)
+    drop-shadow(0 10px 0 #2c1b24)
+    drop-shadow(0 15px 12px #17381966) !important;
+}
+.home-screen .brand-panel .game-logo span,
+.home-screen .brand-panel .game-logo strong,
+.home-screen .brand-panel .game-logo em {
+  -webkit-text-stroke-width: 3px !important;
+  text-shadow:
+    0 2px 0 #fff8de,
+    0 5px 0 #9a5a28,
+    0 8px 0 #3f251d,
+    0 11px 16px #0005;
+}
+.home-screen .brand-panel .game-logo span {
+  font-size: clamp(50px, 14.5vw, 74px) !important;
+}
+.home-screen .brand-panel .game-logo strong {
+  font-size: clamp(72px, 20.2vw, 102px) !important;
+}
+.home-screen .brand-panel .game-logo em {
+  font-size: clamp(48px, 13.8vw, 70px) !important;
+}
+
+@media (max-height: 760px) {
+  .home-screen .brand-panel .game-logo span {
+    font-size: 42px !important;
+  }
+  .home-screen .brand-panel .game-logo strong {
+    font-size: 60px !important;
+  }
+  .home-screen .brand-panel .game-logo em {
+    font-size: 40px !important;
+  }
+}
