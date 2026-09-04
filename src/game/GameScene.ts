@@ -474,6 +474,11 @@ export default class GameScene extends Phaser.Scene {
     const bX = tileB.circle.x;
     const bY = tileB.circle.y;
 
+    this.tweens.killTweensOf(tileA.circle);
+    this.tweens.killTweensOf(tileB.circle);
+    tileA.circle.setPosition(aX, aY);
+    tileB.circle.setPosition(bX, bY);
+
     this.swapModel(tileA, tileB);
     this.tweens.add({ targets: tileA.circle, x: bX, y: bY, duration: 210, ease: "Power2" });
     this.tweens.add({
@@ -483,6 +488,10 @@ export default class GameScene extends Phaser.Scene {
       duration: 210,
       ease: "Power2",
       onComplete: () => {
+        this.tweens.killTweensOf(tileA.circle);
+        tileA.circle.setPosition(bX, bY);
+        tileB.circle.setPosition(aX, aY);
+
         const matches = this.findMatches();
         if (matches.length === 0) {
           this.swapModel(tileA, tileB);
@@ -494,6 +503,9 @@ export default class GameScene extends Phaser.Scene {
             duration: 190,
             ease: "Power2",
             onComplete: () => {
+              this.tweens.killTweensOf(tileA.circle);
+              tileA.circle.setPosition(aX, aY);
+              tileB.circle.setPosition(bX, bY);
               this.isProcessing = false;
             },
           });
@@ -850,6 +862,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private collapseTiles() {
+    const boardWidth = this.cols * this.tileSize;
+    const startX = (1080 - boardWidth) / 2;
+
     for (let col = 0; col < this.cols; col++) {
       let emptyRow = this.rows - 1;
       for (let row = this.rows - 1; row >= 0; row--) {
@@ -859,12 +874,16 @@ export default class GameScene extends Phaser.Scene {
         if (row !== emptyRow) {
           this.board[emptyRow][col] = tile;
           this.board[row][col] = null;
-          const distance = emptyRow - row;
           tile.row = emptyRow;
           tile.col = col;
+
+          const finalX = startX + col * this.tileSize + this.tileSize / 2;
+          const finalY = this.boardY + emptyRow * this.tileSize + this.tileSize / 2;
+          this.tweens.killTweensOf(tile.circle);
           this.tweens.add({
             targets: tile.circle,
-            y: tile.circle.y + distance * this.tileSize,
+            x: finalX,
+            y: finalY,
             duration: 300,
             ease: "Bounce.easeOut",
           });
