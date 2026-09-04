@@ -5,6 +5,7 @@ import ChikiAvatar from "./ChikiAvatar";
 import { shopItems, shopItemById, type ShopItem, type ShopKind } from "./shopCatalog";
 import "./Shop.css";
 import "./PetHubPolish.css";
+import "./Wardrobe.css";
 
 type PetHubProps = {
   username: string;
@@ -42,6 +43,27 @@ const RoomObject = ({ item, slot }: { item?: ShopItem; slot: string }) => {
   );
 };
 
+const wardrobeCategoryIcon = (category: string) => {
+  if (category === "Vestiti") return "👗";
+  if (category === "Accessori testa") return "🎀";
+  if (category === "Collari") return "💎";
+  if (category === "Occhiali") return "🕶️";
+  if (category === "Giochi") return "🧸";
+  if (category === "Cibo") return "🍪";
+  if (category === "Cura") return "🫧";
+  return "✨";
+};
+
+const collectionLabel = (item: ShopItem, active: boolean) => {
+  if (item.slot === "outfit") return "NELL'ARMADIO";
+  if (item.slot === "food") return "IN DISPENSA";
+  if (item.slot === "care") return "ANGOLO CURA";
+  if (active) return "IN USO";
+  if (["hat", "glasses", "collar"].includes(item.slot)) return "INDOSSA";
+  if (item.slot === "toy") return "USA";
+  return "RACCOLTO";
+};
+
 export default function PetHub({
   username,
   unlockedLevel,
@@ -57,6 +79,7 @@ export default function PetHub({
   const [tab, setTab] = useState<HubTab>("room");
   const [shopKind, setShopKind] = useState<ShopKind>("chiki");
   const [category, setCategory] = useState("TUTTO");
+  const [wardrobeFilter, setWardrobeFilter] = useState("TUTTO");
   const [buyingId, setBuyingId] = useState("");
   const [message, setMessage] = useState("");
   const [celebratingItem, setCelebratingItem] = useState<ShopItem | null>(null);
@@ -70,7 +93,7 @@ export default function PetHub({
   const celebrationItems = celebratingItem
     ? ({
         ...equippedItems,
-        ...(celebratingItem.kind === "chiki" && celebratingItem.slot !== "toy"
+        ...(celebratingItem.kind === "chiki" && ["hat", "glasses", "collar"].includes(celebratingItem.slot)
           ? { [celebratingItem.slot]: celebratingItem }
           : {}),
       } as Record<string, ShopItem | undefined>)
@@ -81,9 +104,26 @@ export default function PetHub({
     return ["TUTTO", ...Array.from(new Set(values))];
   }, [shopKind]);
 
+  const chikiCatalog = useMemo(() => shopItems.filter((item) => item.kind === "chiki"), []);
+  const wardrobeCategories = useMemo(
+    () => ["TUTTO", ...Array.from(new Set(chikiCatalog.map((item) => item.category)))],
+    [chikiCatalog],
+  );
+  const visibleWardrobe = chikiCatalog.filter(
+    (item) => wardrobeFilter === "TUTTO" || item.category === wardrobeFilter,
+  );
+  const wardrobeOwned = chikiCatalog.filter((item) => inventory.includes(item.id)).length;
+  const wardrobePercent = Math.round((wardrobeOwned / Math.max(1, chikiCatalog.length)) * 100);
+
   const visibleShop = shopItems.filter(
     (item) => item.kind === shopKind && (category === "TUTTO" || item.category === category),
   );
+
+  const openChikiShop = (targetCategory = "TUTTO") => {
+    setShopKind("chiki");
+    setCategory(targetCategory);
+    setTab("shop");
+  };
 
   const buy = async (item: ShopItem) => {
     setBuyingId(item.id);
@@ -127,17 +167,60 @@ export default function PetHub({
 
   const collectionCard = (item: ShopItem) => {
     const active = equipped[item.slot] === item.id;
+    const actionable = ["hat", "glasses", "collar", "toy"].includes(item.slot);
     return (
       <button
         key={item.id}
         className={`collection-item ${active ? "active" : ""} rarity-${item.rarity.toLowerCase()}`}
-        onClick={() => onEquip(item)}
+        onClick={() => actionable && onEquip(item)}
+        disabled={!actionable}
       >
         <ItemArt item={item} compact />
         <strong>{item.name}</strong>
-        <small>{active ? "IN USO" : "USA"}</small>
+        <small>{collectionLabel(item, active)}</small>
       </button>
     );
+  };
+
+  const wardrobeSlot = (item: ShopItem) => {
+    const owned = inventory.includes(item.id);
+    const active = equipped[item.slot] === item.id;
+    const canUse = ["hat", "glasses", "collar", "toy"].includes(item.slot);
+    const locked = unlockedLevel < item.requiredLevel;
+
+    const handleClick = () => {
+      if (owned && canUse) {
+        onEquip(item);
+        return;
+      }
+      if (!owned && !locked) openChikiShop(item.category);
+    };
+
+    return (
+      <button
+        key={item.id}
+        type="button"
+        className={`wardrobe-slot ${owned ? "owned" : "empty"} ${active ? "active" : ""} rarity-${item.rarity.toLowerCase()}`}
+        onClick={handleClick}
+        disabled={!owned && locked}
+      >
+        <span className="wardrobe-slot-icon" aria-hidden="true">{owned ? item.icon : "?"}</span>
+        <span className="wardrobe-slot-copy">
+          <strong>{owned ? item.name : locked ? `Liv. ${item.requiredLevel}` : item.name}</strong>
+          <small>{owned ? collectionLabel(item, active) : locked ? "DA SBLOCCARE" : "VAI ALLO SHOP"}</small>
+        </span>
+        <i className="wardrobe-slot-badge" aria-hidden="true">{owned ? "✓" : locked ? "🔒" : "+"}</i>
+      </button>
+    );
+  };
+
+  const celebrationDescription = (item: ShopItem) => {
+    if (item.kind === "room") return "Acquistato e sistemato subito nella stanza!";
+    if (item.slot === "outfit") return "Nuovo vestito aggiunto all'armadio di Chiki!";
+    if (item.slot === "food") return "Nuova bontà sistemata nella dispensa di Chiki!";
+    if (item.slot === "care") return "Nuovo oggetto aggiunto all'angolo cura di Chiki!";
+    if (item.slot === "toy") return "Nuovo gioco aggiunto alla collezione di Chiki!";
+    return "Nuovo accessorio aggiunto alla collezione di Chiki!";
   };
 
   return (
@@ -153,7 +236,7 @@ export default function PetHub({
 
       <nav className="pet-hub-tabs">
         <button className={tab === "room" ? "active" : ""} onClick={() => setTab("room")}>🏠 STANZA</button>
-        <button className={tab === "chiki" ? "active" : ""} onClick={() => setTab("chiki")}>🐶 CHIKI</button>
+        <button className={tab === "chiki" ? "active" : ""} onClick={() => setTab("chiki")}>🎀 ARMADIO</button>
         <button className={tab === "shop" ? "active" : ""} onClick={() => setTab("shop")}>🛍️ SHOP</button>
       </nav>
 
@@ -199,36 +282,72 @@ export default function PetHub({
 
       {tab === "chiki" && (
         <section className="hub-section chiki-wardrobe-section">
-          <div className="chiki-profile-card">
-            <div className="mini-chiki-wrap">
-              <ChikiAvatar items={equippedItems} variant="profile" alt="Chiki" />
+          <div className="wardrobe-title-row">
+            <div>
+              <small>LA COLLEZIONE DI CHIKI</small>
+              <h2>RIEMPI L'ARMADIO</h2>
             </div>
-            <div className="chiki-profile-copy">
-              <small>LA TUA FRENCHIE</small>
-              <h2>Chiki</h2>
-              <p>{username} · Livello {unlockedLevel}</p>
-              <b>🪙 {coins.toLocaleString("it-IT")}</b>
+            <button onClick={() => openChikiShop("TUTTO")}>+ SHOP</button>
+          </div>
+
+          <div className="wardrobe-layout">
+            <aside className="wardrobe-chiki-panel">
+              <div className="wardrobe-chiki-name">
+                <small>SEMPRE CON TE</small>
+                <strong>CHIKI</strong>
+              </div>
+              <div className="wardrobe-chiki-avatar">
+                <ChikiAvatar items={equippedItems} variant="profile" alt="Chiki davanti al suo armadio" />
+              </div>
+              <div className="wardrobe-player-stats">
+                <b>Liv. {unlockedLevel}</b>
+                <span>⭐ {totalStars}</span>
+              </div>
+            </aside>
+
+            <div className="wardrobe-cabinet">
+              <div className="wardrobe-cabinet-top">
+                <div>
+                  <small>OGGETTI RACCOLTI</small>
+                  <strong>{wardrobeOwned}/{chikiCatalog.length}</strong>
+                </div>
+                <span>{wardrobePercent}%</span>
+              </div>
+              <div className="wardrobe-progress" aria-label={`${wardrobePercent}% collezione completata`}>
+                <i style={{ width: `${wardrobePercent}%` }} />
+              </div>
+
+              <div className="wardrobe-filters">
+                {wardrobeCategories.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    className={wardrobeFilter === value ? "active" : ""}
+                    onClick={() => setWardrobeFilter(value)}
+                  >
+                    <span>{value === "TUTTO" ? "✨" : wardrobeCategoryIcon(value)}</span>
+                    <small>{value === "Accessori testa" ? "TESTA" : value.toUpperCase()}</small>
+                  </button>
+                ))}
+              </div>
+
+              <div className="wardrobe-shelf-label">
+                <span>{wardrobeFilter === "TUTTO" ? "✨ TUTTA LA COLLEZIONE" : `${wardrobeCategoryIcon(wardrobeFilter)} ${wardrobeFilter.toUpperCase()}`}</span>
+                <small>{visibleWardrobe.filter((item) => inventory.includes(item.id)).length}/{visibleWardrobe.length}</small>
+              </div>
+
+              <div className="wardrobe-shelves">
+                {visibleWardrobe.map(wardrobeSlot)}
+              </div>
             </div>
           </div>
 
-          <div className="hub-section-title">
-            <div><small>GUARDAROBA</small><strong>I TUOI OGGETTI</strong></div>
-            <button onClick={() => { setShopKind("chiki"); setCategory("TUTTO"); setTab("shop"); }}>+ SHOP</button>
-          </div>
-
-          <div className="slot-strip">
-            {Object.entries(equipped)
-              .filter(([slot]) => ["hat", "glasses", "collar", "toy"].includes(slot))
-              .map(([slot, id]) => (
-                <button key={slot} onClick={() => onClearSlot(slot)}>
-                  <span>{shopItemById(id)?.icon || "✓"}</span>
-                  <small>RIMUOVI</small>
-                </button>
-              ))}
-          </div>
-
-          <div className="collection-grid">
-            {ownedItemsFor(inventory, "chiki").map(collectionCard)}
+          <div className="wardrobe-footnote">
+            <span>👗 Vestiti</span>
+            <span>🎀 Accessori</span>
+            <span>🍪 Dispensa</span>
+            <span>🫧 Cura</span>
+            <span>🧸 Giochi</span>
           </div>
         </section>
       )}
@@ -270,6 +389,7 @@ export default function PetHub({
               const owned = inventory.includes(item.id);
               const locked = unlockedLevel < item.requiredLevel;
               const active = equipped[item.slot] === item.id;
+              const canEquip = ["hat", "glasses", "collar", "toy"].includes(item.slot);
               return (
                 <article key={item.id} className={`shop-card rarity-${item.rarity.toLowerCase()} ${locked ? "locked" : ""}`}>
                   <ItemArt item={item} />
@@ -278,9 +398,13 @@ export default function PetHub({
                   {locked ? (
                     <button disabled>🔒 LIV. {item.requiredLevel}</button>
                   ) : owned ? (
-                    <button className="owned" disabled={active} onClick={() => onEquip(item)}>
-                      {active ? "IN USO" : item.kind === "chiki" && item.slot !== "toy" ? "INDOSSA" : "USA"}
-                    </button>
+                    canEquip ? (
+                      <button className="owned" disabled={active} onClick={() => onEquip(item)}>
+                        {collectionLabel(item, active)}
+                      </button>
+                    ) : (
+                      <button className="owned" disabled>{collectionLabel(item, active)}</button>
+                    )
                   ) : (
                     <button disabled={buyingId === item.id} onClick={() => void buy(item)}>
                       {buyingId === item.id ? "..." : `🪙 ${item.price.toLocaleString("it-IT")}`}
@@ -299,7 +423,7 @@ export default function PetHub({
             <div className="celebration-stars" aria-hidden="true">
               <span>★</span><span>✦</span><span>★</span><span>✦</span><span>★</span><span>✦</span>
             </div>
-            <small>{celebratingItem.kind === "chiki" ? "NUOVO LOOK!" : "NUOVO ARREDO!"}</small>
+            <small>{celebratingItem.kind === "room" ? "NUOVO ARREDO!" : "NUOVO TESORO DI CHIKI!"}</small>
             <h2>CHIKI È FELICISSIMA!</h2>
             <div className="celebration-stage">
               <div className="celebration-chiki">
@@ -310,18 +434,12 @@ export default function PetHub({
                   alt="Chiki che esulta"
                 />
               </div>
-              {celebratingItem.kind === "room" || celebratingItem.slot === "toy" ? (
+              {(celebratingItem.kind === "room" || ["toy", "food", "care", "outfit"].includes(celebratingItem.slot)) && (
                 <ItemArt item={celebratingItem} />
-              ) : null}
+              )}
             </div>
             <strong>{celebratingItem.name}</strong>
-            <p>
-              {celebratingItem.kind === "chiki" && celebratingItem.slot !== "toy"
-                ? "Acquistato e indossato subito da Chiki!"
-                : celebratingItem.kind === "chiki"
-                  ? "Nuovo gioco aggiunto alla collezione di Chiki!"
-                  : "Acquistato e sistemato subito nella stanza!"}
-            </p>
+            <p>{celebrationDescription(celebratingItem)}</p>
             <button onClick={() => setCelebratingItem(null)}>EVVIVA!</button>
           </div>
         </div>
