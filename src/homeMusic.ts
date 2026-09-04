@@ -66,7 +66,7 @@ const playMusicStep = () => {
   musicStep += 1;
 };
 
-export const startHomeMusic = async () => {
+export const unlockHomeAudio = async () => {
   const context = getAudioContext();
   if (!context) return false;
 
@@ -76,7 +76,13 @@ export const startHomeMusic = async () => {
     return false;
   }
 
-  if (context.state !== "running") return false;
+  return context.state === "running";
+};
+
+export const startHomeMusic = async () => {
+  const unlocked = await unlockHomeAudio();
+  const context = getAudioContext();
+  if (!unlocked || !context || context.state !== "running") return false;
   if (musicTimer !== null) return true;
 
   playMusicStep();
