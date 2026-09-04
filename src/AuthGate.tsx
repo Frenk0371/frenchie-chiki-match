@@ -7,6 +7,7 @@ import {
   registerAccount,
   signOutAccount,
 } from "./cloudClient";
+import { unlockHomeAudio } from "./homeMusic";
 import "./Auth.css";
 
 type Mode = "login" | "register";
@@ -27,6 +28,12 @@ export default function AuthGate() {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
+  const enterGame = (readyAccount: ReadyAccount) => {
+    // Ogni nuova apertura parte con la musica attiva. Il giocatore può silenziarla dalla Home.
+    localStorage.setItem("chiki-home-music", "on");
+    setAccount(readyAccount);
+  };
+
   useEffect(() => {
     let active = true;
 
@@ -35,7 +42,7 @@ export default function AuthGate() {
         const session = await getValidSession();
         if (!session) return;
         const restored = await bootstrapCloudAccount(session);
-        if (active && restored) setAccount({ username: restored.username });
+        if (active && restored) enterGame({ username: restored.username });
       } catch (error) {
         if (active) {
           setIsError(true);
@@ -86,6 +93,10 @@ export default function AuthGate() {
       }
     }
 
+    // Sblocca l'AudioContext nello stesso gesto con cui l'utente entra nel gioco.
+    // Su iPhone questo consente alla musica della Home di partire appena App viene montata.
+    void unlockHomeAudio();
+
     setWorking(true);
     try {
       if (mode === "register") {
@@ -99,13 +110,13 @@ export default function AuthGate() {
           return;
         }
         if (result.account) {
-          setAccount({ username: result.account.username });
+          enterGame({ username: result.account.username });
           return;
         }
       } else {
         const result = await loginAccount(email, password);
         if (!result) throw new Error("Accesso non riuscito.");
-        setAccount({ username: result.username });
+        enterGame({ username: result.username });
       }
     } catch (error) {
       setIsError(true);
