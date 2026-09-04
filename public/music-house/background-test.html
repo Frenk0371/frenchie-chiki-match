@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#080b16" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Test schermo spento · Music House</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--bg:#070a12;--panel:#131827;--text:#f7f8ff;--muted:#9aa3b9;--line:#2b3047;--accent:#67d8ff}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+    body{background:radial-gradient(circle at 12% 3%,#123d65 0,transparent 30%),radial-gradient(circle at 92% 7%,#56124e 0,transparent 28%),#070a12}
+    main{max-width:620px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) 18px calc(36px + env(safe-area-inset-bottom,0px))}
+    a{color:var(--accent);text-decoration:none;font-weight:750}.eyebrow{color:var(--accent);font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;margin-top:28px}
+    h1{font-size:clamp(34px,9vw,52px);line-height:1;margin:10px 0 12px;letter-spacing:-1.5px}.lead{color:var(--muted);font-size:17px;line-height:1.5;margin:0 0 24px}
+    .card{border:1px solid var(--line);border-radius:24px;background:#111522e8;padding:18px;margin-top:14px}.card h2{margin:0 0 8px;font-size:21px}.card p{color:var(--muted);line-height:1.5;margin:6px 0}
+    .status{display:grid;gap:8px;margin:16px 0}.row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid #242a3d}.row:last-child{border-bottom:0}.row span{color:var(--muted)}.row strong{text-align:right}
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}button{min-height:50px;border:0;border-radius:15px;font:inherit;font-weight:850;color:#fff;cursor:pointer}.primary{grid-column:1/-1;background:linear-gradient(135deg,#28bdf0,#735cff,#eb4ec2)}.secondary{background:#202638;border:1px solid #343a50}.secondary:disabled{opacity:.45}
+    .instruction{display:flex;gap:12px;align-items:flex-start;margin-top:13px}.num{flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#202638;font-weight:850}.instruction p{margin:3px 0;color:#d6daea;line-height:1.45}
+    .result{margin-top:16px;padding:13px;border-radius:16px;background:#0c101b;border:1px solid #252b40;color:#dce0f2;line-height:1.45}.result.good{border-color:#2f6b5b}.result.warn{border-color:#7b5831}
+    .log{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#aeb7ce;white-space:pre-wrap;max-height:160px;overflow:auto;background:#090d17;border-radius:14px;padding:12px;margin-top:12px}
+  </style>
+</head>
+<body>
+  <main>
+    <a href="./">‹ Torna a Music House</a>
+    <div class="eyebrow">Diagnostica iPhone</div>
+    <h1>Test schermo spento</h1>
+    <p class="lead">Questo test usa un vero elemento HTML <code>&lt;audio&gt;</code>, senza YouTube. Serve a capire se il tuo iPhone consente a Music House di continuare l'audio quando blocchi lo schermo.</p>
+
+    <section class="card">
+      <h2>Stato del test</h2>
+      <div class="status">
+        <div class="row"><span>Modalità</span><strong id="mode">—</strong></div>
+        <div class="row"><span>Audio</span><strong id="audioState">Pronto</strong></div>
+        <div class="row"><span>Media Session</span><strong id="mediaState">—</strong></div>
+        <div class="row"><span>Tempo</span><strong id="timeState">0:00</strong></div>
+      </div>
+      <audio id="testAudio" preload="auto" playsinline></audio>
+      <div class="controls">
+        <button class="primary" id="startBtn">▶ Avvia test audio</button>
+        <button class="secondary" id="pauseBtn" disabled>⏸ Pausa</button>
+        <button class="secondary" id="restartBtn" disabled>↺ Riparti</button>
+      </div>
+      <div id="result" class="result">Dopo aver premuto Avvia, aspetta 5 secondi e blocca l'iPhone.</div>
+    </section>
+
+    <section class="card">
+      <h2>Cosa devi fare</h2>
+      <div class="instruction"><div class="num">1</div><p>Premi <b>Avvia test audio</b> e verifica che senti la melodia.</p></div>
+      <div class="instruction"><div class="num">2</div><p>Dopo circa 5 secondi, spegni lo schermo con il tasto laterale.</p></div>
+      <div class="instruction"><div class="num">3</div><p>Lascia l'iPhone bloccato per almeno 20–30 secondi. Se la musica continua, il background audio HTML5 funziona.</p></div>
+      <div class="instruction"><div class="num">4</div><p>Riaccendi lo schermo e controlla se sulla lock screen compaiono titolo e controlli multimediali.</p></div>
+    </section>
+
+    <section class="card">
+      <h2>Registro tecnico</h2>
+      <p>Utile per capire cosa succede quando Safari o la PWA vanno in background.</p>
+      <div id="log" class="log">Pagina caricata.</div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const audio = document.getElementById('testAudio');
+      const startBtn = document.getElementById('startBtn');
+      const pauseBtn = document.getElementById('pauseBtn');
+      const restartBtn = document.getElementById('restartBtn');
+      const mode = document.getElementById('mode');
+      const audioState = document.getElementById('audioState');
+      const mediaState = document.getElementById('mediaState');
+      const timeState = document.getElementById('timeState');
+      const result = document.getElementById('result');
+      const logBox = document.getElementById('log');
+      let audioUrl = '';
+
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      mode.textContent = isStandalone ? 'PWA installata' : 'Safari / browser';
+      mediaState.textContent = 'mediaSession' in navigator ? 'Supportata' : 'Non rilevata';
+
+      const log = (message) => {
+        const stamp = new Date().toLocaleTimeString('it-IT');
+        logBox.textContent += `\n${stamp} · ${message}`;
+        logBox.scrollTop = logBox.scrollHeight;
+      };
+
+      function buildWav(seconds = 180, sampleRate = 8000) {
+        const samples = seconds * sampleRate;
+        const buffer = new ArrayBuffer(44 + samples * 2);
+        const view = new DataView(buffer);
+        const write = (offset, text) => { for (let i = 0; i < text.length; i++) view.setUint8(offset + i, text.charCodeAt(i)); };
+        write(0, 'RIFF'); view.setUint32(4, 36 + samples * 2, true); write(8, 'WAVE'); write(12, 'fmt ');
+        view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); write(36, 'data'); view.setUint32(40, samples * 2, true);
+        const notes = [261.63, 329.63, 392.00, 329.63, 293.66, 349.23, 440.00, 349.23];
+        for (let i = 0; i < samples; i++) {
+          const t = i / sampleRate;
+          const noteIndex = Math.floor(t / 1.5) % notes.length;
+          const phase = t % 1.5;
+          const envelope = Math.min(1, phase / 0.08) * Math.min(1, (1.5 - phase) / 0.12);
+          const carrier = Math.sin(2 * Math.PI * notes[noteIndex] * t);
+          const harmony = Math.sin(2 * Math.PI * notes[noteIndex] * 0.5 * t) * 0.28;
+          const value = Math.max(-1, Math.min(1, (carrier + harmony) * 0.16 * envelope));
+          view.setInt16(44 + i * 2, value * 32767, true);
+        }
+        return new Blob([buffer], { type: 'audio/wav' });
+      }
+
+      function prepareAudio() {
+        if (audioUrl) return;
+        result.textContent = 'Preparazione audio di test…';
+        const blob = buildWav();
+        audioUrl = URL.createObjectURL(blob);
+        audio.src = audioUrl;
+        log(`Audio HTML5 generato localmente (${Math.round(blob.size / 1024)} KB).`);
+        result.textContent = 'Pronto. Premi Avvia, poi blocca lo schermo dopo 5 secondi.';
+      }
+
+      if ('mediaSession' in navigator) {
+        try {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: 'Test schermo spento',
+            artist: 'Music House',
+            album: 'Diagnostica background audio'
+          });
+          navigator.mediaSession.setActionHandler('play', () => audio.play());
+          navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+          navigator.mediaSession.setActionHandler('seekbackward', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+          navigator.mediaSession.setActionHandler('seekforward', () => { audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + 10); });
+        } catch (error) {
+          log(`Media Session parziale: ${error.message}`);
+        }
+      }
+
+      startBtn.addEventListener('click', async () => {
+        try {
+          prepareAudio();
+          await audio.play();
+          result.className = 'result good';
+          result.textContent = 'Audio in riproduzione. Ora blocca l’iPhone e ascolta per 20–30 secondi.';
+        } catch (error) {
+          result.className = 'result warn';
+          result.textContent = `Avvio non riuscito: ${error.message}`;
+          log(`Errore play: ${error.message}`);
+        }
+      });
+      pauseBtn.addEventListener('click', () => audio.pause());
+      restartBtn.addEventListener('click', async () => { audio.currentTime = 0; await audio.play(); });
+
+      audio.addEventListener('play', () => { audioState.textContent = 'In riproduzione'; startBtn.textContent = '▶ In riproduzione'; pauseBtn.disabled = false; restartBtn.disabled = false; log('Evento play.'); });
+      audio.addEventListener('pause', () => { audioState.textContent = 'In pausa'; startBtn.textContent = '▶ Riprendi'; log(`Evento pause a ${audio.currentTime.toFixed(1)}s.`); });
+      audio.addEventListener('ended', () => log('Evento ended.'));
+      audio.addEventListener('error', () => log(`Errore audio: ${audio.error?.message || audio.error?.code || 'sconosciuto'}`));
+      audio.addEventListener('timeupdate', () => { const s = Math.floor(audio.currentTime); timeState.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; });
+      document.addEventListener('visibilitychange', () => log(`visibilitychange → ${document.visibilityState}. Audio paused=${audio.paused}.`));
+      window.addEventListener('pagehide', () => log(`pagehide. Audio paused=${audio.paused}.`));
+      window.addEventListener('pageshow', () => log(`pageshow. Audio paused=${audio.paused}.`));
+      window.addEventListener('beforeunload', () => { if (audioUrl) URL.revokeObjectURL(audioUrl); });
+
+      prepareAudio();
+    })();
+  </script>
+</body>
+</html>
