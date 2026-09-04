@@ -16,6 +16,7 @@ import "./release500Tweaks";
 import "./cloud500Tweaks";
 import "./advancedGameplayTweaks";
 import "./mapPolish";
+import "./hudReadabilityTweaks";
 import AuthGate from "./AuthGate";
 
 createRoot(document.getElementById("root")!).render(
