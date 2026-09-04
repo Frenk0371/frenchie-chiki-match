@@ -1,15 +1,15 @@
 export type ObstacleCellConfig = {
-  row: number
-  col: number
-  hits?: number
-}
+  row: number;
+  col: number;
+  hits?: number;
+};
 
-export type BoosterKind = 'shuffle' | 'hammer' | 'rocket' | 'bomb' | 'breaker'
+export type BoosterKind = 'shuffle' | 'hammer' | 'rocket' | 'bomb' | 'breaker';
 
 export type BoosterConfig = {
-  kind: BoosterKind
-  uses: number
-}
+  kind: BoosterKind;
+  uses: number;
+};
 
 export type LevelObjective =
   | 'score'
@@ -22,335 +22,296 @@ export type LevelObjective =
   | 'crateCollect'
   | 'scoreCrate'
   | 'iceCrate'
-  | 'iceCrateCollect'
+  | 'iceCrateCollect';
 
 export type LevelConfig = {
-  level: number
-  world: number
-  name: string
-  moves: number
-  targetScore: number
-  objective: LevelObjective
-  collectType?: number
-  collectAmount?: number
-  collectType2?: number
-  collectAmount2?: number
-  iceCells?: ObstacleCellConfig[]
-  crateCells?: ObstacleCellConfig[]
-  boosters: BoosterConfig[]
-}
+  level: number;
+  world: number;
+  name: string;
+  moves: number;
+  targetScore: number;
+  objective: LevelObjective;
+  collectType?: number;
+  collectAmount?: number;
+  collectType2?: number;
+  collectAmount2?: number;
+  iceCells?: ObstacleCellConfig[];
+  crateCells?: ObstacleCellConfig[];
+  chainCells?: ObstacleCellConfig[];
+  woodCells?: ObstacleCellConfig[];
+  grassCells?: ObstacleCellConfig[];
+  snowCells?: ObstacleCellConfig[];
+  rockCells?: ObstacleCellConfig[];
+  mudCells?: ObstacleCellConfig[];
+  bananaChance?: number;
+  boosters: BoosterConfig[];
+};
 
 export type WorldConfig = {
-  id: number
-  name: string
-  subtitle: string
-  firstLevel: number
-  lastLevel: number
-  theme: 'garden' | 'ice' | 'castle' | 'night' | 'volcano'
-}
+  id: number;
+  name: string;
+  subtitle: string;
+  firstLevel: number;
+  lastLevel: number;
+  theme: 'garden' | 'ice' | 'castle' | 'night' | 'volcano';
+};
+
+type ExtraObstacleKey = 'chainCells' | 'woodCells' | 'grassCells' | 'snowCells' | 'rockCells' | 'mudCells';
+
+const world = (
+  id: number,
+  name: string,
+  subtitle: string,
+  theme: WorldConfig['theme'],
+): WorldConfig => ({
+  id,
+  name,
+  subtitle,
+  firstLevel: (id - 1) * 20 + 1,
+  lastLevel: id * 20,
+  theme,
+});
 
 export const worlds: WorldConfig[] = [
-  { id: 1, name: 'Giardino Fiorito', subtitle: 'Impara, raccogli e scopri i primi ostacoli', firstLevel: 1, lastLevel: 20, theme: 'garden' },
-  { id: 2, name: 'Valle Gelata', subtitle: 'Ghiaccio, cristalli e mosse sempre più preziose', firstLevel: 21, lastLevel: 40, theme: 'ice' },
-  { id: 3, name: 'Castello di Chiki', subtitle: 'Casse, combinazioni e missioni a più obiettivi', firstLevel: 41, lastLevel: 60, theme: 'castle' },
-  { id: 4, name: 'Bosco Incantato', subtitle: 'Strategia, raccolte miste e ostacoli combinati', firstLevel: 61, lastLevel: 80, theme: 'night' },
-  { id: 5, name: 'Vulcano di Chiki', subtitle: 'La sfida finale: poche mosse, tanti ostacoli, grandi combo', firstLevel: 81, lastLevel: 100, theme: 'volcano' },
-]
+  world(1, 'Giardino Fiorito', 'Impara, raccogli e scopri i primi ostacoli', 'garden'),
+  world(2, 'Valle Gelata', 'Ghiaccio, neve e mosse sempre più preziose', 'ice'),
+  world(3, 'Castello di Chiki', 'Casse, legno e missioni a più obiettivi', 'castle'),
+  world(4, 'Bosco Incantato', 'Erba, catene e combinazioni sempre più ragionate', 'night'),
+  world(5, 'Vulcano di Chiki', 'Rocce, fango e ostacoli resistenti', 'volcano'),
+  world(6, 'Prato delle Farfalle', 'Erba alta, fiori e prime catene', 'garden'),
+  world(7, 'Caverna di Cristallo', 'Ghiaccio, neve e cristalli resistenti', 'ice'),
+  world(8, 'Villaggio di Legno', 'Tavole, casse e passaggi stretti', 'castle'),
+  world(9, 'Foresta delle Liane', 'Erba, catene e missioni intrecciate', 'night'),
+  world(10, 'Montagna Innevata', 'Neve profonda e ostacoli a più strati', 'ice'),
+  world(11, 'Ponte delle Catene', 'Catene rinforzate e poche mosse preziose', 'castle'),
+  world(12, 'Palude Frizzante', 'Fango, erba e combinazioni imprevedibili', 'night'),
+  world(13, 'Lago delle Ninfee', 'Raccolte multiple e sentieri verdi', 'garden'),
+  world(14, 'Miniera di Chiki', 'Legno, rocce e casse nella miniera', 'castle'),
+  world(15, 'Tempesta Bianca', 'Neve, ghiaccio e barriere sempre più dure', 'ice'),
+  world(16, 'Giungla Segreta', 'Erba fitta, fango e catene nascoste', 'night'),
+  world(17, 'Fortezza delle Rocce', 'Rocce dure e barriere combinate', 'castle'),
+  world(18, 'Giardino delle Stelle', 'Combo, raccolte e ostacoli misti', 'garden'),
+  world(19, 'Gola del Vento', 'Catene, rocce e passaggi difficili', 'night'),
+  world(20, 'Picco delle Banane', 'Sfide dure con più occasioni di trovare banane', 'garden'),
+  world(21, 'Grotte di Lava', 'Rocce, legno e fango a più strati', 'volcano'),
+  world(22, 'Regno di Neve', 'Neve profonda, ghiaccio e catene', 'ice'),
+  world(23, 'Torre delle Catene', 'Barriere rinforzate e obiettivi multipli', 'castle'),
+  world(24, 'Bosco delle Meraviglie', 'Quasi tutti gli ostacoli si combinano', 'night'),
+  world(25, 'Corona di Chiki', 'La sfida finale con tutti gli ostacoli', 'volcano'),
+];
 
-const cells = (positions: Array<[number, number]>, hits = 1): ObstacleCellConfig[] =>
-  positions.map(([row, col]) => ({ row, col, hits }))
-
-const crossIce = cells([
-  [1, 3],
-  [2, 2], [2, 3], [2, 4],
-  [3, 3],
-  [4, 3],
-])
-
-const gardenIce = cells([
-  [1, 1], [1, 5],
-  [2, 2], [2, 4],
-  [3, 3],
-  [4, 2], [4, 4],
-  [5, 1], [5, 5],
-  [6, 3],
-])
-
-const ringIce = cells([
-  [1, 1], [1, 2], [1, 4], [1, 5],
-  [2, 0], [2, 6],
-  [5, 0], [5, 6],
-  [6, 1], [6, 2], [6, 4], [6, 5],
-])
-
-const hardIce = cells([
-  [1, 2], [1, 4],
-  [2, 1], [2, 3], [2, 5],
-  [4, 1], [4, 3], [4, 5],
-  [5, 2], [5, 4],
-], 2)
-
-const frozenWall = cells([
-  [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6],
-  [5, 0], [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], [5, 6],
-], 2)
-
-const checkerIce = cells([
-  [0, 0], [0, 2], [0, 4], [0, 6],
-  [2, 1], [2, 3], [2, 5],
-  [4, 0], [4, 2], [4, 4], [4, 6],
-  [6, 1], [6, 3], [6, 5],
-], 2)
-
-const bossIce = cells([
-  [0, 0], [0, 3], [0, 6],
-  [1, 1], [1, 5],
-  [2, 2], [2, 4],
-  [3, 3],
-  [4, 2], [4, 4],
-  [5, 1], [5, 5],
-  [6, 0], [6, 3], [6, 6],
-  [7, 2], [7, 4],
-], 2)
-
-const crateGate = cells([
-  [2, 1], [2, 2], [2, 3], [2, 4], [2, 5],
-  [5, 1], [5, 2], [5, 3], [5, 4], [5, 5],
-])
-
-const crateCorners = cells([
-  [0, 0], [0, 1], [0, 5], [0, 6],
-  [1, 0], [1, 6],
-  [6, 0], [6, 6],
-  [7, 0], [7, 1], [7, 5], [7, 6],
-])
-
-const crateMaze = cells([
-  [1, 1], [1, 3], [1, 5],
-  [2, 3],
-  [3, 1], [3, 3], [3, 5],
-  [4, 1], [4, 5],
-  [5, 1], [5, 3], [5, 5],
-  [6, 3],
-])
-
-const hardCrates = cells([
-  [1, 1], [1, 3], [1, 5],
-  [2, 2], [2, 4],
-  [4, 2], [4, 4],
-  [5, 1], [5, 3], [5, 5],
-], 2)
-
-const fortressCrates = cells([
-  [0, 1], [0, 2], [0, 4], [0, 5],
-  [2, 0], [2, 3], [2, 6],
-  [4, 0], [4, 3], [4, 6],
-  [6, 1], [6, 2], [6, 4], [6, 5],
-], 2)
-
-const bossCrates = cells([
-  [0, 1], [0, 5],
-  [1, 0], [1, 2], [1, 4], [1, 6],
-  [3, 1], [3, 3], [3, 5],
-  [4, 1], [4, 3], [4, 5],
-  [6, 0], [6, 2], [6, 4], [6, 6],
-  [7, 1], [7, 5],
-], 2)
-
-const boosterPacks: Record<number, BoosterConfig[][]> = {
-  1: [
-    [{ kind: 'shuffle', uses: 3 }, { kind: 'hammer', uses: 3 }, { kind: 'rocket', uses: 2 }],
-    [{ kind: 'shuffle', uses: 2 }, { kind: 'hammer', uses: 2 }, { kind: 'rocket', uses: 2 }],
-    [{ kind: 'hammer', uses: 2 }, { kind: 'rocket', uses: 1 }, { kind: 'bomb', uses: 1 }],
-  ],
-  2: [
-    [{ kind: 'hammer', uses: 2 }, { kind: 'breaker', uses: 2 }, { kind: 'rocket', uses: 1 }],
-    [{ kind: 'breaker', uses: 2 }, { kind: 'hammer', uses: 1 }, { kind: 'shuffle', uses: 1 }],
-    [{ kind: 'breaker', uses: 1 }, { kind: 'rocket', uses: 1 }, { kind: 'bomb', uses: 1 }],
-  ],
-  3: [
-    [{ kind: 'bomb', uses: 2 }, { kind: 'hammer', uses: 2 }, { kind: 'rocket', uses: 1 }],
-    [{ kind: 'bomb', uses: 2 }, { kind: 'breaker', uses: 1 }, { kind: 'hammer', uses: 1 }],
-    [{ kind: 'bomb', uses: 1 }, { kind: 'breaker', uses: 1 }, { kind: 'rocket', uses: 1 }],
-  ],
-  4: [
-    [{ kind: 'shuffle', uses: 2 }, { kind: 'bomb', uses: 2 }, { kind: 'breaker', uses: 2 }],
-    [{ kind: 'bomb', uses: 2 }, { kind: 'rocket', uses: 1 }, { kind: 'breaker', uses: 1 }],
-    [{ kind: 'bomb', uses: 1 }, { kind: 'breaker', uses: 1 }, { kind: 'hammer', uses: 1 }],
-  ],
-  5: [
-    [{ kind: 'bomb', uses: 2 }, { kind: 'breaker', uses: 1 }, { kind: 'rocket', uses: 1 }],
-    [{ kind: 'bomb', uses: 1 }, { kind: 'breaker', uses: 1 }, { kind: 'rocket', uses: 1 }],
-    [{ kind: 'bomb', uses: 1 }, { kind: 'breaker', uses: 1 }, { kind: 'hammer', uses: 1 }],
-  ],
+const ALL_POSITIONS: Array<[number, number]> = [];
+for (let rowIndex = 0; rowIndex < 8; rowIndex++) {
+  for (let colIndex = 0; colIndex < 7; colIndex++) ALL_POSITIONS.push([rowIndex, colIndex]);
 }
 
-const boostersFor = (world: number, local: number) => {
-  const packs = boosterPacks[world]
-  const index = local <= 7 ? 0 : local <= 14 ? 1 : 2
-  return packs[index].map((booster) => ({ ...booster }))
-}
+const keyOf = (row: number, col: number) => `${row}:${col}`;
 
-type LevelSpec = Omit<LevelConfig, 'level' | 'world' | 'name' | 'moves' | 'boosters'>
+const cellKeys = (cells: ObstacleCellConfig[] = []) =>
+  new Set(cells.map((cell) => keyOf(cell.row, cell.col)));
 
-const makeLevel = (
-  world: number,
-  local: number,
-  name: string,
-  moves: number,
-  spec: LevelSpec,
-): LevelConfig => ({
-  level: (world - 1) * 20 + local,
-  world,
-  name,
-  moves,
-  ...spec,
-  boosters: boostersFor(world, local),
-})
+const spreadCells = (
+  seed: number,
+  count: number,
+  hits = 1,
+  occupied = new Set<string>(),
+): ObstacleCellConfig[] => {
+  const result: ObstacleCellConfig[] = [];
+  const used = new Set(occupied);
+  let cursor = Math.abs(seed * 17 + 29) % ALL_POSITIONS.length;
+  let guard = 0;
 
-const worldNames: Record<number, string[]> = {
-  1: [
-    'Prime mosse', 'Pioggia di punti', 'Raccolta verde', 'Doppia raccolta', 'Sfida di Chiki',
-    'Gelo leggero', 'Giardino gelato', 'Trifogli congelati', 'Cuori e gemme', 'Punti sotto zero',
-    'Ghiaccio duro', 'Sentiero di ossa', 'Anello di gelo', 'Corsa nel prato', 'Tempesta fiorita',
-    'Prime casse', 'Casse e trifogli', 'Cancello gelato', 'Giardino in trappola', 'Finale nel giardino',
-  ],
-  2: [
-    'Ingresso nella valle', 'Cristalli freddi', 'Cuori di ghiaccio', 'Parete congelata', 'Neve e ossa',
-    'Doppio gelo', 'Trifogli polari', 'Tempesta azzurra', 'Casse congelate', 'Punti glaciali',
-    'Scacchiera di ghiaccio', 'Gemme nel gelo', 'Muro del nord', 'Gelo senza tregua', 'Valanga di Chiki',
-    'Casse nella neve', 'Doppia missione polare', 'Fortezza di ghiaccio', 'Ultima bufera', 'Re della valle',
-  ],
-  3: [
-    'Portone reale', 'Casse nel cortile', 'Tesoro nascosto', 'Sala delle casse', 'Ghiaccio nel castello',
-    'Ossa reali', 'Labirinto di legno', 'Punti nella torre', 'Casse rinforzate', 'Guardia di Chiki',
-    'Corridoio segreto', 'Gemme della corona', 'Fortezza di casse', 'Trappola reale', 'Sala del trono',
-    'Doppia barriera', 'Tesoro congelato', 'Assedio al castello', 'Ultima corona', 'Boss del castello',
-  ],
-  4: [
-    'Ingresso nel bosco', 'Luci tra gli alberi', 'Sentiero incantato', 'Casse nel buio', 'Gelo di mezzanotte',
-    'Fiori lunari', 'Doppia trappola', 'Bosco di cristallo', 'Radici e casse', 'Combo notturna',
-    'Nebbia di Chiki', 'Cuori nel bosco', 'Labirinto incantato', 'Gelo e legno', 'Corsa al chiaro di luna',
-    'Bosco proibito', 'Tre missioni', 'Sentiero senza luce', 'Ultima radura', 'Spirito del bosco',
-  ],
-  5: [
-    'Ingresso nel vulcano', 'Rocce roventi', 'Casse incandescenti', 'Gelo impossibile', 'Ossa di lava',
-    'Camera ardente', 'Doppia barriera rossa', 'Combo esplosiva', 'Cristalli di fuoco', 'Prova del vulcano',
-    'Fortezza di lava', 'Cuore della montagna', 'Trappola estrema', 'Ghiaccio e fuoco', 'Corsa sul magma',
-    'Ultime casse', 'Tempesta finale', 'Tre obiettivi', 'Sfida del cratere', 'Grande finale di Chiki',
-  ],
-}
-
-const target = (world: number, local: number) => 4200 + world * 900 + local * 230
-const collect = (world: number, local: number) => 7 + world * 2 + Math.floor(local / 5)
-
-const movesFor = (world: number, local: number) => {
-  const base = 23 - Math.floor((world - 1) * 0.9)
-  const pressure = Math.floor((local - 1) / 4)
-  const bossBonus = local % 5 === 0 ? 3 : 0
-  return Math.max(15, base - pressure + bossBonus)
-}
-
-const gardenSpec = (local: number): LevelSpec => {
-  const hard = local > 10
-  const slot = (local - 1) % 10
-  const iceSet = hard ? hardIce : crossIce
-  const crateSet = hard ? hardCrates : crateGate
-  switch (slot) {
-    case 0: return { targetScore: target(1, local), objective: 'score' }
-    case 1: return { targetScore: 0, objective: 'collect', collectType: 2, collectAmount: collect(1, local) }
-    case 2: return { targetScore: 0, objective: 'collectDouble', collectType: 0, collectAmount: collect(1, local) - 1, collectType2: 4, collectAmount2: collect(1, local) - 1 }
-    case 3: return { targetScore: target(1, local) + 700, objective: 'score' }
-    case 4: return { targetScore: 0, objective: 'ice', iceCells: iceSet }
-    case 5: return { targetScore: 0, objective: 'iceCollect', collectType: 1, collectAmount: collect(1, local), iceCells: hard ? gardenIce : crossIce }
-    case 6: return { targetScore: target(1, local), objective: 'scoreIce', iceCells: hard ? ringIce : gardenIce }
-    case 7: return { targetScore: 0, objective: 'crate', crateCells: crateSet }
-    case 8: return { targetScore: 0, objective: 'crateCollect', collectType: 3, collectAmount: collect(1, local), crateCells: hard ? crateMaze : crateGate }
-    default: return { targetScore: 0, objective: 'iceCrateCollect', collectType: 2, collectAmount: collect(1, local), iceCells: hard ? ringIce : crossIce, crateCells: hard ? hardCrates : crateGate }
+  while (result.length < Math.min(count, ALL_POSITIONS.length - used.size) && guard < 500) {
+    const [row, col] = ALL_POSITIONS[cursor % ALL_POSITIONS.length];
+    const key = keyOf(row, col);
+    if (!used.has(key)) {
+      result.push({ row, col, hits });
+      used.add(key);
+    }
+    cursor += 7 + ((seed + guard) % 13);
+    guard++;
   }
-}
 
-const iceSpec = (local: number): LevelSpec => {
-  const hard = local > 10
-  const slot = (local - 1) % 10
-  const iceSet = hard ? frozenWall : gardenIce
-  switch (slot) {
-    case 0: return { targetScore: 0, objective: 'ice', iceCells: hard ? checkerIce : crossIce }
-    case 1: return { targetScore: 0, objective: 'iceCollect', collectType: 4, collectAmount: collect(2, local), iceCells: iceSet }
-    case 2: return { targetScore: target(2, local), objective: 'scoreIce', iceCells: hard ? hardIce : ringIce }
-    case 3: return { targetScore: 0, objective: 'ice', iceCells: hard ? frozenWall : hardIce }
-    case 4: return { targetScore: 0, objective: 'iceCrate', iceCells: hard ? bossIce : gardenIce, crateCells: crateGate }
-    case 5: return { targetScore: 0, objective: 'collectDouble', collectType: 1, collectAmount: collect(2, local), collectType2: 2, collectAmount2: collect(2, local) - 2 }
-    case 6: return { targetScore: target(2, local) + 900, objective: 'scoreIce', iceCells: hard ? checkerIce : ringIce }
-    case 7: return { targetScore: 0, objective: 'crate', crateCells: hard ? hardCrates : crateCorners }
-    case 8: return { targetScore: 0, objective: 'iceCrateCollect', collectType: 0, collectAmount: collect(2, local), iceCells: hard ? frozenWall : hardIce, crateCells: hard ? crateMaze : crateGate }
-    default: return { targetScore: target(2, local) + 1500, objective: 'scoreIce', iceCells: hard ? bossIce : frozenWall }
+  return result;
+};
+
+const WORLD_OBSTACLES: Record<number, ExtraObstacleKey[]> = {
+  1: ['grassCells'],
+  2: ['snowCells', 'grassCells'],
+  3: ['woodCells', 'chainCells'],
+  4: ['grassCells', 'chainCells', 'woodCells'],
+  5: ['rockCells', 'mudCells', 'woodCells'],
+  6: ['grassCells', 'chainCells'],
+  7: ['snowCells', 'rockCells', 'chainCells'],
+  8: ['woodCells', 'chainCells', 'rockCells'],
+  9: ['grassCells', 'chainCells', 'mudCells'],
+  10: ['snowCells', 'rockCells', 'chainCells'],
+  11: ['chainCells', 'woodCells', 'rockCells'],
+  12: ['mudCells', 'grassCells', 'woodCells'],
+  13: ['grassCells', 'mudCells', 'chainCells'],
+  14: ['woodCells', 'rockCells', 'chainCells'],
+  15: ['snowCells', 'rockCells', 'chainCells', 'woodCells'],
+  16: ['grassCells', 'mudCells', 'chainCells', 'woodCells'],
+  17: ['rockCells', 'woodCells', 'chainCells', 'mudCells'],
+  18: ['grassCells', 'snowCells', 'chainCells', 'rockCells'],
+  19: ['chainCells', 'rockCells', 'mudCells', 'woodCells'],
+  20: ['grassCells', 'rockCells', 'mudCells', 'snowCells', 'chainCells'],
+  21: ['rockCells', 'woodCells', 'mudCells', 'chainCells', 'grassCells'],
+  22: ['snowCells', 'chainCells', 'rockCells', 'woodCells', 'grassCells'],
+  23: ['chainCells', 'woodCells', 'rockCells', 'mudCells', 'snowCells'],
+  24: ['grassCells', 'snowCells', 'chainCells', 'woodCells', 'rockCells', 'mudCells'],
+  25: ['grassCells', 'snowCells', 'chainCells', 'woodCells', 'rockCells', 'mudCells'],
+};
+
+const levelNames = [
+  'Prime mosse', 'Pioggia di punti', 'Raccolta verde', 'Doppia raccolta', 'Sfida di Chiki',
+  'Gelo leggero', 'Sentiero gelato', 'Trappola nascosta', 'Casse sul percorso', 'Prova del mondo',
+  'Passaggio segreto', 'Raccolta difficile', 'Barriera rinforzata', 'Labirinto di Chiki', 'Corsa contro le mosse',
+  'Fortezza', 'Doppia barriera', 'Tempesta', 'Sfida estrema', 'Finale del mondo',
+];
+
+const boostersFor = (level: number): BoosterConfig[] => {
+  if (level <= 40) return [
+    { kind: 'shuffle', uses: 3 }, { kind: 'hammer', uses: 3 }, { kind: 'rocket', uses: 2 },
+  ];
+  if (level <= 120) return [
+    { kind: 'shuffle', uses: 2 }, { kind: 'hammer', uses: 2 }, { kind: 'rocket', uses: 2 },
+  ];
+  if (level <= 240) return [
+    { kind: 'hammer', uses: 2 }, { kind: 'breaker', uses: 2 }, { kind: 'bomb', uses: 1 },
+  ];
+  if (level <= 380) return [
+    { kind: 'hammer', uses: 1 }, { kind: 'breaker', uses: 2 }, { kind: 'bomb', uses: 1 },
+  ];
+  return [
+    { kind: 'rocket', uses: 1 }, { kind: 'breaker', uses: 1 }, { kind: 'bomb', uses: 1 },
+  ];
+};
+
+const objectiveFor = (local: number): LevelObjective => {
+  const sequence: LevelObjective[] = [
+    'score', 'score', 'collect', 'collectDouble', 'score',
+    'ice', 'iceCollect', 'scoreIce', 'crate', 'crateCollect',
+    'iceCrate', 'collectDouble', 'scoreCrate', 'iceCrateCollect', 'score',
+    'ice', 'crateCollect', 'iceCrate', 'scoreIce', 'iceCrateCollect',
+  ];
+  return sequence[local - 1];
+};
+
+const needsIce = (objective: LevelObjective) =>
+  objective === 'ice' || objective === 'iceCollect' || objective === 'scoreIce' || objective === 'iceCrate' || objective === 'iceCrateCollect';
+
+const needsCrates = (objective: LevelObjective) =>
+  objective === 'crate' || objective === 'crateCollect' || objective === 'scoreCrate' || objective === 'iceCrate' || objective === 'iceCrateCollect';
+
+const numberOfExtraKinds = (worldId: number) => {
+  if (worldId <= 3) return 1;
+  if (worldId <= 7) return 2;
+  if (worldId <= 13) return 3;
+  if (worldId <= 19) return 4;
+  if (worldId <= 23) return 5;
+  return 6;
+};
+
+const hitStrength = (worldId: number, local: number, kind: ExtraObstacleKey) => {
+  const boss = local === 10 || local === 20;
+  if (worldId <= 4) return 1;
+  if (worldId <= 9) return boss ? 2 : 1;
+  if (worldId <= 16) return 2;
+  if (worldId <= 21) return boss ? 3 : 2;
+  if ((kind === 'grassCells' || kind === 'mudCells') && !boss) return 2;
+  return 3;
+};
+
+const movesFor = (worldId: number, local: number) => {
+  const worldPressure = Math.floor((worldId - 1) / 3);
+  const localPressure = Math.floor((local - 1) / 6);
+  const bossBonus = local === 10 || local === 20 ? 2 : 0;
+  return Math.max(14, 25 - worldPressure - localPressure + bossBonus);
+};
+
+const targetFor = (level: number, worldId: number, local: number) =>
+  3500 + level * 95 + worldId * 180 + (local === 20 ? 1800 : 0);
+
+const collectFor = (level: number, local: number) =>
+  7 + Math.floor(level / 28) + Math.floor(local / 5);
+
+const bananaChanceFor = (worldId: number, level: number) => {
+  if (worldId === 20) return 0.16;
+  if (worldId >= 24) return 0.12;
+  return Math.min(0.11, 0.055 + Math.floor(level / 100) * 0.01);
+};
+
+const makeLevel = (level: number): LevelConfig => {
+  const worldId = Math.ceil(level / 20);
+  const local = ((level - 1) % 20) + 1;
+  const objective = objectiveFor(local);
+  const targetScore = objective === 'score' || objective === 'scoreIce' || objective === 'scoreCrate'
+    ? targetFor(level, worldId, local)
+    : 0;
+
+  const config: LevelConfig = {
+    level,
+    world: worldId,
+    name: local === 20 ? `Finale ${worlds[worldId - 1].name}` : levelNames[local - 1],
+    moves: movesFor(worldId, local),
+    targetScore,
+    objective,
+    bananaChance: bananaChanceFor(worldId, level),
+    boosters: boostersFor(level),
+  };
+
+  const amount = collectFor(level, local);
+  if (objective === 'collect' || objective === 'iceCollect' || objective === 'crateCollect' || objective === 'iceCrateCollect') {
+    config.collectType = (worldId + local) % 6;
+    config.collectAmount = amount;
   }
-}
-
-const castleSpec = (local: number): LevelSpec => {
-  const hard = local > 10
-  const slot = (local - 1) % 10
-  const crates = hard ? fortressCrates : crateMaze
-  switch (slot) {
-    case 0: return { targetScore: 0, objective: 'crate', crateCells: hard ? hardCrates : crateGate }
-    case 1: return { targetScore: 0, objective: 'crateCollect', collectType: 4, collectAmount: collect(3, local), crateCells: crates }
-    case 2: return { targetScore: target(3, local), objective: 'scoreCrate', crateCells: hard ? fortressCrates : crateCorners }
-    case 3: return { targetScore: 0, objective: 'crate', crateCells: hard ? bossCrates : hardCrates }
-    case 4: return { targetScore: 0, objective: 'iceCrate', iceCells: hard ? hardIce : crossIce, crateCells: crates }
-    case 5: return { targetScore: 0, objective: 'collectDouble', collectType: 1, collectAmount: collect(3, local), collectType2: 4, collectAmount2: collect(3, local) - 1 }
-    case 6: return { targetScore: 0, objective: 'crateCollect', collectType: 5, collectAmount: collect(3, local) - 2, crateCells: hard ? fortressCrates : crateMaze }
-    case 7: return { targetScore: target(3, local) + 1200, objective: 'scoreCrate', crateCells: hard ? bossCrates : hardCrates }
-    case 8: return { targetScore: 0, objective: 'iceCrateCollect', collectType: 0, collectAmount: collect(3, local), iceCells: hard ? checkerIce : gardenIce, crateCells: hard ? fortressCrates : crateMaze }
-    default: return { targetScore: 0, objective: 'iceCrate', iceCells: hard ? bossIce : hardIce, crateCells: hard ? bossCrates : hardCrates }
+  if (objective === 'collectDouble') {
+    config.collectType = (worldId + local) % 6;
+    config.collectAmount = amount;
+    config.collectType2 = (worldId + local + 3) % 6;
+    config.collectAmount2 = Math.max(5, amount - 2);
   }
-}
 
-const forestSpec = (local: number): LevelSpec => {
-  const hard = local > 10
-  const slot = (local - 1) % 10
-  switch (slot) {
-    case 0: return { targetScore: target(4, local), objective: 'score' }
-    case 1: return { targetScore: 0, objective: 'collectDouble', collectType: 2, collectAmount: collect(4, local), collectType2: 3, collectAmount2: collect(4, local) - 1 }
-    case 2: return { targetScore: 0, objective: 'iceCollect', collectType: 5, collectAmount: collect(4, local) - 2, iceCells: hard ? checkerIce : ringIce }
-    case 3: return { targetScore: 0, objective: 'crateCollect', collectType: 1, collectAmount: collect(4, local), crateCells: hard ? fortressCrates : crateMaze }
-    case 4: return { targetScore: 0, objective: 'iceCrate', iceCells: hard ? frozenWall : hardIce, crateCells: hard ? hardCrates : crateGate }
-    case 5: return { targetScore: target(4, local) + 1200, objective: 'scoreIce', iceCells: hard ? bossIce : gardenIce }
-    case 6: return { targetScore: target(4, local) + 800, objective: 'scoreCrate', crateCells: hard ? bossCrates : hardCrates }
-    case 7: return { targetScore: 0, objective: 'iceCrateCollect', collectType: 4, collectAmount: collect(4, local), iceCells: hard ? checkerIce : ringIce, crateCells: hard ? fortressCrates : crateMaze }
-    case 8: return { targetScore: 0, objective: 'collectDouble', collectType: 0, collectAmount: collect(4, local), collectType2: 5, collectAmount2: collect(4, local) - 3 }
-    default: return { targetScore: 0, objective: 'iceCrateCollect', collectType: 2, collectAmount: collect(4, local), iceCells: hard ? bossIce : frozenWall, crateCells: hard ? bossCrates : hardCrates }
+  const occupied = new Set<string>();
+
+  if (needsIce(objective)) {
+    const iceCount = Math.min(14, 5 + Math.floor(worldId / 4) + (local >= 15 ? 2 : 0));
+    const iceHits = worldId >= 15 ? 2 : worldId >= 8 && (local === 10 || local === 20) ? 2 : 1;
+    config.iceCells = spreadCells(level + 11, iceCount, iceHits, occupied);
+    config.iceCells.forEach((cell) => occupied.add(keyOf(cell.row, cell.col)));
   }
-}
 
-const volcanoSpec = (local: number): LevelSpec => {
-  const hard = local > 10
-  const slot = (local - 1) % 10
-  switch (slot) {
-    case 0: return { targetScore: 0, objective: 'iceCrate', iceCells: hard ? bossIce : frozenWall, crateCells: hard ? fortressCrates : hardCrates }
-    case 1: return { targetScore: 0, objective: 'iceCrateCollect', collectType: 4, collectAmount: collect(5, local), iceCells: hard ? checkerIce : hardIce, crateCells: hard ? bossCrates : crateMaze }
-    case 2: return { targetScore: target(5, local) + 1500, objective: 'scoreCrate', crateCells: hard ? bossCrates : fortressCrates }
-    case 3: return { targetScore: target(5, local) + 1800, objective: 'scoreIce', iceCells: hard ? bossIce : checkerIce }
-    case 4: return { targetScore: 0, objective: 'collectDouble', collectType: 1, collectAmount: collect(5, local), collectType2: 5, collectAmount2: collect(5, local) - 2 }
-    case 5: return { targetScore: 0, objective: 'ice', iceCells: hard ? bossIce : frozenWall }
-    case 6: return { targetScore: 0, objective: 'crate', crateCells: hard ? bossCrates : fortressCrates }
-    case 7: return { targetScore: 0, objective: 'iceCollect', collectType: 0, collectAmount: collect(5, local), iceCells: hard ? bossIce : checkerIce }
-    case 8: return { targetScore: target(5, local) + 2500, objective: 'score' }
-    default: return { targetScore: 0, objective: 'iceCrateCollect', collectType: 2, collectAmount: collect(5, local) + 2, iceCells: bossIce, crateCells: bossCrates }
+  if (needsCrates(objective)) {
+    const crateCount = Math.min(13, 5 + Math.floor(worldId / 5) + (local >= 16 ? 2 : 0));
+    const crateHits = worldId >= 18 ? 2 : worldId >= 10 && local === 20 ? 2 : 1;
+    config.crateCells = spreadCells(level + 37, crateCount, crateHits, occupied);
+    config.crateCells.forEach((cell) => occupied.add(keyOf(cell.row, cell.col)));
   }
-}
 
-const builders: Record<number, (local: number) => LevelSpec> = {
-  1: gardenSpec,
-  2: iceSpec,
-  3: castleSpec,
-  4: forestSpec,
-  5: volcanoSpec,
-}
+  const pool = WORLD_OBSTACLES[worldId] ?? [];
+  const unlockedPool = pool.filter((kind) => {
+    if (worldId === 1 && kind === 'grassCells') return local >= 8;
+    if (worldId === 2 && kind === 'snowCells') return local >= 2;
+    if (worldId === 3 && kind === 'woodCells') return local >= 3;
+    return true;
+  });
 
-export const levels: LevelConfig[] = worlds.flatMap((world) =>
-  worldNames[world.id].map((name, index) => {
-    const local = index + 1
-    return makeLevel(world.id, local, name, movesFor(world.id, local), builders[world.id](local))
-  }),
-)
+  const desiredKinds = Math.min(numberOfExtraKinds(worldId), unlockedPool.length);
+  const rotated = unlockedPool.length === 0
+    ? []
+    : [...unlockedPool.slice((local - 1) % unlockedPool.length), ...unlockedPool.slice(0, (local - 1) % unlockedPool.length)];
+
+  rotated.slice(0, desiredKinds).forEach((kind, index) => {
+    const baseCount = 3 + Math.floor(worldId / 5) + Math.floor((local - 1) / 8);
+    const bossExtra = local === 10 || local === 20 ? 2 : 0;
+    const count = Math.min(8, baseCount + bossExtra);
+    const cells = spreadCells(level * (index + 3) + worldId, count, hitStrength(worldId, local, kind), occupied);
+    cells.forEach((cell) => occupied.add(keyOf(cell.row, cell.col)));
+    config[kind] = cells;
+  });
+
+  return config;
+};
+
+export const levels: LevelConfig[] = Array.from({ length: 500 }, (_, index) => makeLevel(index + 1));
