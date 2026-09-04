@@ -10,6 +10,7 @@ import "./visualTweaks";
 import "./worldGameplayTweaks";
 import "./matchEffectsTweaks";
 import "./release100Tweaks";
+import "./mapPolish";
 import AuthGate from "./AuthGate";
 
 createRoot(document.getElementById("root")!).render(
