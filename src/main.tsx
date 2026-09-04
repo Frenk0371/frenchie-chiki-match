@@ -22,6 +22,7 @@ import "./dragSwapTweaks";
 import "./specialShopTweaks";
 import "./profileAvatarTweaks";
 import "./specialDragActivationTweaks";
+import "./powerAnimationTweaks";
 import AuthGate from "./AuthGate";
 import "./uiRefresh.css";
 import "./socialFeatures";
