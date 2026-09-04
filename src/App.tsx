@@ -17,6 +17,7 @@ import "./Map.css";
 import "./HomeAudio.css";
 
 type AppView = "home" | "map" | "game" | "leaderboard" | "frenchies";
+type BoosterCounts = { shuffle: number; hammer: number; rocket: number };
 
 type AppProps = {
   username: string;
@@ -75,7 +76,7 @@ function App({ username, onSignOut }: AppProps) {
   const [coins, setCoins] = useState(() => Math.max(0, Number(localStorage.getItem("chiki-coins") || "500")));
   const [inventory, setInventory] = useState<string[]>(() => loadJson("chiki-inventory", [...STARTER_INVENTORY]));
   const [equipped, setEquipped] = useState<Record<string, string>>(() => loadJson("chiki-equipped", { ...STARTER_EQUIPPED }));
-  const [roomState] = useState<Record<string, string | number>>(() => loadJson("chiki-room-state", {}));
+  const [roomState, setRoomState] = useState<Record<string, string | number>>(() => loadJson("chiki-room-state", {}));
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState("");
@@ -160,6 +161,22 @@ function App({ username, onSignOut }: AppProps) {
   }, []);
 
   useEffect(() => {
+    const boostersChanged = (event: Event) => {
+      const detail = (event as CustomEvent<BoosterCounts>).detail;
+      if (!detail) return;
+      setRoomState((current) => ({
+        ...current,
+        booster_shuffle: Math.max(0, Number(detail.shuffle) || 0),
+        booster_hammer: Math.max(0, Number(detail.hammer) || 0),
+        booster_rocket: Math.max(0, Number(detail.rocket) || 0),
+      }));
+    };
+
+    window.addEventListener("chiki-boosters-changed", boostersChanged);
+    return () => window.removeEventListener("chiki-boosters-changed", boostersChanged);
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem("chiki-coins", String(coins));
     localStorage.setItem("chiki-inventory", JSON.stringify(inventory));
     localStorage.setItem("chiki-equipped", JSON.stringify(equipped));
@@ -241,6 +258,17 @@ function App({ username, onSignOut }: AppProps) {
     const result = await purchaseShopItem(item.id);
     setCoins(result.new_coins);
     setInventory(result.new_inventory);
+
+    if (item.id.startsWith("booster_")) {
+      const key = item.id;
+      const fallback = item.id === "booster_rocket" ? 2 : 3;
+      setRoomState((current) => ({
+        ...current,
+        [key]: Math.min(99, Math.max(0, Number(current[key] ?? fallback)) + 1),
+      }));
+      return;
+    }
+
     setEquipped((current) => ({ ...current, [item.slot]: item.id }));
 
     if (item.slot === "outfit") {
@@ -279,6 +307,11 @@ function App({ username, onSignOut }: AppProps) {
   };
 
   const totalStars = Object.values(levelStars).reduce((sum, stars) => sum + stars, 0);
+  const boosterCounts: BoosterCounts = {
+    shuffle: Math.max(0, Number(roomState.booster_shuffle ?? 3)),
+    hammer: Math.max(0, Number(roomState.booster_hammer ?? 3)),
+    rocket: Math.max(0, Number(roomState.booster_rocket ?? 2)),
+  };
 
   if (view === "leaderboard") {
     const myPosition = leaderboard.findIndex(
@@ -351,6 +384,7 @@ function App({ username, onSignOut }: AppProps) {
         coins={coins}
         inventory={inventory}
         equipped={equipped}
+        boosters={boosterCounts}
         onBack={() => setView("home")}
         onBuy={buyItem}
         onEquip={equipItem}
