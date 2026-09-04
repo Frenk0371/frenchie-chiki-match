@@ -22,6 +22,7 @@
         <img src="./music-house-192.png" alt="" />
         <span><b>Music House</b><small>La tua musica, a casa tua.</small></span>
       </button>
+      <button class="account-btn" id="accountBtn" aria-label="Account"><span id="accountGlyph">👤</span><small id="accountLabel">Account</small></button>
     </header>
 
     <main id="appContent" class="content" aria-live="polite"></main>
@@ -58,13 +59,38 @@
     </section>
   </div>
 
+  <div class="modal-backdrop" id="accountModal" hidden>
+    <section class="modal-card account-modal-card" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+      <div class="modal-head"><h2 id="accountTitle">Account Music House</h2><button data-close-modal="accountModal">✕</button></div>
+      <div id="accountGuestView">
+        <p class="help auth-intro">Accedi per tenere separate playlist, preferiti, album e cronologia di ogni persona della famiglia. Puoi continuare a usare Music House anche senza account.</p>
+        <label class="field-label" for="displayName">Nome</label>
+        <input id="displayName" class="text-field" type="text" autocomplete="name" placeholder="Es. Francesco" />
+        <label class="field-label auth-gap" for="accountEmail">Email</label>
+        <input id="accountEmail" class="text-field" type="email" autocomplete="email" placeholder="nome@email.it" />
+        <label class="field-label auth-gap" for="accountPassword">Password</label>
+        <input id="accountPassword" class="text-field" type="password" autocomplete="current-password" placeholder="Almeno 6 caratteri" />
+        <div id="accountError" class="auth-error" hidden></div>
+        <button class="primary-btn auth-action" id="signInBtn">Accedi</button>
+        <button class="secondary-btn" id="signUpBtn">Crea account</button>
+      </div>
+      <div id="accountUserView" hidden>
+        <div class="account-profile"><div class="account-avatar" id="accountAvatar">M</div><div><strong id="accountName">Music House</strong><small id="accountEmailCurrent"></small></div></div>
+        <p class="help">Le tue playlist, i preferiti e gli album salvati vengono sincronizzati nel tuo profilo.</p>
+        <button class="secondary-btn danger-btn" id="signOutBtn">Esci dall’account</button>
+      </div>
+    </section>
+  </div>
+
   <div id="toast" class="toast" hidden></div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./app-core.js"></script>
   <script src="./app-search-ui.js"></script>
   <script src="./app-search-api.js"></script>
   <script src="./app-library.js"></script>
+  <script src="./app-auth.js"></script>
   <script src="./app-player.js"></script>
 </body>
 </html>
