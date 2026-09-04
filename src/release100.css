@@ -1,0 +1,89 @@
+.world-switcher {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 14px 12px 13px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.world-switcher::-webkit-scrollbar {
+  display: none;
+}
+
+.world-switcher button {
+  flex: 0 0 112px;
+  scroll-snap-align: center;
+}
+
+.world-4 .map-title {
+  background: linear-gradient(160deg, #466f55, #193a2b);
+  border-top-color: #95d29e;
+  border-bottom-color: #10291e;
+  box-shadow: inset 0 6px #6fae7d, inset 0 -7px #153222, 0 8px 0 #0a1d14, 0 15px 24px #0b211866;
+}
+
+.world-5 .map-title {
+  background: linear-gradient(160deg, #e36134, #74251e);
+  border-top-color: #ffad66;
+  border-bottom-color: #45130f;
+  box-shadow: inset 0 6px #f8874d, inset 0 -7px #5c1a15, 0 8px 0 #32100d, 0 15px 24px #35100c66;
+}
+
+.world-4 .world-switcher button.active {
+  background: linear-gradient(#5f9d6d, #356344);
+  border-color: #c8f1b7;
+  box-shadow: inset 0 4px #86c88f, 0 5px 0 #244831;
+}
+
+.world-5 .world-switcher button.active {
+  background: linear-gradient(#ef7440, #a83826);
+  border-color: #ffd18d;
+  box-shadow: inset 0 4px #ff9b5f, 0 5px 0 #6d221a;
+}
+
+.adventure-path.world-theme-night {
+  background-image:
+    linear-gradient(#17342788, #0b1f1a99),
+    radial-gradient(circle at 18% 12%, #d7ffbd50 0 4px, transparent 5px),
+    radial-gradient(circle at 76% 26%, #9ee8ff45 0 3px, transparent 4px),
+    radial-gradient(circle at 43% 51%, #f3d8ff35 0 4px, transparent 5px),
+    url("/garden-game-bg.jpg");
+  background-size: auto, 120px 120px, 155px 155px, 190px 190px, cover;
+}
+
+.adventure-path.world-theme-volcano {
+  background-image:
+    linear-gradient(#7b2f1c70, #28110f96),
+    radial-gradient(circle at 18% 18%, #ffb23f88 0 5px, transparent 6px),
+    radial-gradient(circle at 78% 36%, #ff6a2a80 0 4px, transparent 5px),
+    radial-gradient(circle at 46% 66%, #ffd66b55 0 4px, transparent 5px),
+    url("/garden-game-bg.jpg");
+  background-size: auto, 130px 130px, 175px 175px, 210px 210px, cover;
+}
+
+.world-4 .level-stop button {
+  border-color: #e6ffc8;
+  background: linear-gradient(#9eea75 0 14%, #58a95d 15% 58%, #2d6f46 59%);
+  text-shadow: 0 3px 0 #265538;
+  box-shadow: inset 0 6px #dfffc7, inset 0 -7px #255b3b, 0 8px 0 #204b32, 0 13px 25px #132f2266;
+}
+
+.world-5 .level-stop button {
+  border-color: #ffe5a3;
+  background: linear-gradient(#ffb34f 0 14%, #f36a31 15% 58%, #b83224 59%);
+  text-shadow: 0 3px 0 #7e261d;
+  box-shadow: inset 0 6px #ffd47c, inset 0 -7px #92251d, 0 8px 0 #741c18, 0 13px 25px #42120f66;
+}
+
+.world-4 .level-stop > span {
+  border-color: #8cc56f;
+  background: linear-gradient(#fffef0 0 15%, #e7f2c7 16% 62%, #a8c87a 63%);
+  box-shadow: inset 0 4px #fff, inset 0 -5px #6f9352, 0 7px 0 #496338, 0 10px 18px #21341e44;
+}
+
+.world-5 .level-stop > span {
+  border-color: #dd813c;
+  background: linear-gradient(#fff4df 0 15%, #ffd2a2 16% 62%, #e58a4c 63%);
+  box-shadow: inset 0 4px #fff, inset 0 -5px #aa582d, 0 7px 0 #76351f, 0 10px 18px #3d1d1644;
+}
