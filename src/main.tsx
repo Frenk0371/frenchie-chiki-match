@@ -6,6 +6,7 @@ import "@fontsource/lilita-one/400.css";
 import "./index.css";
 import "./visualTweaks";
 import "./worldGameplayTweaks";
+import "./matchEffectsTweaks";
 import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
