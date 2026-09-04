@@ -1,5 +1,6 @@
 import type { ShopItem } from "./shopCatalog";
 import "./ChikiAvatar.css";
+import "./ChikiAvatarFit.css";
 
 type ChikiAvatarProps = {
   items: Record<string, ShopItem | undefined>;
