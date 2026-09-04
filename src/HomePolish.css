@@ -1,152 +1,73 @@
-/* Home refinements inspired by the supplied Frenchie Chiki Match reference. */
+/* Home refinements based on the supplied Frenchie Chiki Match logo reference. */
 .home-screen .brand-panel {
-  margin: 0 auto 3px !important;
-  gap: 5px !important;
+  margin: 0 auto 2px !important;
+  gap: 4px !important;
 }
 
 .home-screen .reference-logo {
-  position: relative;
-  isolation: isolate;
-  width: min(94vw, 500px);
-  margin: 0 auto 2px !important;
-  padding: 5px 22px 12px;
-  display: grid;
-  justify-items: center;
-  line-height: 0.66 !important;
-  filter: drop-shadow(0 12px 8px #163c4d55) !important;
-}
-
-.home-screen .reference-logo::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 4.5%;
-  right: 4.5%;
-  top: 7%;
-  bottom: 5%;
-  border-radius: 34% 34% 30% 30% / 23% 23% 18% 18%;
-  background:
-    linear-gradient(180deg, #5f3a29 0 10%, #40261d 48%, #2c1b18 100%);
-  border: 3px solid #2b1712;
-  box-shadow:
-    inset 0 5px 0 #8b5a3a,
-    inset 0 -8px 0 #21120f,
-    0 8px 0 #1d110f,
-    0 14px 16px #1b253b66;
-  transform: perspective(430px) rotateX(2deg);
-}
-
-.home-screen .reference-logo .logo-frenchie,
-.home-screen .reference-logo .logo-match,
-.home-screen .reference-logo .logo-chiki-line > strong {
-  position: relative;
-  z-index: 2;
-  display: block;
-  font-family: "Lilita One", "Fredoka", sans-serif;
-  font-style: normal;
-  font-weight: 400 !important;
-  letter-spacing: -1.4px !important;
-  -webkit-text-stroke: 3px #332016 !important;
-  paint-order: stroke fill;
-}
-
-.home-screen .reference-logo .logo-frenchie {
-  font-size: clamp(50px, 14.6vw, 76px) !important;
-  color: #fff1d5 !important;
-  text-shadow:
-    0 3px 0 #fffaf0,
-    0 7px 0 #a06a45,
-    0 11px 0 #43261b,
-    0 15px 12px #0006 !important;
-}
-
-.home-screen .reference-logo .logo-chiki-line {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(8px, 2vw, 13px);
-  margin: -2px 0 0;
-  -webkit-text-stroke: 0 !important;
-  letter-spacing: normal !important;
-}
-
-.home-screen .reference-logo .logo-chiki-line > strong {
-  font-size: clamp(72px, 20vw, 103px) !important;
-  color: #ffb515 !important;
-  background: linear-gradient(#ffd44e 0 28%, #ffb115 53%, #ee8e06 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow:
-    0 4px 0 #ffe87c,
-    0 8px 0 #a5570b,
-    0 13px 0 #47271b,
-    0 17px 14px #0006 !important;
-}
-
-.home-screen .reference-logo .logo-match {
-  font-size: clamp(48px, 13.7vw, 70px) !important;
-  color: #53c8f3 !important;
-  background: linear-gradient(#8ee9ff 0 26%, #48c3ef 50%, #2789c7 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow:
-    0 3px 0 #baf2ff,
-    0 7px 0 #176ba0,
-    0 11px 0 #34251e,
-    0 14px 12px #0006 !important;
-}
-
-.home-screen .reference-logo .logo-paw {
-  position: relative;
-  flex: 0 0 clamp(48px, 13vw, 66px);
-  width: clamp(48px, 13vw, 66px);
-  height: clamp(48px, 13vw, 66px);
+  width: min(96vw, 530px) !important;
+  margin: -2px auto 0 !important;
+  line-height: 1 !important;
   display: block !important;
-  transform: rotate(-9deg);
-  filter: drop-shadow(0 6px 0 #251611) drop-shadow(0 8px 5px #0005);
-  -webkit-text-stroke: 0 !important;
-  letter-spacing: 0 !important;
+  filter: drop-shadow(0 10px 8px #173c4a55) !important;
 }
 
-.home-screen .reference-logo .logo-paw-right {
-  transform: scaleX(-1) rotate(-9deg);
-}
-
-.home-screen .reference-logo .logo-paw i,
-.home-screen .reference-logo .logo-paw b {
-  position: absolute;
+.home-screen .reference-logo .logo-svg {
   display: block;
-  background: linear-gradient(#ffd79f, #e8954f);
-  border: 3px solid #44281d;
-  box-shadow: inset 0 3px 0 #ffeac8;
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
 
-.home-screen .reference-logo .logo-paw i {
-  width: 15px;
-  height: 20px;
-  border-radius: 55% 55% 48% 48%;
+.home-screen .reference-logo .logo-word {
+  font-family: "Fredoka", sans-serif;
+  font-weight: 700;
+  text-anchor: middle;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
 }
 
-.home-screen .reference-logo .logo-paw i:nth-child(1) { left: 4px; top: 16px; transform: rotate(-32deg); }
-.home-screen .reference-logo .logo-paw i:nth-child(2) { left: 18px; top: 4px; transform: rotate(-12deg); }
-.home-screen .reference-logo .logo-paw i:nth-child(3) { right: 14px; top: 3px; transform: rotate(12deg); }
-.home-screen .reference-logo .logo-paw i:nth-child(4) { right: 1px; top: 15px; transform: rotate(32deg); }
-.home-screen .reference-logo .logo-paw b {
-  width: 34px;
-  height: 28px;
-  left: 16px;
-  bottom: 2px;
-  border-radius: 52% 52% 60% 60%;
-  transform: rotate(-5deg);
+.home-screen .reference-logo .logo-depth {
+  fill: #5b2d1c;
+  stroke: #28150f;
+  stroke-width: 18px;
+}
+
+.home-screen .reference-logo .logo-mid-depth {
+  fill: #8a4b26;
+  stroke: #3a2016;
+  stroke-width: 14px;
+}
+
+.home-screen .reference-logo .logo-front {
+  stroke: #3a2419;
+  stroke-width: 11px;
+}
+
+.home-screen .reference-logo .logo-front.logo-frenchie {
+  fill: url(#creamFill);
+}
+
+.home-screen .reference-logo .logo-front.logo-chiki {
+  fill: url(#goldFill);
+}
+
+.home-screen .reference-logo .logo-front.logo-match {
+  fill: url(#blueFill);
+}
+
+.home-screen .reference-logo .logo-highlight {
+  font-family: "Fredoka", sans-serif;
+  font-weight: 700;
+  text-anchor: middle;
+  fill: none;
+  stroke: #fff8de;
+  stroke-width: 3px;
+  opacity: .72;
 }
 
 .home-screen .brand-ribbon {
-  margin-top: 3px !important;
+  margin-top: -4px !important;
 }
 
 .home-screen .play-button {
@@ -154,7 +75,7 @@
 }
 
 .home-screen .main-menu {
-  margin-top: 3px !important;
+  margin-top: 2px !important;
 }
 
 .home-screen .utility-menu {
@@ -182,36 +103,11 @@
 
 @media (max-height: 760px) {
   .home-screen .reference-logo {
-    width: min(90vw, 430px);
-    padding-bottom: 8px;
+    width: min(91vw, 455px) !important;
+    margin-top: -5px !important;
   }
-  .home-screen .reference-logo .logo-frenchie {
-    font-size: 41px !important;
-  }
-  .home-screen .reference-logo .logo-chiki-line > strong {
-    font-size: 58px !important;
-  }
-  .home-screen .reference-logo .logo-match {
-    font-size: 39px !important;
-  }
-  .home-screen .reference-logo .logo-paw {
-    flex-basis: 43px;
-    width: 43px;
-    height: 43px;
-  }
-  .home-screen .reference-logo .logo-paw i {
-    width: 10px;
-    height: 14px;
-    border-width: 2px;
-  }
-  .home-screen .reference-logo .logo-paw i:nth-child(1) { left: 2px; top: 12px; }
-  .home-screen .reference-logo .logo-paw i:nth-child(2) { left: 12px; top: 3px; }
-  .home-screen .reference-logo .logo-paw i:nth-child(3) { right: 10px; top: 2px; }
-  .home-screen .reference-logo .logo-paw i:nth-child(4) { right: 0; top: 11px; }
-  .home-screen .reference-logo .logo-paw b {
-    width: 24px;
-    height: 20px;
-    left: 10px;
-    border-width: 2px;
+
+  .home-screen .brand-ribbon {
+    margin-top: -8px !important;
   }
 }
