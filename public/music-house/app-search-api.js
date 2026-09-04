@@ -1,13 +1,19 @@
   async function runSearch(query) {
-    currentSearch = { query, tracks: [], artists: [], albums: [], loading: true, error: '' };
+    currentSearch = { query, tracks: [], artists: [], albums: [], loading: true, error: '', trackError: '' };
     renderSearchResults();
     try {
-      const tasks = [searchMusicBrainzArtists(query), searchMusicBrainzAlbums(query)];
-      if (state.settings.youtubeKey) tasks.push(searchYouTube(query));
-      const results = await Promise.allSettled(tasks);
+      const results = await Promise.allSettled([
+        searchMusicBrainzArtists(query),
+        searchMusicBrainzAlbums(query),
+        searchYouTube(query),
+      ]);
+
       currentSearch.artists = results[0].status === 'fulfilled' ? results[0].value : [];
       currentSearch.albums = results[1].status === 'fulfilled' ? results[1].value : [];
-      if (state.settings.youtubeKey) currentSearch.tracks = results[2]?.status === 'fulfilled' ? results[2].value : [];
+      currentSearch.tracks = results[2].status === 'fulfilled' ? results[2].value : [];
+      currentSearch.trackError = results[2].status === 'rejected'
+        ? (results[2].reason?.message || 'Riprova tra poco.')
+        : '';
       currentSearch.loading = false;
       currentSearch.error = '';
     } catch (error) {
@@ -18,11 +24,19 @@
   }
 
   async function searchYouTube(query) {
-    const params = new URLSearchParams({ part: 'snippet', type: 'video', videoCategoryId: '10', maxResults: '20', q: query, key: state.settings.youtubeKey });
-    const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`);
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.error?.message || 'Errore YouTube API');
-    return (data.items || []).map(normalizeTrack).filter(track => track.id);
+    const response = await fetch(`/api/music-house/search?q=${encodeURIComponent(query)}`, {
+      headers: { Accept: 'application/json' },
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      if (data?.code === 'SEARCH_NOT_CONFIGURED') {
+        throw new Error('La ricerca musicale sta terminando la configurazione. Riprova tra poco.');
+      }
+      throw new Error(data?.error || 'Ricerca YouTube non disponibile.');
+    }
+
+    return Array.isArray(data.tracks) ? data.tracks.map(normalizeTrack).filter(track => track.id) : [];
   }
 
   async function searchMusicBrainzArtists(query) {
