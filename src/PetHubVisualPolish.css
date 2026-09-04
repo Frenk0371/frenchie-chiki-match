@@ -1,0 +1,415 @@
+/* Pet Hub visual polish: room, wardrobe and shop. Loaded after the existing wardrobe styles. */
+
+/* ---------- ROOM ---------- */
+.chiki-room {
+  height: 500px !important;
+  margin-top: 24px !important;
+  border-radius: 46px !important;
+  border-width: 9px !important;
+  background:
+    radial-gradient(circle at 50% 18%, #ffffffa8 0 9%, transparent 31%),
+    linear-gradient(180deg, #94e7ff 0 60%, #e8c98d 60.2% 72%, #bd8249 72.2% 100%) !important;
+  box-shadow:
+    inset 0 9px #ffffffb3,
+    inset 0 -10px #c98539,
+    0 12px 0 #8b5a28,
+    0 23px 34px #24351f55 !important;
+}
+
+.chiki-room::before {
+  background:
+    radial-gradient(circle at 29% 18%, #ffffffb8 0 3.1%, transparent 3.5%),
+    radial-gradient(circle at 75% 14%, #ffffff7a 0 2.2%, transparent 2.6%),
+    linear-gradient(90deg, transparent 0 47.8%, #ffffff18 48% 52%, transparent 52.2%),
+    repeating-linear-gradient(90deg, transparent 0 88px, #9f6c3b1c 89px 91px) !important;
+}
+
+.chiki-room::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: 5%;
+  right: 5%;
+  bottom: 19px;
+  height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #69492838 0 48%, transparent 72%);
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+.room-window-glow {
+  width: 330px !important;
+  height: 190px !important;
+  top: 22px !important;
+  background: radial-gradient(circle, #ffffffb8 0 10%, #fff7 32%, #fff2 55%, transparent 73%) !important;
+}
+
+.room-chiki {
+  width: 264px !important;
+  bottom: 40px !important;
+}
+
+.room-chiki img {
+  filter: drop-shadow(0 13px 8px #31432970) saturate(1.04) !important;
+}
+
+.room-object {
+  z-index: 7 !important;
+  filter: drop-shadow(0 10px 6px #3425174d) !important;
+}
+
+.room-bed {
+  left: -2px !important;
+  bottom: 28px !important;
+  font-size: 148px !important;
+  transform-origin: 20% 100% !important;
+}
+
+.room-bed b {
+  transform: scaleX(1.14) scaleY(1.06) !important;
+}
+
+.room-bowl {
+  right: 13px !important;
+  bottom: 37px !important;
+  font-size: 92px !important;
+}
+
+.room-bowl b {
+  transform: scale(1.06) !important;
+}
+
+.room-toy {
+  right: 105px !important;
+  bottom: 49px !important;
+  font-size: 66px !important;
+}
+
+.room-status b,
+.room-status span {
+  padding: 10px 14px !important;
+  border-width: 4px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(#467596, #2b506d) !important;
+  box-shadow: inset 0 4px #82aac6, 0 5px 0 #183449, 0 8px 12px #17314540 !important;
+}
+
+.room-hint {
+  bottom: 9px !important;
+  padding: 6px 14px !important;
+  border: 2px solid #ffffff55 !important;
+  border-radius: 15px !important;
+  background: #2c4a61dc !important;
+  font-size: 10px !important;
+}
+
+/* Room collection cards */
+.collection-grid {
+  gap: 15px !important;
+}
+
+.collection-item {
+  min-height: 174px !important;
+  grid-template-columns: 100px minmax(0, 1fr) !important;
+  column-gap: 10px !important;
+  padding: 14px 12px 15px !important;
+  border-radius: 32px !important;
+  background:
+    radial-gradient(circle at 28% 18%, #ffffffaa 0 7%, transparent 8%),
+    linear-gradient(#fffdf2 0 45%, #f8cf7d 46% 100%) !important;
+}
+
+.collection-item strong {
+  font-family: "Lilita One", "Fredoka", sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.08 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
+.collection-item small {
+  margin-top: 7px !important;
+  font-size: 10px !important;
+  line-height: 1.05 !important;
+  white-space: normal !important;
+}
+
+.collection-item.active {
+  background:
+    radial-gradient(circle at 28% 18%, #ffffff78 0 7%, transparent 8%),
+    linear-gradient(#d887ec 0 45%, #9544bd 46% 100%) !important;
+}
+
+.collection-item .cartoon-item-art.compact {
+  width: 90px !important;
+  height: 90px !important;
+  border-radius: 27px !important;
+}
+
+.collection-item .cartoon-item-art.compact b {
+  font-size: 56px !important;
+}
+
+/* ---------- WARDROBE ---------- */
+.wardrobe-layout {
+  grid-template-columns: minmax(108px, 33%) minmax(0, 67%) !important;
+  gap: 10px !important;
+}
+
+.wardrobe-chiki-panel {
+  min-height: 404px !important;
+  border-radius: 40px !important;
+  box-shadow:
+    inset 0 8px #e4fbff,
+    inset 0 -9px #bd8147,
+    0 11px 0 #91612f,
+    0 18px 26px #27351d42 !important;
+}
+
+.wardrobe-chiki-avatar {
+  width: 160% !important;
+  bottom: 40px !important;
+}
+
+.wardrobe-player-stats b,
+.wardrobe-player-stats span {
+  min-width: 48px;
+  text-align: center;
+  border-width: 4px !important;
+  border-radius: 15px !important;
+  background: linear-gradient(#5185a8, #315a78) !important;
+}
+
+.wardrobe-cabinet {
+  border-radius: 36px 36px 31px 31px !important;
+  background:
+    linear-gradient(90deg, #c6874e 0 4%, transparent 4% 96%, #77411f 96%),
+    repeating-linear-gradient(90deg, #c8874f 0 36px, #b86f3d 36px 72px, #cf8d55 72px 108px) !important;
+  box-shadow:
+    inset 0 8px #f4c68c,
+    inset 0 -10px #68371b,
+    0 11px 0 #583019,
+    0 19px 27px #2f221752 !important;
+}
+
+.wardrobe-cabinet-top {
+  border-radius: 22px !important;
+  background: linear-gradient(#825236, #4d2b1c) !important;
+  box-shadow: inset 0 5px #b17954, 0 5px 0 #3f2317 !important;
+}
+
+.wardrobe-filters {
+  gap: 9px !important;
+  border-radius: 22px !important;
+  background: linear-gradient(#9a6039, #774425) !important;
+}
+
+.wardrobe-filters button {
+  min-height: 62px !important;
+  border-radius: 19px !important;
+  transition: transform .12s ease, filter .12s ease;
+}
+
+.wardrobe-filters button.active {
+  transform: translateY(-1px);
+  filter: saturate(1.1);
+  box-shadow: inset 0 5px #efbdf7, 0 5px 0 #632a7f, 0 0 12px #c96be077 !important;
+}
+
+.wardrobe-filters span {
+  font-size: 28px !important;
+}
+
+.wardrobe-filters small {
+  font-size: 10px !important;
+  letter-spacing: .2px !important;
+}
+
+.wardrobe-shelves {
+  gap: 16px !important;
+  padding: 12px 8px 18px !important;
+  border-radius: 24px !important;
+  background:
+    linear-gradient(90deg, transparent 49.2%, #65381f 49.2% 50.8%, transparent 50.8%),
+    linear-gradient(#98603a, #744124) !important;
+}
+
+.wardrobe-slot {
+  grid-template-columns: 68px minmax(0, 1fr) !important;
+  min-height: 102px !important;
+  padding: 12px 31px 16px 9px !important;
+  gap: 9px !important;
+  border-radius: 22px 22px 14px 14px !important;
+}
+
+.wardrobe-slot-icon {
+  width: 66px !important;
+  height: 66px !important;
+  border-radius: 20px !important;
+  font-size: 43px !important;
+}
+
+.wardrobe-slot-copy strong {
+  display: block !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  font-size: 13px !important;
+  line-height: 1.1 !important;
+}
+
+.wardrobe-slot-copy small {
+  display: block !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  margin-top: 5px !important;
+  font-size: 8.5px !important;
+  line-height: 1.08 !important;
+}
+
+.wardrobe-slot-badge {
+  width: 28px !important;
+  height: 28px !important;
+  border-width: 3px !important;
+  box-shadow: 0 3px 0 #276f22 !important;
+}
+
+/* ---------- SHOP ---------- */
+.shop-wallet {
+  border-radius: 34px !important;
+  padding: 18px !important;
+  background:
+    radial-gradient(circle at 16% 10%, #ffffff24 0 6%, transparent 7%),
+    linear-gradient(#5c4772 0 49%, #302140 50% 100%) !important;
+  box-shadow:
+    inset 0 6px #8a769b,
+    inset 0 -6px #1d1428,
+    0 9px 0 #1d1528,
+    0 15px 22px #1d15284f !important;
+}
+
+.shop-kind-switch button,
+.shop-categories button {
+  transition: transform .12s ease, filter .12s ease;
+}
+
+.shop-kind-switch button.active,
+.shop-categories button.active {
+  filter: saturate(1.08) brightness(1.03);
+}
+
+.shop-grid {
+  gap: 16px !important;
+}
+
+.shop-card {
+  position: relative;
+  min-height: 292px !important;
+  padding: 16px 11px 14px !important;
+  gap: 8px !important;
+  border-radius: 34px !important;
+  background:
+    radial-gradient(circle at 28% 13%, #ffffffb0 0 7%, transparent 8%),
+    linear-gradient(#fffef6 0 45%, #f8d382 46% 100%) !important;
+  box-shadow:
+    inset 0 7px #ffffff,
+    inset 0 -6px #c99c47,
+    0 9px 0 #8c5b25,
+    0 15px 22px #5133163d !important;
+}
+
+.shop-card.rarity-raro {
+  background:
+    radial-gradient(circle at 28% 13%, #ffffffc0 0 7%, transparent 8%),
+    linear-gradient(#effaff 0 45%, #a7d8f6 46% 100%) !important;
+  box-shadow: inset 0 7px #ffffff, inset 0 -6px #6aa8d0, 0 9px 0 #477da6, 0 15px 22px #274c673d !important;
+}
+
+.shop-card.rarity-epico {
+  background:
+    radial-gradient(circle at 28% 13%, #ffffffc0 0 7%, transparent 8%),
+    linear-gradient(#fff4c9 0 40%, #dba1ee 41% 72%, #a963d0 73% 100%) !important;
+  box-shadow: inset 0 7px #fff8db, inset 0 -6px #8143a8, 0 9px 0 #653485, 0 15px 22px #4020504a !important;
+}
+
+.shop-card .cartoon-item-art {
+  width: 122px !important;
+  height: 116px !important;
+  border-radius: 34px !important;
+  transform: translateY(-1px);
+}
+
+.shop-card .cartoon-item-art b {
+  font-size: 70px !important;
+}
+
+.shop-card > small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 4px 8px !important;
+  border: 2px solid #ffffffb5;
+  border-radius: 999px;
+  background: #6a3c5a14;
+  color: #76501f !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+}
+
+.shop-card.rarity-raro > small { color: #28577d !important; background: #2b78ad16; }
+.shop-card.rarity-epico > small { color: #6b2b7f !important; background: #7a318d18; }
+
+.shop-card > strong {
+  min-height: 46px !important;
+  padding: 0 4px;
+  font-family: "Lilita One", "Fredoka", sans-serif !important;
+  font-size: 20px !important;
+  line-height: 1.06 !important;
+  overflow-wrap: anywhere;
+}
+
+.shop-card > button {
+  min-height: 58px !important;
+  border-radius: 24px !important;
+  border-width: 5px !important;
+  font-family: "Lilita One", "Fredoka", sans-serif !important;
+  font-size: 18px !important;
+  letter-spacing: .2px;
+  box-shadow:
+    inset 0 6px #c1f99f,
+    inset 0 -5px #2b9221,
+    0 8px 0 #287820,
+    0 11px 14px #215f1c40 !important;
+}
+
+.shop-card > button.owned {
+  box-shadow:
+    inset 0 6px #a9ddfb,
+    inset 0 -5px #245f96,
+    0 8px 0 #205789,
+    0 11px 14px #1b456b40 !important;
+}
+
+.shop-card.locked {
+  opacity: .82 !important;
+  filter: saturate(.65) contrast(.96) !important;
+}
+
+@media (max-width: 380px) {
+  .room-bed { font-size: 136px !important; }
+  .room-bowl { font-size: 86px !important; }
+  .wardrobe-layout { grid-template-columns: minmax(104px, 33%) minmax(0, 67%) !important; }
+  .wardrobe-slot { grid-template-columns: 62px minmax(0, 1fr) !important; padding-right: 28px !important; }
+  .wardrobe-slot-icon { width: 60px !important; height: 60px !important; font-size: 39px !important; }
+  .wardrobe-slot-copy strong { font-size: 12px !important; }
+  .shop-card > strong { font-size: 18px !important; }
+}
