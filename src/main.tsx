@@ -24,6 +24,7 @@ import "./profileAvatarTweaks";
 import "./specialDragActivationTweaks";
 import AuthGate from "./AuthGate";
 import "./uiRefresh.css";
+import "./socialFeatures";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
