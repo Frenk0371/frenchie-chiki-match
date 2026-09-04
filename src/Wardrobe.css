@@ -1,0 +1,444 @@
+/* Chiki wardrobe: the dog stays visible while the collection grows on the right. */
+.chiki-wardrobe-section {
+  padding-top: 18px !important;
+}
+
+.wardrobe-title-row {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 2px 16px;
+}
+
+.wardrobe-title-row > div {
+  min-width: 0;
+}
+
+.wardrobe-title-row small {
+  display: block;
+  color: #6a2b72;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 12px;
+  letter-spacing: .7px;
+}
+
+.wardrobe-title-row h2 {
+  margin: 0;
+  color: #54205f;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: clamp(31px, 8.8vw, 45px);
+  line-height: .92;
+  text-shadow: 0 4px 0 #fff2b7;
+}
+
+.wardrobe-title-row > button {
+  flex: 0 0 auto;
+  min-width: 104px;
+  padding: 12px 15px 13px;
+  border: 5px solid #f7f0b4;
+  border-radius: 27px;
+  background: linear-gradient(#83ed56 0 20%, #56ce34 21% 65%, #2eae25 66%);
+  color: #fff;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 18px;
+  text-shadow: 0 3px 0 #24751e;
+  box-shadow: inset 0 5px #c8ff9f, inset 0 -5px #25891f, 0 7px 0 #256c20, 0 11px 16px #163f1845;
+}
+
+.wardrobe-layout {
+  display: grid;
+  grid-template-columns: minmax(126px, 41%) minmax(0, 59%);
+  align-items: start;
+  gap: 10px;
+}
+
+/* Sticky inside the wardrobe section: Chiki remains on screen while shelves scroll. */
+.wardrobe-chiki-panel {
+  position: sticky;
+  top: 10px;
+  z-index: 3;
+  min-height: 350px;
+  padding: 11px 8px 12px;
+  overflow: hidden;
+  border: 6px solid #fff0b6;
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 50% 14%, #ffffff9e 0 7%, transparent 8%),
+    linear-gradient(#8edffd 0 58%, #efcf91 59% 100%);
+  box-shadow:
+    inset 0 6px #d9f8ff,
+    inset 0 -7px #bd8147,
+    0 9px 0 #91612f,
+    0 15px 20px #27351d3c;
+}
+
+.wardrobe-chiki-name {
+  position: relative;
+  z-index: 4;
+  text-align: center;
+}
+
+.wardrobe-chiki-name small {
+  display: block;
+  color: #456681;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 9px;
+}
+
+.wardrobe-chiki-name strong {
+  display: block;
+  color: #5b2a65;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 27px;
+  line-height: 1;
+  text-shadow: 0 3px 0 #fff;
+}
+
+.wardrobe-chiki-avatar {
+  position: absolute;
+  left: 50%;
+  bottom: 36px;
+  width: 148%;
+  aspect-ratio: 1 / 1.08;
+  transform: translateX(-50%);
+}
+
+.wardrobe-player-stats {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 8px;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.wardrobe-player-stats b,
+.wardrobe-player-stats span {
+  padding: 5px 7px;
+  border: 2px solid #fff;
+  border-radius: 12px;
+  background: #345d7d;
+  color: #fff;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 10px;
+  box-shadow: 0 3px 0 #18364d;
+}
+
+.wardrobe-cabinet {
+  min-width: 0;
+  padding: 11px;
+  border: 7px solid #8e592f;
+  border-radius: 32px;
+  background:
+    linear-gradient(90deg, #a96b3b 0 3%, transparent 3% 97%, #74401f 97%),
+    linear-gradient(#c9874d, #a96638);
+  box-shadow:
+    inset 0 5px #e9b676,
+    inset 0 -7px #70401f,
+    0 9px 0 #67391e,
+    0 15px 20px #2f221747;
+}
+
+.wardrobe-cabinet-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 9px;
+  border: 3px solid #ffeeb8;
+  border-radius: 19px;
+  background: linear-gradient(#7a4a2c, #5a321f);
+  color: #fff;
+  box-shadow: inset 0 4px #a86d45, 0 4px 0 #432416;
+}
+
+.wardrobe-cabinet-top small {
+  display: block;
+  color: #f7d9b2;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 8px;
+}
+
+.wardrobe-cabinet-top strong {
+  display: block;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 22px;
+  line-height: .95;
+}
+
+.wardrobe-cabinet-top > span {
+  color: #ffe265;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 18px;
+}
+
+.wardrobe-progress {
+  height: 12px;
+  margin: 9px 3px 11px;
+  overflow: hidden;
+  border: 3px solid #5a321f;
+  border-radius: 999px;
+  background: #4a2a1c;
+  box-shadow: inset 0 2px #2c180f;
+}
+
+.wardrobe-progress i {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: inherit;
+  background: linear-gradient(#fff474, #f6c52e 62%, #db9320 63%);
+  box-shadow: inset 0 2px #fff9b3;
+  transition: width .3s ease;
+}
+
+.wardrobe-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.wardrobe-filters button {
+  min-width: 0;
+  min-height: 48px;
+  padding: 5px 4px;
+  border: 3px solid #e8c68e;
+  border-radius: 16px;
+  background: linear-gradient(#764d35, #51301f);
+  color: #fff;
+  box-shadow: inset 0 3px #a27354, 0 4px 0 #3b2116;
+}
+
+.wardrobe-filters button.active {
+  border-color: #fff2a9;
+  background: linear-gradient(#c262d8, #8c3daf);
+  box-shadow: inset 0 3px #e1a3ef, 0 4px 0 #632a7f;
+}
+
+.wardrobe-filters span {
+  display: block;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.wardrobe-filters small {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: #fff;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wardrobe-shelf-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 4px 2px 7px;
+  color: #fff7dc;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+}
+
+.wardrobe-shelf-label span {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wardrobe-shelf-label small {
+  flex: 0 0 auto;
+  padding: 3px 6px;
+  border-radius: 10px;
+  background: #57331f;
+  font-size: 9px;
+}
+
+.wardrobe-shelves {
+  display: grid;
+  gap: 7px;
+}
+
+.wardrobe-slot {
+  position: relative;
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  min-height: 64px;
+  padding: 7px 27px 7px 7px;
+  border: 4px solid #e5b56e;
+  border-radius: 18px;
+  background:
+    linear-gradient(90deg, transparent 0 49%, #ffffff0a 50% 51%, transparent 52%),
+    linear-gradient(#86532f, #60371f);
+  color: #fff;
+  text-align: left;
+  box-shadow:
+    inset 0 4px #ae7448,
+    inset 0 -4px #3e2115,
+    0 4px 0 #432416;
+}
+
+.wardrobe-slot.owned {
+  border-color: #ffe69b;
+  background:
+    linear-gradient(90deg, transparent 0 49%, #ffffff18 50% 51%, transparent 52%),
+    linear-gradient(#9b6337, #744021);
+}
+
+.wardrobe-slot.active {
+  outline: 3px solid #baf985;
+  outline-offset: -6px;
+}
+
+.wardrobe-slot:disabled {
+  opacity: .58;
+}
+
+.wardrobe-slot-icon {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 3px solid #fff1bf;
+  border-radius: 15px;
+  background: linear-gradient(#cfefff, #91cee9 65%, #6fb1d0 66%);
+  font-size: 31px;
+  line-height: 1;
+  filter: drop-shadow(0 3px 2px #0003);
+  box-shadow: inset 0 4px #f5fdff, 0 3px 0 #4a829d;
+}
+
+.wardrobe-slot.empty .wardrobe-slot-icon {
+  background: linear-gradient(#74513d, #513224);
+  color: #c7a889;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 28px;
+  filter: none;
+  box-shadow: inset 0 3px #8d6750;
+}
+
+.wardrobe-slot-copy {
+  min-width: 0;
+}
+
+.wardrobe-slot-copy strong,
+.wardrobe-slot-copy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wardrobe-slot-copy strong {
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 12px;
+  line-height: 1.05;
+}
+
+.wardrobe-slot-copy small {
+  margin-top: 4px;
+  color: #ffe58f;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 8px;
+}
+
+.wardrobe-slot-badge {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  transform: translateY(-50%);
+  border: 2px solid #fff4bf;
+  border-radius: 50%;
+  background: #48b739;
+  color: #fff;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  box-shadow: 0 2px 0 #276f22;
+}
+
+.wardrobe-slot.empty .wardrobe-slot-badge {
+  background: #79513a;
+  box-shadow: 0 2px 0 #3d2418;
+}
+
+.wardrobe-footnote {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 16px 0 8px;
+}
+
+.wardrobe-footnote span {
+  padding: 7px 9px;
+  border: 3px solid #fff2bd;
+  border-radius: 15px;
+  background: #7d3ca1;
+  color: #fff;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 9px;
+  box-shadow: 0 4px 0 #54206d;
+}
+
+/* Food and care get their own softer shop-art palettes. */
+.cartoon-item-art.art-food {
+  background: linear-gradient(#fff0c6, #ffd07d 68%, #eeaa4c 69%) !important;
+  border-color: #fff2c3 !important;
+}
+
+.cartoon-item-art.art-care {
+  background: linear-gradient(#f6dcff, #d9a7ef 68%, #b66ed3 69%) !important;
+  border-color: #f7e4ff !important;
+}
+
+@media (max-width: 370px) {
+  .wardrobe-layout {
+    grid-template-columns: minmax(116px, 40%) minmax(0, 60%);
+    gap: 7px;
+  }
+
+  .wardrobe-chiki-panel {
+    min-height: 330px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .wardrobe-chiki-avatar {
+    width: 156%;
+  }
+
+  .wardrobe-cabinet {
+    padding: 8px;
+    border-width: 6px;
+  }
+
+  .wardrobe-slot {
+    grid-template-columns: 43px minmax(0, 1fr);
+    min-height: 58px;
+    padding-left: 5px;
+  }
+
+  .wardrobe-slot-icon {
+    width: 43px;
+    height: 43px;
+    font-size: 27px;
+  }
+
+  .wardrobe-slot-copy strong { font-size: 10px; }
+  .wardrobe-slot-copy small { font-size: 7px; }
+}
