@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
 import GameScene from "./game/GameScene";
+import { levels } from "./game/levels";
 import "./App.css";
 import "./Map.css";
 
@@ -21,14 +22,6 @@ const wardrobe = [
   { icon: "🐰", name: "Coniglietto" },
 ];
 
-const levelNames = [
-  "Prime mosse",
-  "Pioggia di punti",
-  "Raccolta verde",
-  "Doppia raccolta",
-  "Sfida di Chiki",
-];
-
 const loadLevelStars = (): Record<number, number> => {
   try {
     return JSON.parse(localStorage.getItem("chiki-level-stars") || "{}");
@@ -42,9 +35,12 @@ function App() {
   const [view, setView] = useState<AppView>("home");
   const [notice, setNotice] = useState("");
   const [selectedLevel, setSelectedLevel] = useState(1);
-  const [unlockedLevel, setUnlockedLevel] = useState(() =>
-    Number(localStorage.getItem("chiki-unlocked-level") || "1"),
-  );
+  const [unlockedLevel, setUnlockedLevel] = useState(() => {
+    const saved = Number(localStorage.getItem("chiki-unlocked-level") || "1");
+    const savedStars = loadLevelStars();
+    const migrated = saved === 5 && (savedStars[5] || 0) > 0 ? 6 : saved;
+    return Math.min(levels.length, Math.max(1, migrated));
+  });
   const [levelStars, setLevelStars] =
     useState<Record<number, number>>(loadLevelStars);
   const [selectedOutfit, setSelectedOutfit] = useState(
@@ -73,6 +69,7 @@ function App() {
       const { level, stars } = (
         event as CustomEvent<{ level: number; stars: number }>
       ).detail;
+
       setLevelStars((current) => {
         const updated = {
           ...current,
@@ -81,12 +78,17 @@ function App() {
         localStorage.setItem("chiki-level-stars", JSON.stringify(updated));
         return updated;
       });
+
       setUnlockedLevel((current) => {
-        const unlocked = Math.max(current, Math.min(5, level + 1));
+        const unlocked = Math.max(
+          current,
+          Math.min(levels.length, level + 1),
+        );
         localStorage.setItem("chiki-unlocked-level", String(unlocked));
         return unlocked;
       });
     };
+
     window.addEventListener("chiki-level-complete", completed);
     return () => window.removeEventListener("chiki-level-complete", completed);
   }, []);
@@ -105,6 +107,7 @@ function App() {
     (sum, stars) => sum + stars,
     0,
   );
+  const maxStars = levels.length * 3;
 
   if (view === "leaderboard") {
     const players = [
@@ -118,6 +121,7 @@ function App() {
         avatar: "chiki",
       },
     ].sort((a, b) => b.score - a.score);
+
     const myPosition =
       players.findIndex((player) => player.name === "Chiki") + 1;
 
@@ -169,6 +173,7 @@ function App() {
   if (view === "frenchies") {
     const active =
       wardrobe.find((item) => item.name === selectedOutfit) ?? wardrobe[0];
+
     return (
       <main className="feature-screen frenchies-screen">
         <header className="feature-title">
@@ -248,12 +253,14 @@ function App() {
             <small>MONDO 1</small>
             <strong>GIARDINO FIORITO</strong>
           </div>
-          <span>⭐ {totalStars}/15</span>
+          <span>⭐ {totalStars}/{maxStars}</span>
         </header>
         <div className="adventure-path">
-          {levelNames.map((name, index) => {
-            const level = index + 1;
+          {levels.map((config) => {
+            const level = config.level;
             const locked = level > unlockedLevel;
+            const hasIce = (config.iceCells?.length ?? 0) > 0;
+
             return (
               <div
                 className={`level-stop ${locked ? "locked" : ""}`}
@@ -267,8 +274,12 @@ function App() {
                   )}
                 </button>
                 <span>
-                  <em>LIVELLO {level}</em>
-                  <strong>{locked ? "DA SBLOCCARE" : name.toUpperCase()}</strong>
+                  <em>
+                    LIVELLO {level}{hasIce ? " · ❄" : ""}
+                  </em>
+                  <strong>
+                    {locked ? "DA SBLOCCARE" : config.name.toUpperCase()}
+                  </strong>
                   {!locked && (
                     <small className="level-stars">
                       {[1, 2, 3].map((star) =>
@@ -307,7 +318,9 @@ function App() {
             className="available"
             onClick={() => setView(item.view)}
           >
-            <span><img src={item.icon} alt="" aria-hidden="true" /></span>
+            <span>
+              <img src={item.icon} alt="" aria-hidden="true" />
+            </span>
             {item.label}
           </button>
         ))}
@@ -319,11 +332,11 @@ function App() {
           ["👥", "AMICI"],
           ["⚙️", "IMPOSTAZIONI"],
         ].map(([icon, label]) => (
-            <button key={label} onClick={() => soon(label)}>
-              <span>{icon}</span>
-              <small>{label}</small>
-            </button>
-          ))}
+          <button key={label} onClick={() => soon(label)}>
+            <span>{icon}</span>
+            <small>{label}</small>
+          </button>
+        ))}
       </nav>
       {notice && (
         <div className="toast" role="status">
