@@ -1,0 +1,238 @@
+/* Mobile readability pass: larger wardrobe objects, labels and controls. */
+
+.wardrobe-title-row small {
+  font-size: 14px !important;
+}
+
+.wardrobe-title-row h2 {
+  font-size: clamp(37px, 10.4vw, 52px) !important;
+  line-height: .9 !important;
+}
+
+.wardrobe-title-row > button {
+  min-width: 116px !important;
+  padding: 15px 17px 16px !important;
+  font-size: 21px !important;
+}
+
+/* Give the cabinet a little more room while keeping Chiki permanently visible. */
+.wardrobe-layout {
+  grid-template-columns: minmax(116px, 35%) minmax(0, 65%) !important;
+  gap: 9px !important;
+}
+
+.wardrobe-chiki-panel {
+  min-height: 390px !important;
+}
+
+.wardrobe-chiki-name small {
+  font-size: 11px !important;
+}
+
+.wardrobe-chiki-name strong {
+  font-size: 33px !important;
+}
+
+.wardrobe-player-stats b,
+.wardrobe-player-stats span {
+  padding: 7px 9px !important;
+  font-size: 12px !important;
+}
+
+.wardrobe-cabinet {
+  padding: 19px 11px 16px !important;
+}
+
+.wardrobe-cabinet::before {
+  height: 34px !important;
+  top: -20px !important;
+  font-size: 12px !important;
+  letter-spacing: .9px !important;
+}
+
+.wardrobe-cabinet-top {
+  padding: 11px 12px !important;
+}
+
+.wardrobe-cabinet-top small {
+  font-size: 10px !important;
+}
+
+.wardrobe-cabinet-top strong {
+  font-size: 28px !important;
+}
+
+.wardrobe-cabinet-top > span {
+  font-size: 23px !important;
+}
+
+.wardrobe-progress {
+  height: 15px !important;
+  margin-top: 12px !important;
+  margin-bottom: 15px !important;
+}
+
+.wardrobe-filters {
+  gap: 8px !important;
+  padding: 8px !important;
+}
+
+.wardrobe-filters button {
+  min-height: 58px !important;
+  padding: 7px 5px 9px !important;
+  border-radius: 18px !important;
+}
+
+.wardrobe-filters span {
+  font-size: 26px !important;
+}
+
+.wardrobe-filters small {
+  margin-top: 4px !important;
+  font-size: 10px !important;
+}
+
+.wardrobe-shelf-label {
+  margin-top: 9px !important;
+  margin-bottom: 10px !important;
+}
+
+.wardrobe-shelf-label span {
+  font-size: 12px !important;
+}
+
+.wardrobe-shelf-label small {
+  padding: 5px 8px !important;
+  font-size: 11px !important;
+}
+
+/* On phones each object gets its own large shelf. This is intentionally less dense and much easier to read. */
+.wardrobe-shelves {
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+  padding: 11px 9px 16px !important;
+}
+
+.wardrobe-slot {
+  display: grid !important;
+  grid-template-columns: 78px minmax(0, 1fr) !important;
+  grid-template-rows: 1fr !important;
+  align-items: center !important;
+  justify-items: stretch !important;
+  min-height: 100px !important;
+  padding: 12px 34px 16px 10px !important;
+  gap: 10px !important;
+  border-radius: 21px 21px 13px 13px !important;
+  text-align: left !important;
+}
+
+.wardrobe-slot-icon {
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 21px !important;
+  font-size: 46px !important;
+}
+
+.wardrobe-slot.empty .wardrobe-slot-icon {
+  font-size: 39px !important;
+}
+
+.wardrobe-slot-copy {
+  align-self: center;
+}
+
+.wardrobe-slot-copy strong {
+  min-height: 0 !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  line-height: 1.05 !important;
+  white-space: normal !important;
+}
+
+.wardrobe-slot-copy small {
+  margin-top: 7px !important;
+  font-size: 9px !important;
+  line-height: 1.05 !important;
+  white-space: normal !important;
+}
+
+.wardrobe-slot-badge {
+  right: 7px !important;
+  top: 7px !important;
+  width: 27px !important;
+  height: 27px !important;
+  font-size: 14px !important;
+}
+
+.wardrobe-slot::after {
+  left: -5px !important;
+  right: -5px !important;
+  height: 12px !important;
+}
+
+.wardrobe-footnote span {
+  padding: 9px 11px !important;
+  font-size: 11px !important;
+}
+
+@media (max-width: 370px) {
+  .wardrobe-layout {
+    grid-template-columns: minmax(105px, 34%) minmax(0, 66%) !important;
+    gap: 6px !important;
+  }
+
+  .wardrobe-chiki-panel {
+    min-height: 365px !important;
+  }
+
+  .wardrobe-chiki-name strong {
+    font-size: 29px !important;
+  }
+
+  .wardrobe-cabinet {
+    padding: 18px 7px 13px !important;
+  }
+
+  .wardrobe-filters {
+    gap: 6px !important;
+    padding: 6px !important;
+  }
+
+  .wardrobe-filters button {
+    min-height: 52px !important;
+  }
+
+  .wardrobe-filters span {
+    font-size: 22px !important;
+  }
+
+  .wardrobe-filters small {
+    font-size: 9px !important;
+  }
+
+  .wardrobe-shelves {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
+  .wardrobe-slot {
+    grid-template-columns: 66px minmax(0, 1fr) !important;
+    min-height: 92px !important;
+    padding-left: 7px !important;
+    gap: 8px !important;
+  }
+
+  .wardrobe-slot-icon {
+    width: 62px !important;
+    height: 62px !important;
+    font-size: 40px !important;
+  }
+
+  .wardrobe-slot-copy strong {
+    font-size: 12px !important;
+  }
+
+  .wardrobe-slot-copy small {
+    font-size: 8px !important;
+  }
+}
