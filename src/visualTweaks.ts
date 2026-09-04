@@ -39,13 +39,81 @@ factoryPrototype.text = function (
 } as typeof factoryPrototype.text;
 
 const logoMarkup = `
-  <span class="logo-frenchie">FRENCHIE</span>
-  <span class="logo-chiki-line">
-    <span class="logo-paw logo-paw-left" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
-    <strong>CHIKI</strong>
-    <span class="logo-paw logo-paw-right" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
-  </span>
-  <em class="logo-match">MATCH</em>
+  <svg class="logo-svg" viewBox="0 0 900 400" role="img" aria-label="Frenchie Chiki Match">
+    <defs>
+      <linearGradient id="plaqueFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#6b422f"/>
+        <stop offset=".48" stop-color="#44291f"/>
+        <stop offset="1" stop-color="#2b1915"/>
+      </linearGradient>
+      <linearGradient id="creamFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fffdf0"/>
+        <stop offset=".48" stop-color="#fff1d8"/>
+        <stop offset="1" stop-color="#e9c49b"/>
+      </linearGradient>
+      <linearGradient id="goldFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffd94a"/>
+        <stop offset=".52" stop-color="#ffb516"/>
+        <stop offset="1" stop-color="#ee8c06"/>
+      </linearGradient>
+      <linearGradient id="blueFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#8eeaff"/>
+        <stop offset=".5" stop-color="#48c4ef"/>
+        <stop offset="1" stop-color="#2788c6"/>
+      </linearGradient>
+      <linearGradient id="pawFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffdca8"/>
+        <stop offset="1" stop-color="#e99451"/>
+      </linearGradient>
+      <filter id="softShadow" x="-20%" y="-20%" width="140%" height="160%">
+        <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#14283c" flood-opacity=".45"/>
+      </filter>
+    </defs>
+
+    <g filter="url(#softShadow)">
+      <path
+        d="M132 72 C168 40 214 38 252 43 C334 14 566 14 648 43 C696 37 742 47 775 76 C807 103 814 137 807 169 C835 192 838 236 816 266 C795 294 765 306 729 306 C680 334 220 334 171 306 C135 306 105 294 84 266 C62 236 65 192 93 169 C86 133 98 101 132 72 Z"
+        fill="url(#plaqueFill)"
+        stroke="#29160f"
+        stroke-width="12"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M143 78 C180 53 218 51 256 55 C337 29 563 29 644 55 C688 49 725 58 758 83"
+        fill="none"
+        stroke="#9b6849"
+        stroke-width="8"
+        stroke-linecap="round"
+        opacity=".75"
+      />
+
+      <g class="paw-mark" fill="url(#pawFill)" stroke="#3b2117" stroke-width="8">
+        <ellipse cx="104" cy="203" rx="30" ry="25" transform="rotate(-14 104 203)"/>
+        <ellipse cx="72" cy="170" rx="13" ry="18" transform="rotate(-30 72 170)"/>
+        <ellipse cx="91" cy="151" rx="13" ry="19" transform="rotate(-14 91 151)"/>
+        <ellipse cx="116" cy="147" rx="13" ry="19" transform="rotate(7 116 147)"/>
+        <ellipse cx="139" cy="161" rx="13" ry="18" transform="rotate(28 139 161)"/>
+
+        <ellipse cx="796" cy="203" rx="30" ry="25" transform="rotate(14 796 203)"/>
+        <ellipse cx="828" cy="170" rx="13" ry="18" transform="rotate(30 828 170)"/>
+        <ellipse cx="809" cy="151" rx="13" ry="19" transform="rotate(14 809 151)"/>
+        <ellipse cx="784" cy="147" rx="13" ry="19" transform="rotate(-7 784 147)"/>
+        <ellipse cx="761" cy="161" rx="13" ry="18" transform="rotate(-28 761 161)"/>
+      </g>
+
+      <text class="logo-word logo-depth" x="450" y="135" font-size="118">FRENCHIE</text>
+      <text class="logo-word logo-mid-depth" x="450" y="128" font-size="118">FRENCHIE</text>
+      <text class="logo-word logo-front logo-frenchie" x="450" y="119" font-size="118">FRENCHIE</text>
+
+      <text class="logo-word logo-depth" x="450" y="272" font-size="172">CHIKI</text>
+      <text class="logo-word logo-mid-depth" x="450" y="264" font-size="172">CHIKI</text>
+      <text class="logo-word logo-front logo-chiki" x="450" y="254" font-size="172">CHIKI</text>
+
+      <text class="logo-word logo-depth" x="450" y="376" font-size="116">MATCH</text>
+      <text class="logo-word logo-mid-depth" x="450" y="369" font-size="116">MATCH</text>
+      <text class="logo-word logo-front logo-match" x="450" y="360" font-size="116">MATCH</text>
+    </g>
+  </svg>
 `;
 
 const utilityIcons: Record<string, string> = {
