@@ -109,6 +109,34 @@ export default class GameScene extends Phaser.Scene {
     this.resetGestureState();
   }
 
+  private getCellCenter(row: number, col: number) {
+    const boardWidth = this.cols * this.tileSize;
+    const startX = (1080 - boardWidth) / 2;
+    return {
+      x: startX + col * this.tileSize + this.tileSize / 2,
+      y: this.boardY + row * this.tileSize + this.tileSize / 2,
+    };
+  }
+
+  private snapTileToGrid(tile: Tile) {
+    if (!tile.circle.active) return;
+    const { x, y } = this.getCellCenter(tile.row, tile.col);
+    this.tweens.killTweensOf(tile.circle);
+    tile.circle.setPosition(x, y);
+  }
+
+  private snapBoardToGrid() {
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const tile = this.board[row]?.[col];
+        if (!tile) continue;
+        tile.row = row;
+        tile.col = col;
+        this.snapTileToGrid(tile);
+      }
+    }
+  }
+
   private createHud() {
     const hud = this.add.graphics();
     hud.fillStyle(0x06182f, 0.9);
@@ -253,10 +281,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private createTile(row: number, col: number, type: number, fromAbove = false) {
-    const boardWidth = this.cols * this.tileSize;
-    const startX = (1080 - boardWidth) / 2;
-    const x = startX + col * this.tileSize + this.tileSize / 2;
-    const finalY = this.boardY + row * this.tileSize + this.tileSize / 2;
+    const { x, y: finalY } = this.getCellCenter(row, col);
 
     const circle = this.add
       .image(x, fromAbove ? finalY - this.tileSize * 2 : finalY, `tile-${this.tileKeys[type]}`)
@@ -275,7 +300,16 @@ export default class GameScene extends Phaser.Scene {
     });
 
     if (fromAbove) {
-      this.tweens.add({ targets: circle, y: finalY, duration: 300, ease: "Bounce.easeOut" });
+      this.tweens.add({
+        targets: circle,
+        x,
+        y: finalY,
+        duration: 300,
+        ease: "Bounce.easeOut",
+        onComplete: () => {
+          if (circle.active) circle.setPosition(x, finalY);
+        },
+      });
     }
 
     return tile;
@@ -469,43 +503,53 @@ export default class GameScene extends Phaser.Scene {
 
   private trySwap(tileA: Tile, tileB: Tile) {
     this.isProcessing = true;
-    const aX = tileA.circle.x;
-    const aY = tileA.circle.y;
-    const bX = tileB.circle.x;
-    const bY = tileB.circle.y;
+    this.resetGestureState();
 
-    this.tweens.killTweensOf(tileA.circle);
-    this.tweens.killTweensOf(tileB.circle);
-    tileA.circle.setPosition(aX, aY);
-    tileB.circle.setPosition(bX, bY);
+    const aStart = this.getCellCenter(tileA.row, tileA.col);
+    const bStart = this.getCellCenter(tileB.row, tileB.col);
+    this.snapTileToGrid(tileA);
+    this.snapTileToGrid(tileB);
 
     this.swapModel(tileA, tileB);
-    this.tweens.add({ targets: tileA.circle, x: bX, y: bY, duration: 210, ease: "Power2" });
+    this.tweens.add({
+      targets: tileA.circle,
+      x: bStart.x,
+      y: bStart.y,
+      duration: 210,
+      ease: "Power2",
+    });
     this.tweens.add({
       targets: tileB.circle,
-      x: aX,
-      y: aY,
+      x: aStart.x,
+      y: aStart.y,
       duration: 210,
       ease: "Power2",
       onComplete: () => {
-        this.tweens.killTweensOf(tileA.circle);
-        tileA.circle.setPosition(bX, bY);
-        tileB.circle.setPosition(aX, aY);
+        this.snapTileToGrid(tileA);
+        this.snapTileToGrid(tileB);
 
         const matches = this.findMatches();
         if (matches.length === 0) {
           this.swapModel(tileA, tileB);
-          this.tweens.add({ targets: tileA.circle, x: aX, y: aY, duration: 190, ease: "Power2" });
+          const aHome = this.getCellCenter(tileA.row, tileA.col);
+          const bHome = this.getCellCenter(tileB.row, tileB.col);
+          this.tweens.add({
+            targets: tileA.circle,
+            x: aHome.x,
+            y: aHome.y,
+            duration: 190,
+            ease: "Power2",
+          });
           this.tweens.add({
             targets: tileB.circle,
-            x: bX,
-            y: bY,
+            x: bHome.x,
+            y: bHome.y,
             duration: 190,
             ease: "Power2",
             onComplete: () => {
-              this.tweens.killTweensOf(tileA.circle);
-              tileA.circle.setPosition(aX, aY);
-              tileB.circle.setPosition(bX, bY);
+              this.snapTileToGrid(tileA);
+              this.snapTileToGrid(tileB);
+              this.snapBoardToGrid();
               this.isProcessing = false;
             },
           });
@@ -858,13 +902,11 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    this.snapBoardToGrid();
     this.isProcessing = false;
   }
 
   private collapseTiles() {
-    const boardWidth = this.cols * this.tileSize;
-    const startX = (1080 - boardWidth) / 2;
-
     for (let col = 0; col < this.cols; col++) {
       let emptyRow = this.rows - 1;
       for (let row = this.rows - 1; row >= 0; row--) {
@@ -874,20 +916,28 @@ export default class GameScene extends Phaser.Scene {
         if (row !== emptyRow) {
           this.board[emptyRow][col] = tile;
           this.board[row][col] = null;
-          tile.row = emptyRow;
-          tile.col = col;
+        }
 
-          const finalX = startX + col * this.tileSize + this.tileSize / 2;
-          const finalY = this.boardY + emptyRow * this.tileSize + this.tileSize / 2;
-          this.tweens.killTweensOf(tile.circle);
+        tile.row = emptyRow;
+        tile.col = col;
+        const { x: finalX, y: finalY } = this.getCellCenter(emptyRow, col);
+        this.tweens.killTweensOf(tile.circle);
+
+        if (row !== emptyRow) {
           this.tweens.add({
             targets: tile.circle,
             x: finalX,
             y: finalY,
             duration: 300,
             ease: "Bounce.easeOut",
+            onComplete: () => {
+              if (tile.circle.active) tile.circle.setPosition(finalX, finalY);
+            },
           });
+        } else if (tile.circle.active) {
+          tile.circle.setPosition(finalX, finalY);
         }
+
         emptyRow--;
       }
     }
@@ -904,12 +954,15 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private checkCascadeMatches() {
+    this.snapBoardToGrid();
+
     const matches = this.findMatches();
     if (matches.length > 0) {
       this.processMatches(matches, true);
       return;
     }
 
+    this.snapBoardToGrid();
     this.isProcessing = false;
     this.comboMultiplier = 1;
     this.comboText.setText("");
