@@ -1,0 +1,14 @@
+{
+  "name": "Music House",
+  "short_name": "Music House",
+  "description": "Musica, artisti, album e playlist per la famiglia.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070a12",
+  "theme_color": "#080b16",
+  "orientation": "portrait",
+  "icons": [
+    {"src":"./music-house-192.png","sizes":"192x192","type":"image/png"}
+  ]
+}
