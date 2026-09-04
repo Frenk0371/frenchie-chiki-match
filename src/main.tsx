@@ -18,6 +18,7 @@ import "./mapPolish";
 import "./hudReadabilityTweaks";
 import "./boosterEconomyTweaks";
 import "./matchEffectsTweaks";
+import "./specialShopTweaks";
 import "./profileAvatarTweaks";
 import AuthGate from "./AuthGate";
 
