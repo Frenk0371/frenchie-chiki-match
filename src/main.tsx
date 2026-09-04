@@ -5,6 +5,7 @@ import "@fontsource/fredoka/700.css";
 import "@fontsource/lilita-one/400.css";
 import "./index.css";
 import "./release100.css";
+import "./HomeEconomy.css";
 import "./visualTweaks";
 import "./worldGameplayTweaks";
 import "./matchEffectsTweaks";
