@@ -23,6 +23,7 @@ import "./specialShopTweaks";
 import "./profileAvatarTweaks";
 import "./specialDragActivationTweaks";
 import AuthGate from "./AuthGate";
+import "./uiRefresh.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
