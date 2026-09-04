@@ -23,16 +23,113 @@
     $$('[data-open-playlist]', content).forEach(btn => btn.addEventListener('click', () => openPlaylist(btn.dataset.openPlaylist)));
   }
 
+  function shuffleTracks(tracks) {
+    const shuffled = [...tracks];
+    for (let index = shuffled.length - 1; index > 0; index--) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+    }
+    if (shuffled.length > 1 && shuffled.every((track, index) => track.id === tracks[index]?.id)) {
+      [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
+    }
+    return shuffled;
+  }
+
+  function resizePlaylistImage(file) {
+    return new Promise((resolve, reject) => {
+      if (!file?.type?.startsWith('image/')) {
+        reject(new Error('Scegli un file immagine.'));
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        reject(new Error('L’immagine è troppo grande. Usa un file sotto i 10 MB.'));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Impossibile leggere l’immagine.'));
+      reader.onload = () => {
+        const image = new Image();
+        image.onerror = () => reject(new Error('Formato immagine non supportato.'));
+        image.onload = () => {
+          const size = 512;
+          const sourceSize = Math.min(image.naturalWidth, image.naturalHeight);
+          const sourceX = Math.max(0, (image.naturalWidth - sourceSize) / 2);
+          const sourceY = Math.max(0, (image.naturalHeight - sourceSize) / 2);
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const context = canvas.getContext('2d');
+          if (!context) {
+            reject(new Error('Impossibile elaborare l’immagine.'));
+            return;
+          }
+          context.drawImage(image, sourceX, sourceY, sourceSize, sourceSize, 0, 0, size, size);
+          let dataUrl = canvas.toDataURL('image/webp', 0.82);
+          if (!dataUrl.startsWith('data:image/webp')) dataUrl = canvas.toDataURL('image/jpeg', 0.84);
+          resolve(dataUrl);
+        };
+        image.src = String(reader.result || '');
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   function openPlaylist(id) {
     const playlist = state.playlists.find(item => item.id === id);
     if (!playlist) return;
     content.innerHTML = `
       <div class="back-row"><button id="backPlaylists">‹ Playlist</button></div>
-      <section class="artist-hero"><div class="playlist-art" style="width:96px;height:96px;border-radius:28px;font-size:38px">♫</div><div><h1>${esc(playlist.name)}</h1><p>${playlist.tracks.length} brani</p></div></section>
-      ${playlist.tracks.length ? `<button class="primary-btn" id="playPlaylistBtn">▶ Riproduci playlist</button><div class="track-list" style="margin-top:15px">${playlist.tracks.map(track => trackRow(track, playlist.tracks)).join('')}</div>` : `<div class="empty"><b>Playlist vuota</b>Aggiungi brani dalla ricerca.</div>`}
+      <section class="playlist-hero">
+        <div class="playlist-cover-wrap">
+          ${playlistArtwork(playlist, 'playlist-art playlist-hero-art')}
+          <button class="playlist-image-btn" id="changePlaylistImageBtn">📷 ${playlist.image ? 'Cambia immagine' : 'Carica immagine'}</button>
+          <input id="playlistImageInput" type="file" accept="image/*" hidden />
+        </div>
+        <div class="playlist-hero-copy"><h1>${esc(playlist.name)}</h1><p>${playlist.tracks.length} brani</p></div>
+      </section>
+      ${playlist.image ? `<button class="playlist-remove-image" id="removePlaylistImageBtn">Rimuovi immagine</button>` : ''}
+      ${playlist.tracks.length ? `
+        <div class="playlist-play-actions">
+          <button class="primary-btn" id="playPlaylistBtn">▶ Riproduci</button>
+          <button class="shuffle-btn" id="shufflePlaylistBtn">🔀 Shuffle</button>
+        </div>
+        <div class="track-list" style="margin-top:15px">${playlist.tracks.map(track => trackRow(track, playlist.tracks)).join('')}</div>
+      ` : `<div class="empty"><b>Playlist vuota</b>Aggiungi brani dalla ricerca.</div>`}
     `;
+
     $('#backPlaylists').addEventListener('click', renderPlaylists);
     $('#playPlaylistBtn')?.addEventListener('click', () => playTrack(playlist.tracks[0], playlist.tracks, 0));
+    $('#shufflePlaylistBtn')?.addEventListener('click', () => {
+      const shuffled = shuffleTracks(playlist.tracks);
+      if (!shuffled.length) return;
+      playTrack(shuffled[0], shuffled, 0);
+      toastMessage('Playlist in modalità shuffle');
+    });
+
+    const imageInput = $('#playlistImageInput');
+    $('#changePlaylistImageBtn')?.addEventListener('click', () => imageInput?.click());
+    imageInput?.addEventListener('change', async () => {
+      const file = imageInput.files?.[0];
+      if (!file) return;
+      try {
+        $('#changePlaylistImageBtn').disabled = true;
+        playlist.image = await resizePlaylistImage(file);
+        saveState();
+        toastMessage('Immagine playlist aggiornata');
+        openPlaylist(playlist.id);
+      } catch (error) {
+        toastMessage(error?.message || 'Impossibile caricare l’immagine');
+        $('#changePlaylistImageBtn').disabled = false;
+      }
+    });
+    $('#removePlaylistImageBtn')?.addEventListener('click', () => {
+      playlist.image = '';
+      saveState();
+      toastMessage('Immagine rimossa');
+      openPlaylist(playlist.id);
+    });
+
     wireDynamicActions(content, playlist.tracks);
   }
 
