@@ -77,16 +77,8 @@
   };
 
   $$('.bottom-nav [data-nav], .brand[data-nav]').forEach(btn => btn.addEventListener('click', () => navigate(btn.dataset.nav)));
-  $('#settingsBtn').addEventListener('click', openSettings);
   $$('[data-close-modal]').forEach(btn => btn.addEventListener('click', () => { document.getElementById(btn.dataset.closeModal).hidden = true; }));
   $$('.modal-backdrop').forEach(modal => modal.addEventListener('click', event => { if (event.target === modal) modal.hidden = true; }));
-  $('#saveSettingsBtn').addEventListener('click', () => {
-    state.settings.youtubeKey = $('#youtubeKey').value.trim();
-    saveState();
-    $('#settingsModal').hidden = true;
-    toastMessage('Impostazioni salvate');
-    render();
-  });
   $('#newPlaylistFromSheet').addEventListener('click', () => {
     const name = prompt('Nome della nuova playlist');
     const playlist = createPlaylist(name);
