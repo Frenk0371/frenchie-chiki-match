@@ -23,6 +23,9 @@
   let searchTab = 'tracks';
   let currentSearch = { query: '', tracks: [], artists: [], albums: [], loading: false, error: '', trackError: '' };
   let pendingPlaylistTrack = null;
+  let ytPlayer = null;
+  let ytReady = false;
+  let ytApiReady = false;
   let toastTimer = null;
 
   function normalizeSavedState(saved = {}) {
@@ -80,57 +83,12 @@
   }
 
   function normalizeTrack(item) {
-    const album = item.album || {};
-    const artists = Array.isArray(item.artists) ? item.artists.map(a => a.name).filter(Boolean).join(', ') : '';
-    const spotifyShape = Boolean(item.uri || item.name || item.external_urls?.spotify || album?.images);
-    if (spotifyShape) {
-      return {
-        provider: 'spotify',
-        id: item.id || '',
-        uri: item.uri || (item.id ? `spotify:track:${item.id}` : ''),
-        title: item.name || item.title || 'Brano',
-        artist: artists || item.artist || 'Spotify',
-        album: album.name || item.albumName || '',
-        thumb: album.images?.[0]?.url || item.images?.[0]?.url || item.thumb || '',
-        durationMs: Number(item.duration_ms || item.durationMs || 0),
-      };
-    }
     return {
-      provider: item.provider || 'legacy',
+      provider: 'youtube',
       id: item.id?.videoId || item.id || '',
-      uri: item.uri || '',
       title: item.snippet?.title || item.title || 'Brano',
-      artist: item.snippet?.channelTitle || item.artist || 'Artista',
-      album: item.album || '',
+      artist: item.snippet?.channelTitle || item.artist || 'YouTube',
       thumb: item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.medium?.url || item.thumb || '',
-      durationMs: Number(item.durationMs || 0),
-    };
-  }
-
-  function normalizeAlbum(item) {
-    const artists = Array.isArray(item.artists) ? item.artists.map(a => a.name).filter(Boolean).join(', ') : (item.artist || 'Artista');
-    return {
-      provider: 'spotify',
-      id: item.id || '',
-      uri: item.uri || (item.id ? `spotify:album:${item.id}` : ''),
-      title: item.name || item.title || 'Album',
-      artist: artists,
-      year: String(item.release_date || item.year || '').slice(0, 4),
-      type: item.album_type || item.type || '',
-      cover: item.images?.[0]?.url || item.cover || '',
-      totalTracks: Number(item.total_tracks || item.totalTracks || 0),
-    };
-  }
-
-  function normalizeArtist(item) {
-    return {
-      provider: 'spotify',
-      id: item.id || '',
-      uri: item.uri || (item.id ? `spotify:artist:${item.id}` : ''),
-      name: item.name || 'Artista',
-      image: item.images?.[0]?.url || item.image || '',
-      followers: item.followers?.total || 0,
-      genres: Array.isArray(item.genres) ? item.genres : [],
     };
   }
 
@@ -196,7 +154,7 @@
     const favorite = isFavoriteTrack(track.id);
     return `<article class="track" data-track-id="${esc(track.id)}">
       <img src="${esc(track.thumb)}" alt="" loading="lazy" />
-      <div class="track-copy"><strong>${esc(track.title)}</strong><small>${esc(track.artist)}${track.album ? ` · ${esc(track.album)}` : ''}</small></div>
+      <div class="track-copy"><strong>${esc(track.title)}</strong><small>${esc(track.artist)}</small></div>
       <div class="track-actions">
         <button class="play" data-play-track="${esc(track.id)}" aria-label="Riproduci">▶</button>
         <button data-fav-track="${esc(track.id)}" aria-label="Preferito">${favorite ? '♥' : '♡'}</button>
@@ -211,15 +169,15 @@
       <div class="card-media"><img src="${esc(album.cover)}" alt="Copertina ${esc(album.title)}" loading="lazy" onerror="this.style.display='none'" /></div>
       <button class="heart ${favorite ? 'on' : ''}" data-fav-album="${esc(album.id)}" aria-label="Salva album">${favorite ? '♥' : '♡'}</button>
       <div class="card-copy"><strong>${esc(album.title)}</strong><small>${esc(album.artist)}${album.year ? ` · ${esc(album.year)}` : ''}</small>
-        <div class="card-actions"><button class="primary" data-search-album="${esc(album.id)}">Apri album</button></div>
+        <div class="card-actions"><button class="primary" data-search-album="${esc(album.id)}">Cerca brani</button></div>
       </div>
     </article>`;
   }
 
   function artistCard(artist) {
     return `<article class="card">
-      <div class="card-media artist-media">${artist.image ? `<img src="${esc(artist.image)}" alt="${esc(artist.name)}" loading="lazy" />` : '♫'}</div>
-      <div class="card-copy"><strong>${esc(artist.name)}</strong><small>${artist.genres?.length ? esc(artist.genres.slice(0,2).join(' · ')) : 'Artista'}</small>
+      <div class="card-media" style="display:grid;place-items:center;font-size:54px">♫</div>
+      <div class="card-copy"><strong>${esc(artist.name)}</strong><small>${esc(artist.disambiguation || artist.country || 'Artista')}</small>
         <div class="card-actions"><button class="primary" data-open-artist="${esc(artist.id)}">Discografia</button></div>
       </div>
     </article>`;
