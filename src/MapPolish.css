@@ -1,0 +1,268 @@
+/* Rifinitura mappa Avventura: più leggibile, più cartoon e con livello corrente evidenziato. */
+.map-screen .map-title {
+  grid-template-columns: 60px 1fr auto;
+  gap: 12px;
+  padding: calc(15px + env(safe-area-inset-top)) 16px 16px;
+}
+
+.map-screen .map-title button {
+  width: 54px;
+  height: 54px;
+  border-width: 5px;
+  font-size: 40px;
+  box-shadow:
+    inset 0 4px #dba8f4,
+    inset 0 -5px #54227d,
+    0 6px 0 #381653,
+    0 10px 17px #210d3666;
+}
+
+.map-screen .map-title small {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.map-screen .map-title strong {
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: clamp(23px, 6vw, 31px);
+  line-height: .95;
+  letter-spacing: .8px;
+  text-shadow: 0 3px 0 #3a154f, 0 5px 8px #1e0c2c88;
+}
+
+.map-screen .map-title > span {
+  padding: 12px 15px;
+  border-width: 5px;
+  border-radius: 24px;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 20px;
+  box-shadow:
+    inset 0 4px #80509b,
+    inset 0 -4px #1b092b,
+    0 5px 0 #180824,
+    0 9px 14px #1d0b2d55;
+}
+
+.map-screen .world-switcher {
+  gap: 9px;
+  padding: 16px 13px 15px;
+}
+
+.map-screen .world-switcher button {
+  min-height: 70px;
+  padding: 10px 7px 9px;
+  border-width: 4px;
+  border-radius: 20px;
+  grid-template-columns: 31px 1fr;
+  column-gap: 7px;
+  box-shadow:
+    inset 0 4px #6988a5,
+    inset 0 -4px #1c344b,
+    0 5px 0 #0d2032,
+    0 8px 13px #07142455;
+}
+
+.map-screen .world-switcher button b {
+  width: 31px;
+  height: 31px;
+  font-size: 16px;
+  border: 2px solid #ffe7a0;
+  box-shadow: inset 0 3px #ffd96c, 0 3px 0 #78521c;
+}
+
+.map-screen .world-switcher button span {
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 12px;
+  line-height: 1.03;
+  letter-spacing: .15px;
+}
+
+.map-screen .world-switcher button em {
+  margin-top: 3px;
+  font-size: 9px;
+  letter-spacing: .8px;
+}
+
+.map-screen .adventure-path {
+  padding: 34px 20px 120px;
+}
+
+.map-screen .world-subtitle {
+  width: 90%;
+  margin-bottom: 37px;
+  padding: 13px 18px;
+  border-width: 4px;
+  border-radius: 23px;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 16px;
+  line-height: 1.12;
+  letter-spacing: .25px;
+  text-shadow: 0 2px 0 #112b44;
+  box-shadow:
+    inset 0 4px #ffffff30,
+    inset 0 -4px #0c2a43,
+    0 7px 0 #0a223788,
+    0 12px 18px #102b3f44;
+}
+
+.map-screen .level-stop {
+  gap: 15px;
+  width: 94%;
+  margin-bottom: 36px;
+}
+
+.map-screen .level-stop button {
+  width: 106px;
+  height: 106px;
+  flex: 0 0 106px;
+  border-width: 9px;
+  font-size: 48px;
+  box-shadow:
+    inset 0 7px #e8ffc9,
+    inset 0 -8px #258719,
+    0 9px 0 #2a7723,
+    0 15px 25px #163c2866;
+}
+
+.map-screen .level-stop button::after {
+  top: 11px;
+  height: 7px;
+}
+
+.map-screen .level-stop > span {
+  position: relative;
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 13px 15px 12px;
+  border-width: 7px;
+  border-radius: 25px;
+  box-shadow:
+    inset 0 5px #fff,
+    inset 0 -6px #d89528,
+    0 8px 0 #9c5f21,
+    0 13px 21px #46321e44;
+}
+
+.map-screen .level-stop > span em {
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 1px;
+}
+
+.map-screen .level-stop > span strong {
+  margin-top: 3px;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: clamp(18px, 4.6vw, 23px);
+  line-height: 1.02;
+  letter-spacing: .3px;
+  text-shadow: 0 2px 0 #fff8dc;
+}
+
+.map-screen .level-stars {
+  min-height: 22px;
+  margin-top: 7px;
+  font-size: 20px;
+  letter-spacing: 3px;
+  filter: drop-shadow(0 2px 1px #9a611f55);
+}
+
+/* Il prossimo livello da giocare deve saltare subito all'occhio. */
+.map-screen .level-stop.current-level {
+  z-index: 3;
+}
+
+.map-screen .level-stop.current-level button {
+  outline: 5px solid #fff3a0;
+  outline-offset: 4px;
+  animation: currentLevelPulse 1.35s ease-in-out infinite;
+}
+
+.map-screen .level-stop.current-level > span {
+  border-color: #ffe35e;
+  background: linear-gradient(#fffdf2 0 14%, #fff0aa 15% 61%, #f5c64e 62%);
+  box-shadow:
+    inset 0 5px #fff,
+    inset 0 -6px #ce871d,
+    0 8px 0 #8a541c,
+    0 13px 23px #4c301d55,
+    0 0 0 4px #fff0a044;
+}
+
+.map-screen .level-stop.current-level > span::before {
+  content: "SEI QUI";
+  position: absolute;
+  top: -18px;
+  right: 16px;
+  padding: 5px 10px 4px;
+  border: 3px solid #fff6bd;
+  border-radius: 14px;
+  background: linear-gradient(#b86be0, #74349f);
+  color: #fff;
+  font: 400 10px/1 "Lilita One", "Fredoka", sans-serif;
+  letter-spacing: .7px;
+  text-shadow: 0 2px 0 #4d216c;
+  box-shadow: 0 4px 0 #4a205f;
+}
+
+@keyframes currentLevelPulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.055); filter: brightness(1.1); }
+}
+
+@media (max-width: 390px) {
+  .map-screen .map-title {
+    grid-template-columns: 54px 1fr auto;
+    gap: 8px;
+    padding-inline: 11px;
+  }
+
+  .map-screen .map-title strong {
+    font-size: 24px;
+  }
+
+  .map-screen .map-title > span {
+    padding: 10px 11px;
+    font-size: 17px;
+  }
+
+  .map-screen .world-switcher {
+    gap: 7px;
+    padding-inline: 9px;
+  }
+
+  .map-screen .world-switcher button {
+    min-height: 65px;
+    grid-template-columns: 27px 1fr;
+  }
+
+  .map-screen .world-switcher button b {
+    width: 27px;
+    height: 27px;
+    font-size: 14px;
+  }
+
+  .map-screen .world-switcher button span {
+    font-size: 10.5px;
+  }
+
+  .map-screen .level-stop {
+    width: 96%;
+    gap: 10px;
+  }
+
+  .map-screen .level-stop button {
+    width: 92px;
+    height: 92px;
+    flex-basis: 92px;
+    font-size: 43px;
+  }
+
+  .map-screen .level-stop > span {
+    padding-inline: 11px;
+  }
+
+  .map-screen .level-stop > span strong {
+    font-size: 18px;
+  }
+}
