@@ -50,8 +50,11 @@ const offers: Offer[] = [
 ];
 
 const safeJson = <T>(value: string | null, fallback: T): T => {
-  try { return value ? JSON.parse(value) as T : fallback; }
-  catch { return fallback; }
+  try {
+    return value ? (JSON.parse(value) as T) : fallback;
+  } catch {
+    return fallback;
+  }
 };
 
 const roomState = () => safeJson<Record<string, unknown>>(localStorage.getItem(ROOM_STATE_KEY), {});
@@ -70,33 +73,33 @@ const currentSpecialState = (): SpecialState => {
 const writeSpecialState = (specials: SpecialState) => {
   localStorage.setItem(BACKUP_KEY, JSON.stringify(specials));
   const room = roomState();
-  const updated = {
-    ...room,
-    booster_grid_rocket: specials.gridRocket,
-    booster_bomb: specials.bomb,
-    booster_rainbow: specials.rainbow,
-  };
-  localStorage.setItem(ROOM_STATE_KEY, JSON.stringify(updated));
+  localStorage.setItem(
+    ROOM_STATE_KEY,
+    JSON.stringify({
+      ...room,
+      booster_grid_rocket: specials.gridRocket,
+      booster_bomb: specials.bomb,
+      booster_rainbow: specials.rainbow,
+    }),
+  );
 };
 
 const preserveSpecials = () => {
   const backup = backupState();
   if (backup.gridRocket === undefined && backup.bomb === undefined && backup.rainbow === undefined) return;
   const room = roomState();
-  const specials: SpecialState = {
+  writeSpecialState({
     gridRocket: Math.max(0, Number(room.booster_grid_rocket ?? backup.gridRocket ?? 0) || 0),
     bomb: Math.max(0, Number(room.booster_bomb ?? backup.bomb ?? 0) || 0),
     rainbow: Math.max(0, Number(room.booster_rainbow ?? backup.rainbow ?? 0) || 0),
-  };
-  writeSpecialState(specials);
+  });
 };
 
 const updateBalances = (coins: number) => {
   localStorage.setItem("chiki-coins", String(Math.max(0, coins)));
   document.querySelectorAll<HTMLElement>(".shop-wallet strong, .pet-hub-header > span, .home-wallet").forEach((element) => {
-    if (element.classList.contains("home-wallet")) element.textContent = `🪙 ${coins.toLocaleString("it-IT")}`;
-    else if (element.matches(".pet-hub-header > span")) element.textContent = `🪙 ${coins.toLocaleString("it-IT")}`;
-    else element.textContent = `🪙 ${coins.toLocaleString("it-IT")}`;
+    const next = `🪙 ${coins.toLocaleString("it-IT")}`;
+    if (element.textContent !== next) element.textContent = next;
   });
 };
 
@@ -107,10 +110,9 @@ const showMessage = (text: string) => {
   if (!message) {
     message = document.createElement("div");
     message.className = "shop-message special-shop-message";
-    const switcher = section.querySelector(".shop-kind-switch");
-    switcher?.insertAdjacentElement("afterend", message);
+    section.querySelector(".shop-kind-switch")?.insertAdjacentElement("afterend", message);
   }
-  message.textContent = text;
+  if (message.textContent !== text) message.textContent = text;
 };
 
 const purchase = async (offer: Offer) => {
@@ -129,7 +131,12 @@ const purchase = async (offer: Offer) => {
 
   const text = await response.text();
   let body: any = null;
-  try { body = text ? JSON.parse(text) : null; } catch { body = text; }
+  try {
+    body = text ? JSON.parse(text) : null;
+  } catch {
+    body = text;
+  }
+
   if (!response.ok) {
     const error = String(body?.message || body?.error || body || "Acquisto non riuscito.");
     throw new Error(error);
@@ -151,11 +158,14 @@ const refreshCounts = () => {
     const id = card.dataset.specialBooster as SpecialId | undefined;
     const offer = offers.find((candidate) => candidate.id === id);
     if (!offer) return;
+
     const count = countFor(offer);
     const badge = card.querySelector<HTMLElement>(".booster-shop-count");
-    if (badge) badge.textContent = `×${count}`;
+    const nextBadge = `×${count}`;
+    if (badge && badge.textContent !== nextBadge) badge.textContent = nextBadge;
+
     const button = card.querySelector<HTMLButtonElement>("button");
-    if (button) button.disabled = count >= 99;
+    if (button && button.disabled !== (count >= 99)) button.disabled = count >= 99;
   });
 };
 
@@ -182,6 +192,7 @@ const makeCard = (offer: Offer) => {
   const button = document.createElement("button");
   button.textContent = `🪙 ${offer.price}`;
   button.disabled = countFor(offer) >= 99;
+
   button.addEventListener("click", async () => {
     if (button.disabled) return;
     button.disabled = true;
@@ -193,7 +204,13 @@ const makeCard = (offer: Offer) => {
       refreshCounts();
     } catch (error) {
       const raw = error instanceof Error ? error.message.toLowerCase() : "";
-      showMessage(raw.includes("not_enough_coins") ? "Non hai abbastanza Monete Chiki." : raw.includes("booster_max") ? "Hai già raggiunto il massimo di 99." : "Acquisto non riuscito. Riprova.");
+      showMessage(
+        raw.includes("not_enough_coins")
+          ? "Non hai abbastanza Monete Chiki."
+          : raw.includes("booster_max")
+            ? "Hai già raggiunto il massimo di 99."
+            : "Acquisto non riuscito. Riprova.",
+      );
     } finally {
       button.textContent = oldText;
       button.disabled = countFor(offer) >= 99;
@@ -228,14 +245,19 @@ window.addEventListener("chiki-boosters-changed", (event) => {
       rainbow: detail.rainbow === undefined ? current.rainbow : Math.max(0, Number(detail.rainbow) || 0),
     });
   } else {
-    queueMicrotask(preserveSpecials);
+    preserveSpecials();
   }
-  queueMicrotask(refreshCounts);
+  refreshCounts();
 });
 
+let observerScheduled = false;
 const observer = new MutationObserver(() => {
-  ensureSpecialCards();
-  refreshCounts();
+  if (observerScheduled) return;
+  observerScheduled = true;
+  window.requestAnimationFrame(() => {
+    observerScheduled = false;
+    ensureSpecialCards();
+  });
 });
 observer.observe(document.documentElement, { childList: true, subtree: true });
 
