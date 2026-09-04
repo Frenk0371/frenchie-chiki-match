@@ -2,7 +2,6 @@
 
   const STORE_KEY = 'music-house-state-v1';
   const DEFAULT_STATE = {
-    settings: { youtubeKey: '' },
     favoriteTracks: [],
     favoriteAlbums: [],
     playlists: [],
@@ -22,7 +21,7 @@
   let state = loadState();
   let view = 'home';
   let searchTab = 'tracks';
-  let currentSearch = { query: '', tracks: [], artists: [], albums: [], loading: false, error: '' };
+  let currentSearch = { query: '', tracks: [], artists: [], albums: [], loading: false, error: '', trackError: '' };
   let pendingPlaylistTrack = null;
   let ytPlayer = null;
   let ytReady = false;
@@ -32,16 +31,17 @@
   function loadState() {
     try {
       const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-      return {
+      const next = {
         ...DEFAULT_STATE,
         ...saved,
-        settings: { ...DEFAULT_STATE.settings, ...(saved.settings || {}) },
         favoriteTracks: Array.isArray(saved.favoriteTracks) ? saved.favoriteTracks : [],
         favoriteAlbums: Array.isArray(saved.favoriteAlbums) ? saved.favoriteAlbums : [],
         playlists: Array.isArray(saved.playlists) ? saved.playlists : [],
         recent: Array.isArray(saved.recent) ? saved.recent : [],
         queue: Array.isArray(saved.queue) ? saved.queue : [],
       };
+      delete next.settings;
+      return next;
     } catch {
       return structuredClone(DEFAULT_STATE);
     }
@@ -50,6 +50,9 @@
   function saveState() {
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
   }
+
+  // Riscrive una volta lo stato per eliminare eventuali vecchie API key salvate sul dispositivo.
+  saveState();
 
   function esc(value = '') {
     return String(value)
