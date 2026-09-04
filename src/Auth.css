@@ -234,6 +234,79 @@
   font-size: 11px;
 }
 
+/* iPhone richiede un gesto reale prima di consentire audio udibile.
+   Questa schermata usa quel gesto prima di mostrare la Home. */
+.auth-start-screen {
+  overflow: hidden;
+}
+
+.auth-start-card {
+  width: min(92vw, 430px);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 24px 20px 28px;
+  border: 6px solid #ffe07a;
+  border-radius: 38px;
+  background: linear-gradient(180deg, #1d5f95ee, #173553f5);
+  box-shadow:
+    inset 0 6px #ffffff36,
+    inset 0 -7px #0f263f,
+    0 10px 0 #6c451f,
+    0 18px 34px #06192e77;
+  text-align: center;
+}
+
+.auth-start-chiki {
+  width: min(52vw, 230px);
+  height: min(52vw, 230px);
+  object-fit: contain;
+  filter: drop-shadow(0 10px 7px #10243b88);
+  animation: auth-start-bob 1.8s ease-in-out infinite;
+}
+
+.auth-start-card h1 {
+  margin: 2px 0 0;
+  color: #fff7d4;
+  font: 400 clamp(24px, 7vw, 34px)/1 "Lilita One", "Fredoka", sans-serif;
+  text-shadow: 0 3px 0 #442258;
+}
+
+.auth-start-card p {
+  width: 90%;
+  margin: 0;
+  color: #eaf7ff;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.auth-start-button {
+  width: min(86%, 330px);
+  padding: 16px 18px 18px;
+  border: 5px solid #fff8c8;
+  border-radius: 30px;
+  background: linear-gradient(#a4f064 0 14%, #67dc3d 15% 58%, #3fbd27 59%);
+  color: #fff;
+  font: 400 clamp(21px, 6vw, 29px)/1 "Lilita One", "Fredoka", sans-serif;
+  text-shadow: 0 3px 0 #24701b;
+  box-shadow:
+    inset 0 5px #d9ffb9,
+    inset 0 -6px #2b981b,
+    0 8px 0 #227d19,
+    0 13px 20px #173a2166;
+}
+
+.auth-start-button:active {
+  transform: translateY(5px) scale(.985);
+  box-shadow: inset 0 3px #d9ffb9, 0 3px 0 #227d19;
+}
+
+@keyframes auth-start-bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
 @media (max-height: 760px) {
   .auth-card {
     padding-top: 12px;
@@ -253,5 +326,13 @@
   }
   .auth-card input {
     min-height: 42px;
+  }
+  .auth-start-card {
+    padding-block: 16px 20px;
+    gap: 9px;
+  }
+  .auth-start-chiki {
+    width: 155px;
+    height: 155px;
   }
 }
