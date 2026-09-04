@@ -1,8 +1,6 @@
   function renderHome() {
-    const keyReady = !!state.settings.youtubeKey;
     content.innerHTML = `
       <section class="hero"><h1>La tua <span class="gradient-text">Music House</span>.</h1><p>Brani, artisti, album e playlist in un unico posto.</p></section>
-      ${!keyReady ? `<section class="setup-card"><h3>Attiva la ricerca musicale</h3><p>Per cercare singole canzoni su YouTube serve una YouTube Data API key. La imposti una volta e resta su questo dispositivo.</p><button id="openSetupFromHome">Configura YouTube</button></section>` : ''}
       ${sectionHead('Ascoltati di recente', state.recent.length ? 'Riparti da dove eri rimasto' : '')}
       ${state.recent.length ? `<div class="h-scroll">${state.recent.slice(0, 10).map(track => `<div class="mini-card" data-play-track="${esc(track.id)}"><img src="${esc(track.thumb)}" alt="" /><strong>${esc(track.title)}</strong><small>${esc(track.artist)}</small></div>`).join('')}</div>` : `<div class="empty"><b>Ancora nessun ascolto</b>Cerca una canzone e premi play.</div>`}
       ${sectionHead('Album preferiti', state.favoriteAlbums.length ? `${state.favoriteAlbums.length} salvati` : '')}
@@ -10,7 +8,6 @@
       ${sectionHead('Le tue playlist', state.playlists.length ? `${state.playlists.length} playlist` : '', `<button class="link-btn" data-nav="playlists">Vedi tutte</button>`)}
       ${state.playlists.length ? `<div class="playlist-list">${state.playlists.slice(0,3).map(playlistTile).join('')}</div>` : `<div class="empty"><b>Crea la prima playlist</b>Raccogli i brani che vuoi ascoltare insieme.</div>`}
     `;
-    $('#openSetupFromHome')?.addEventListener('click', openSettings);
   }
 
   function renderSearch() {
@@ -51,9 +48,8 @@
       return;
     }
     if (searchTab === 'tracks') {
-      if (!state.settings.youtubeKey) {
-        host.innerHTML = `<section class="setup-card" style="margin-top:18px"><h3>Manca la chiave YouTube</h3><p>La ricerca di singole canzoni usa YouTube Data API.</p><button id="setupFromSearch">Configura</button></section>`;
-        $('#setupFromSearch')?.addEventListener('click', openSettings);
+      if (currentSearch.trackError) {
+        host.innerHTML = `<div class="empty" style="margin-top:18px"><b>Brani temporaneamente non disponibili</b>${esc(currentSearch.trackError)}</div>`;
         return;
       }
       host.innerHTML = currentSearch.tracks.length ? `${sectionHead('Brani', `${currentSearch.tracks.length} risultati`)}<div class="track-list">${currentSearch.tracks.map(track => trackRow(track, currentSearch.tracks)).join('')}</div>` : `<div class="empty"><b>Nessun brano trovato</b>Prova con un titolo o un artista diverso.</div>`;
