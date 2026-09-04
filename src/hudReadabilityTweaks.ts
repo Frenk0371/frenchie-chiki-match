@@ -1,3 +1,4 @@
+import Phaser from "phaser";
 import GameScene from "./game/GameScene";
 
 // Migliora la leggibilità del riquadro obiettivi su iPhone senza alterare il gameplay.
