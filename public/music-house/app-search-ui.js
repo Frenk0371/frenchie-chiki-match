@@ -7,7 +7,14 @@
       ${state.favoriteAlbums.length ? `<div class="h-scroll">${state.favoriteAlbums.slice(0, 10).map(album => `<div class="mini-card" data-search-album="${esc(album.id)}"><img src="${esc(album.cover)}" alt="" onerror="this.style.display='none'"/><strong>${esc(album.title)}</strong><small>${esc(album.artist)}</small></div>`).join('')}</div>` : `<div class="empty"><b>Nessun album salvato</b>Gli album che ami compariranno qui.</div>`}
       ${sectionHead('Le tue playlist', state.playlists.length ? `${state.playlists.length} playlist` : '', `<button class="link-btn" data-nav="playlists">Vedi tutte</button>`)}
       ${state.playlists.length ? `<div class="playlist-list">${state.playlists.slice(0,3).map(playlistTile).join('')}</div>` : `<div class="empty"><b>Crea la prima playlist</b>Raccogli i brani che vuoi ascoltare insieme.</div>`}
+      ${sectionHead('Schermo spento', 'Test tecnico iPhone')}
+      <div class="setup-card">
+        <h3>Proviamo il background audio</h3>
+        <p>Avvia un audio HTML5 di test, blocca l’iPhone e verifichiamo se Music House può continuare a suonare senza YouTube.</p>
+        <button id="backgroundAudioTestBtn">Avvia test schermo spento</button>
+      </div>
     `;
+    $('#backgroundAudioTestBtn')?.addEventListener('click', () => { window.location.href = './background-test.html'; });
   }
 
   function renderSearch() {
