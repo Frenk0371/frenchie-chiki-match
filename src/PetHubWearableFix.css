@@ -1,0 +1,108 @@
+/* Targeted correction: the previous outfit overlay was too large and covered Chiki.
+   Keep the wearable system, but make clothes read as a fitted cartoon vest. */
+
+.wearable-outfit,
+.profile-wearable-outfit,
+.celebration-wearable-outfit {
+  left: 50% !important;
+  bottom: 18% !important;
+  width: 34% !important;
+  height: 18% !important;
+  transform: translateX(-50%) !important;
+  border-width: 3px !important;
+  border-radius: 34% 34% 24% 24% !important;
+  clip-path: polygon(
+    14% 4%,
+    34% 0,
+    50% 14%,
+    66% 0,
+    86% 4%,
+    100% 24%,
+    86% 38%,
+    82% 100%,
+    18% 100%,
+    14% 38%,
+    0 24%
+  );
+  background:
+    linear-gradient(90deg, transparent 46%, #ffffff2e 47% 53%, transparent 54%),
+    linear-gradient(#79c8ff 0 18%, #4c9dde 19% 68%, #2f7db8 69%) !important;
+  box-shadow:
+    inset 0 4px #bde7ff,
+    inset 0 -4px #1d639c,
+    0 3px 0 #164e86 !important;
+  filter: drop-shadow(0 4px 2px #0003) !important;
+}
+
+/* Remove the oversized synthetic sleeves from the old version. */
+.wearable-outfit::before,
+.wearable-outfit::after,
+.profile-wearable-outfit::before,
+.profile-wearable-outfit::after,
+.celebration-wearable-outfit::before,
+.celebration-wearable-outfit::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Small collar detail for a polo-like look, without covering the face or legs. */
+.piece-outfit_sport {
+  background:
+    radial-gradient(ellipse at 50% 4%, #183f6b 0 10%, transparent 11%),
+    linear-gradient(90deg, transparent 46%, #ffffff2e 47% 53%, transparent 54%),
+    linear-gradient(#79c8ff 0 18%, #4c9dde 19% 68%, #2f7db8 69%) !important;
+}
+
+.piece-outfit_rain {
+  background:
+    linear-gradient(90deg, transparent 47%, #fff3a955 48% 52%, transparent 53%),
+    linear-gradient(#ffd95e 0 18%, #f2b82f 19% 68%, #ce8915 69%) !important;
+}
+
+.piece-outfit_sailor {
+  background:
+    linear-gradient(90deg, transparent 46%, #ffffff30 47% 53%, transparent 54%),
+    linear-gradient(#84ccff 0 18%, #3979bd 19% 66%, #1c477f 67%) !important;
+}
+
+.piece-outfit_royal {
+  background:
+    linear-gradient(90deg, transparent 46%, #ffe9ff38 47% 53%, transparent 54%),
+    linear-gradient(#dfa9fb 0 18%, #9149ca 19% 66%, #5c298e 67%) !important;
+}
+
+.piece-outfit_wizard {
+  background:
+    linear-gradient(90deg, transparent 46%, #e6dcff30 47% 53%, transparent 54%),
+    linear-gradient(#a992ff 0 18%, #6850d9 19% 66%, #402c9c 67%) !important;
+}
+
+.piece-outfit_explorer {
+  background:
+    linear-gradient(90deg, transparent 46%, #e9ffd62e 47% 53%, transparent 54%),
+    linear-gradient(#acd98c 0 18%, #719f56 19% 66%, #486b37 67%) !important;
+}
+
+.piece-outfit_winter {
+  background:
+    linear-gradient(90deg, transparent 46%, #ffdada2f 47% 53%, transparent 54%),
+    linear-gradient(#ff9494 0 18%, #d95460 19% 66%, #9f303d 67%) !important;
+}
+
+/* In the room the outfit should never overpower Chiki. */
+.room-chiki .wearable-outfit {
+  z-index: 7 !important;
+}
+
+/* Profile and purchase preview scale independently with their Chiki image. */
+.mini-chiki-wrap .profile-wearable-outfit {
+  bottom: 18% !important;
+  width: 33% !important;
+  height: 18% !important;
+}
+
+.celebration-chiki .celebration-wearable-outfit {
+  bottom: 18% !important;
+  width: 33% !important;
+  height: 18% !important;
+}
