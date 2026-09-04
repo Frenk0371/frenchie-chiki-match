@@ -2,8 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
 import GameScene from "./game/GameScene";
 import { levels, worlds } from "./game/levels";
+import PetHub from "./PetHub";
+import { type ShopItem } from "./shopCatalog";
 import {
+  claimLevelReward,
   fetchLeaderboard,
+  purchaseShopItem,
   saveCloudProgress,
   type LeaderboardEntry,
 } from "./cloudClient";
@@ -23,32 +27,32 @@ const menuItems = [
   { icon: "/tiles/chiki.png", label: "FRENCHIES", view: "frenchies" as AppView },
 ];
 
-const wardrobe = [
-  { icon: "✨", name: "Classico" },
-  { icon: "🧢", name: "Sportivo" },
-  { icon: "👑", name: "Re Chiki" },
-  { icon: "🎩", name: "Elegante" },
-  { icon: "😎", name: "Cool" },
-  { icon: "🐰", name: "Coniglietto" },
-];
+const STARTER_INVENTORY = ["outfit_classic", "bed_basic", "bowl_basic", "wall_sky", "floor_wood"];
+const STARTER_EQUIPPED: Record<string, string> = {
+  outfit: "outfit_classic",
+  bed: "bed_basic",
+  bowl: "bowl_basic",
+  wall: "wall_sky",
+  floor: "floor_wood",
+};
 
-const loadLevelStars = (): Record<number, number> => {
+const loadJson = <T,>(key: string, fallback: T): T => {
   try {
-    return JSON.parse(localStorage.getItem("chiki-level-stars") || "{}");
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
-    return {};
+    return fallback;
   }
 };
+
+const loadLevelStars = (): Record<number, number> => loadJson("chiki-level-stars", {});
 
 const loadUnlockedLevel = () => {
   const saved = Number(localStorage.getItem("chiki-unlocked-level") || "1");
   const stars = loadLevelStars();
   let migrated = Math.min(levels.length, Math.max(1, saved));
 
-  while (migrated < levels.length && (stars[migrated] || 0) > 0) {
-    migrated++;
-  }
-
+  while (migrated < levels.length && (stars[migrated] || 0) > 0) migrated++;
   return migrated;
 };
 
@@ -66,6 +70,10 @@ function App({ username, onSignOut }: AppProps) {
   const [selectedOutfit, setSelectedOutfit] = useState(
     () => localStorage.getItem("chiki-outfit") || "Classico",
   );
+  const [coins, setCoins] = useState(() => Math.max(0, Number(localStorage.getItem("chiki-coins") || "500")));
+  const [inventory, setInventory] = useState<string[]>(() => loadJson("chiki-inventory", [...STARTER_INVENTORY]));
+  const [equipped, setEquipped] = useState<Record<string, string>>(() => loadJson("chiki-equipped", { ...STARTER_EQUIPPED }));
+  const [roomState, setRoomState] = useState<Record<string, string | number>>(() => loadJson("chiki-room-state", {}));
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState("");
@@ -107,6 +115,18 @@ function App({ username, onSignOut }: AppProps) {
 
       const nextWorld = worlds.find((world) => world.firstLevel === level + 1);
       if (nextWorld) setSelectedWorld(nextWorld.id);
+
+      void claimLevelReward(level, stars)
+        .then((result) => {
+          setCoins(result.new_coins);
+          if (result.reward > 0) {
+            setNotice(`+${result.reward} 🪙 MONETE CHIKI!`);
+            window.setTimeout(() => setNotice(""), 2400);
+          }
+        })
+        .catch(() => {
+          // I progressi di gioco restano salvati anche se la ricompensa cloud e' temporaneamente offline.
+        });
     };
 
     window.addEventListener("chiki-level-complete", completed);
@@ -114,18 +134,29 @@ function App({ username, onSignOut }: AppProps) {
   }, []);
 
   useEffect(() => {
+    localStorage.setItem("chiki-coins", String(coins));
+    localStorage.setItem("chiki-inventory", JSON.stringify(inventory));
+    localStorage.setItem("chiki-equipped", JSON.stringify(equipped));
+    localStorage.setItem("chiki-room-state", JSON.stringify(roomState));
+  }, [coins, inventory, equipped, roomState]);
+
+  useEffect(() => {
     const timer = window.setTimeout(() => {
       void saveCloudProgress({
         unlocked_level: unlockedLevel,
         level_stars: levelStars,
         selected_outfit: selectedOutfit,
+        coins,
+        inventory,
+        equipped,
+        room_state: roomState,
       }).catch(() => {
         // Il salvataggio locale resta disponibile anche se temporaneamente offline.
       });
     }, 250);
 
     return () => window.clearTimeout(timer);
-  }, [unlockedLevel, levelStars, selectedOutfit]);
+  }, [unlockedLevel, levelStars, selectedOutfit, coins, inventory, equipped, roomState]);
 
   useEffect(() => {
     if (view !== "leaderboard") return;
@@ -139,6 +170,10 @@ function App({ username, onSignOut }: AppProps) {
           unlocked_level: unlockedLevel,
           level_stars: levelStars,
           selected_outfit: selectedOutfit,
+          coins,
+          inventory,
+          equipped,
+          room_state: roomState,
         });
         const rows = await fetchLeaderboard();
         if (active) setLeaderboard(rows);
@@ -153,7 +188,7 @@ function App({ username, onSignOut }: AppProps) {
     return () => {
       active = false;
     };
-  }, [view, unlockedLevel, levelStars, selectedOutfit]);
+  }, [view, unlockedLevel, levelStars, selectedOutfit, coins, inventory, equipped, roomState]);
 
   const soon = (label: string) => {
     setNotice(`${label}: prossimamente`);
@@ -174,6 +209,30 @@ function App({ username, onSignOut }: AppProps) {
       return;
     }
     setSelectedWorld(worldId);
+  };
+
+  const buyItem = async (item: ShopItem) => {
+    const result = await purchaseShopItem(item.id);
+    setCoins(result.new_coins);
+    setInventory(result.new_inventory);
+  };
+
+  const equipItem = (item: ShopItem) => {
+    if (!inventory.includes(item.id)) return;
+    setEquipped((current) => ({ ...current, [item.slot]: item.id }));
+    if (item.slot === "outfit") {
+      setSelectedOutfit(item.name);
+      localStorage.setItem("chiki-outfit", item.name);
+    }
+  };
+
+  const clearSlot = (slot: string) => {
+    if (["outfit", "bed", "bowl", "wall", "floor"].includes(slot)) return;
+    setEquipped((current) => {
+      const updated = { ...current };
+      delete updated[slot];
+      return updated;
+    });
   };
 
   const totalStars = Object.values(levelStars).reduce((sum, stars) => sum + stars, 0);
@@ -241,52 +300,19 @@ function App({ username, onSignOut }: AppProps) {
   }
 
   if (view === "frenchies") {
-    const active = wardrobe.find((item) => item.name === selectedOutfit) ?? wardrobe[0];
-
     return (
-      <main className="feature-screen frenchies-screen">
-        <header className="feature-title">
-          <button onClick={() => setView("home")} aria-label="Torna alla home">‹</button>
-          <div>
-            <small>IL TUO AMICO</small>
-            <strong>CHIKI</strong>
-          </div>
-          <span>🐾</span>
-        </header>
-        <section className="pet-card">
-          <div className="pet-portrait">
-            <img src="/chiki-character.webp" alt="Chiki" />
-            <span>{active.icon}</span>
-          </div>
-          <div>
-            <h2>Chiki</h2>
-            <p>{username} · Livello {unlockedLevel} · {totalStars} stelle</p>
-            <b>{active.name}</b>
-          </div>
-        </section>
-        <h2 className="wardrobe-title">GUARDAROBA</h2>
-        <section className="wardrobe-grid">
-          {wardrobe.map((item) => (
-            <button
-              className={selectedOutfit === item.name ? "selected" : ""}
-              key={item.name}
-              onClick={() => {
-                setSelectedOutfit(item.name);
-                localStorage.setItem("chiki-outfit", item.name);
-              }}
-            >
-              <span>{item.icon}</span>
-              <strong>{item.name}</strong>
-              {selectedOutfit === item.name && <em>✓</em>}
-            </button>
-          ))}
-        </section>
-        <div className="collection-progress">
-          <strong>COLLEZIONE</strong>
-          <span>{wardrobe.length}/6 elementi</span>
-          <div><i /></div>
-        </div>
-      </main>
+      <PetHub
+        username={username}
+        unlockedLevel={unlockedLevel}
+        totalStars={totalStars}
+        coins={coins}
+        inventory={inventory}
+        equipped={equipped}
+        onBack={() => setView("home")}
+        onBuy={buyItem}
+        onEquip={equipItem}
+        onClearSlot={clearSlot}
+      />
     );
   }
 
@@ -295,6 +321,7 @@ function App({ username, onSignOut }: AppProps) {
       <div className="game-shell">
         <button className="home-back" onClick={() => setView("map")} aria-label="Torna alla mappa">‹</button>
         <div ref={gameContainer} className="game-container" />
+        {notice && <div className="toast" role="status">{notice}</div>}
       </div>
     );
   }
@@ -369,6 +396,7 @@ function App({ username, onSignOut }: AppProps) {
   return (
     <main className="home-screen">
       <div className="sky-glow" />
+      <div className="home-wallet">🪙 {coins.toLocaleString("it-IT")}</div>
       <section className="brand-panel" aria-label="Frenchie Chiki Match">
         <h1 className="game-logo">
           <span>FRENCHIE</span>
