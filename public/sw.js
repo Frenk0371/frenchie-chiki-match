@@ -1,4 +1,4 @@
-const CACHE_NAME = 'frenchie-chiki-match-v21'
+const CACHE_NAME = 'frenchie-chiki-match-v22'
 const APP_SHELL = ['/', '/chiki-icon.jpeg', '/manifest.webmanifest', '/level-lock-v2.png', '/menu-adventure.png', '/menu-trophy.png']
 
 self.addEventListener('install', event => {
