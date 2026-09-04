@@ -1,5 +1,6 @@
   const backgroundAudio = $('#backgroundAudio');
   let playbackEngine = 'youtube';
+  let pendingYoutubeVideoId = '';
 
   function hasDirectAudio(track) {
     return Boolean(track?.audioUrl && String(track.audioUrl).trim());
@@ -21,12 +22,12 @@
     updatePlayerUI();
 
     if (hasDirectAudio(track)) {
+      if (playbackEngine === 'youtube') ytPlayer?.stopVideo?.();
       playbackEngine = 'audio';
-      ytPlayer?.stopVideo?.();
       loadDirectAudio(track);
     } else {
+      if (playbackEngine === 'audio') stopDirectAudio();
       playbackEngine = 'youtube';
-      stopDirectAudio();
       loadYoutubeTrack(track.id);
     }
 
@@ -35,9 +36,10 @@
 
   async function loadDirectAudio(track) {
     const source = String(track.audioUrl || '').trim();
-    if (!source) return;
+    if (!source || !backgroundAudio) return;
 
-    if (backgroundAudio.src !== new URL(source, window.location.href).href) {
+    const resolvedSource = new URL(source, window.location.href).href;
+    if (backgroundAudio.src !== resolvedSource) {
       backgroundAudio.src = source;
       backgroundAudio.load();
     }
@@ -46,34 +48,65 @@
       await backgroundAudio.play();
     } catch {
       setPlayButton(false);
+      toastMessage('Tocca di nuovo Play per avviare l’audio');
     }
   }
 
   function stopDirectAudio() {
     if (!backgroundAudio) return;
     backgroundAudio.pause();
-    backgroundAudio.removeAttribute('src');
-    backgroundAudio.load();
+    if (backgroundAudio.getAttribute('src')) {
+      backgroundAudio.removeAttribute('src');
+      backgroundAudio.load();
+    }
   }
 
   function loadYoutubeTrack(videoId) {
+    if (!videoId) return;
+    pendingYoutubeVideoId = videoId;
+
     if (!ytApiReady || !window.YT?.Player) return;
+
     if (!ytPlayer) {
+      const initialVideoId = pendingYoutubeVideoId;
       ytPlayer = new YT.Player('ytPlayer', {
-        videoId,
-        playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 },
+        videoId: initialVideoId,
+        playerVars: {
+          autoplay: 1,
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1,
+          origin: window.location.origin,
+        },
         events: {
-          onReady: event => { ytReady = true; if (playbackEngine === 'youtube') event.target.playVideo(); },
+          onReady: event => {
+            ytReady = true;
+            if (playbackEngine !== 'youtube') return;
+            const wantedVideoId = pendingYoutubeVideoId || initialVideoId;
+            const currentVideoId = event.target.getVideoData?.().video_id || initialVideoId;
+            if (wantedVideoId && wantedVideoId !== currentVideoId) {
+              event.target.loadVideoById(wantedVideoId);
+            } else {
+              event.target.playVideo();
+            }
+          },
           onStateChange: event => {
             if (playbackEngine !== 'youtube') return;
             setPlayButton(event.data === YT.PlayerState.PLAYING);
             if (event.data === YT.PlayerState.ENDED) playNext();
           },
+          onError: () => {
+            if (playbackEngine === 'youtube') {
+              setPlayButton(false);
+              toastMessage('Questo video YouTube non è riproducibile. Prova un altro risultato.');
+            }
+          },
         },
       });
-    } else if (ytReady) {
-      ytPlayer.loadVideoById(videoId);
+      return;
     }
+
+    if (ytReady) ytPlayer.loadVideoById(videoId);
   }
 
   function updatePlayerUI() {
@@ -175,7 +208,10 @@
       backgroundAudio.paused ? backgroundAudio.play() : backgroundAudio.pause();
       return;
     }
-    if (!ytPlayer || !ytReady) return;
+    if (!ytPlayer || !ytReady) {
+      if (state.currentTrack?.id) loadYoutubeTrack(state.currentTrack.id);
+      return;
+    }
     const playing = ytPlayer.getPlayerState() === YT.PlayerState.PLAYING;
     playing ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
   });
@@ -185,7 +221,7 @@
   $('#addCurrentBtn').addEventListener('click', () => state.currentTrack && openPlaylistSheet(state.currentTrack));
   $('#closePlayerBtn').addEventListener('click', () => {
     ytPlayer?.stopVideo?.();
-    stopDirectAudio();
+    if (playbackEngine === 'audio') stopDirectAudio();
     playerShell.classList.remove('expanded');
     playerShell.hidden = true;
   });
