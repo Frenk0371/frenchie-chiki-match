@@ -89,7 +89,8 @@ const ensureBadge = () => {
   }
   const state = getLifeState();
   const timer = state.lives < MAX_BANANA_LIVES ? timeUntilNextLife() : 0;
-  badge.innerHTML = `<span>🍌</span><strong>${state.lives}/${MAX_BANANA_LIVES}</strong>${timer > 0 ? `<small>+1 ${formatLifeTimer(timer)}</small>` : ""}`;
+  const html = `<span>🍌</span><strong>${state.lives}/${MAX_BANANA_LIVES}</strong>${timer > 0 ? `<small>+1 ${formatLifeTimer(timer)}</small>` : ""}`;
+  if (badge.innerHTML !== html) badge.innerHTML = html;
   badge.classList.toggle("empty", state.lives === 0);
 };
 
