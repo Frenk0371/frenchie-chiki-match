@@ -190,7 +190,8 @@ export default function PetHub({
 
     const handleClick = () => {
       if (owned && canUse) {
-        onEquip(item);
+        if (active && item.slot !== "toy") onClearSlot(item.slot);
+        else onEquip(item);
         return;
       }
       if (!owned && !locked) openChikiShop(item.category);
