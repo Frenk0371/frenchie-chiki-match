@@ -21,23 +21,8 @@ export default class GameScene extends Phaser.Scene {
   private readonly cols = 7;
   private readonly tileSize = 120;
   private readonly boardY = 390;
-  private readonly tileKeys = [
-    "heart",
-    "bone",
-    "clover",
-    "flower",
-    "gem",
-    "chiki",
-  ];
-
-  private readonly colorNames = [
-    "CUORI",
-    "OSSA",
-    "TRIFOGLI",
-    "FIORI",
-    "GEMME",
-    "CHIKI",
-  ];
+  private readonly tileKeys = ["heart", "bone", "clover", "flower", "gem", "chiki"];
+  private readonly colorNames = ["CUORI", "OSSA", "TRIFOGLI", "FIORI", "GEMME", "CHIKI"];
 
   private board: (Tile | null)[][] = [];
   private iceCells = new Map<string, IceCell>();
@@ -84,9 +69,7 @@ export default class GameScene extends Phaser.Scene {
     this.load.image("booster-hammer", "/booster-hammer.webp");
     this.load.image("booster-rocket", "/booster-rocket.webp");
     this.load.image("victory-reward", "/victory-reward.png");
-    this.tileKeys.forEach((key) =>
-      this.load.image(`tile-${key}`, `/tiles/${key}.png`),
-    );
+    this.tileKeys.forEach((key) => this.load.image(`tile-${key}`, `/tiles/${key}.png`));
   }
 
   create() {
@@ -151,13 +134,7 @@ export default class GameScene extends Phaser.Scene {
         fontStyle: "bold",
         stroke: "#07325d",
         strokeThickness: 7,
-        shadow: {
-          offsetX: 0,
-          offsetY: 6,
-          color: "#031a32",
-          blur: 0,
-          fill: true,
-        },
+        shadow: { offsetX: 0, offsetY: 6, color: "#031a32", blur: 0, fill: true },
       })
       .setOrigin(0.5);
 
@@ -243,40 +220,15 @@ export default class GameScene extends Phaser.Scene {
 
     const boardPanel = this.add.graphics();
     boardPanel.fillStyle(0x061426, 0.7);
-    boardPanel.fillRoundedRect(
-      startX - 24,
-      startY - 12,
-      boardWidth + 48,
-      boardHeight + 48,
-      28,
-    );
+    boardPanel.fillRoundedRect(startX - 24, startY - 12, boardWidth + 48, boardHeight + 48, 28);
     boardPanel.fillStyle(0x102e50, 0.92);
-    boardPanel.fillRoundedRect(
-      startX - 24,
-      startY - 24,
-      boardWidth + 48,
-      boardHeight + 48,
-      28,
-    );
+    boardPanel.fillRoundedRect(startX - 24, startY - 24, boardWidth + 48, boardHeight + 48, 28);
     boardPanel.lineStyle(8, 0xffdf6f, 1);
-    boardPanel.strokeRoundedRect(
-      startX - 24,
-      startY - 24,
-      boardWidth + 48,
-      boardHeight + 48,
-      28,
-    );
+    boardPanel.strokeRoundedRect(startX - 24, startY - 24, boardWidth + 48, boardHeight + 48, 28);
     boardPanel.lineStyle(4, 0x426e9e, 0.75);
-    boardPanel.strokeRoundedRect(
-      startX - 14,
-      startY - 14,
-      boardWidth + 28,
-      boardHeight + 28,
-      21,
-    );
+    boardPanel.strokeRoundedRect(startX - 14, startY - 14, boardWidth + 28, boardHeight + 28, 21);
 
     this.board = [];
-
     for (let row = 0; row < this.rows; row++) {
       this.board[row] = [];
       for (let col = 0; col < this.cols; col++) {
@@ -284,7 +236,6 @@ export default class GameScene extends Phaser.Scene {
         do {
           type = Phaser.Math.Between(0, this.tileKeys.length - 1);
         } while (this.createsInitialMatch(row, col, type));
-
         this.board[row][col] = this.createTile(row, col, type);
       }
     }
@@ -305,19 +256,13 @@ export default class GameScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
 
     const tile: Tile = { row, col, type, circle };
-
     circle.on("pointerup", () => {
       if (this.moves <= 0 || this.levelCompleted || this.isProcessing) return;
       this.selectTile(tile);
     });
 
     if (fromAbove) {
-      this.tweens.add({
-        targets: circle,
-        y: finalY,
-        duration: 300,
-        ease: "Bounce.easeOut",
-      });
+      this.tweens.add({ targets: circle, y: finalY, duration: 300, ease: "Bounce.easeOut" });
     }
 
     return tile;
@@ -328,15 +273,7 @@ export default class GameScene extends Phaser.Scene {
     this.iceTotalCells = cells.length;
 
     cells.forEach((config) => {
-      if (
-        config.row < 0 ||
-        config.row >= this.rows ||
-        config.col < 0 ||
-        config.col >= this.cols
-      ) {
-        return;
-      }
-
+      if (config.row < 0 || config.row >= this.rows || config.col < 0 || config.col >= this.cols) return;
       const hits = Math.max(1, config.hits ?? 1);
       const cell: IceCell = {
         row: config.row,
@@ -345,7 +282,7 @@ export default class GameScene extends Phaser.Scene {
         maxHits: hits,
         graphic: this.add.graphics().setDepth(6),
       };
-      this.iceCells.set(this.iceKey(config.row, config.col), cell);
+      this.iceCells.set(this.iceKey(cell.row, cell.col), cell);
       this.drawIceCell(cell);
     });
   }
@@ -355,31 +292,16 @@ export default class GameScene extends Phaser.Scene {
     const startX = (1080 - boardWidth) / 2;
     const x = startX + cell.col * this.tileSize + this.tileSize / 2;
     const y = this.boardY + cell.row * this.tileSize + this.tileSize / 2;
-    const g = cell.graphic;
+    const strong = cell.maxHits > 1 && cell.hits > 1;
 
-    g.clear();
-    const strong = cell.hits > 1;
-    g.fillStyle(strong ? 0x9deaff : 0xbcefff, strong ? 0.52 : 0.36);
-    g.fillRoundedRect(x - 53, y - 53, 106, 106, 20);
-    g.lineStyle(strong ? 8 : 6, 0xdffaff, 0.95);
-    g.strokeRoundedRect(x - 53, y - 53, 106, 106, 20);
-    g.lineStyle(3, 0xffffff, 0.86);
-    g.beginPath();
-    g.moveTo(x - 27, y - 48);
-    g.lineTo(x - 4, y - 13);
-    g.lineTo(x - 16, y + 9);
-    g.lineTo(x + 11, y + 43);
-    g.moveTo(x + 43, y - 24);
-    g.lineTo(x + 10, y - 5);
-    g.lineTo(x + 26, y + 18);
-    g.moveTo(x - 45, y + 26);
-    g.lineTo(x - 12, y + 13);
-    g.strokePath();
-
-    if (strong) {
-      g.fillStyle(0xffffff, 0.35);
-      g.fillRoundedRect(x - 38, y - 41, 52, 12, 6);
-    }
+    cell.graphic.clear();
+    cell.graphic.fillStyle(strong ? 0x7fdcff : 0xbdefff, strong ? 0.55 : 0.36);
+    cell.graphic.fillRoundedRect(x - 53, y - 53, 106, 106, 20);
+    cell.graphic.lineStyle(strong ? 8 : 6, 0xe4fbff, 0.96);
+    cell.graphic.strokeRoundedRect(x - 53, y - 53, 106, 106, 20);
+    cell.graphic.fillStyle(0xffffff, strong ? 0.38 : 0.25);
+    cell.graphic.fillRoundedRect(x - 38, y - 40, 54, 10, 5);
+    cell.graphic.fillRoundedRect(x + 15, y + 22, 26, 7, 4);
   }
 
   private iceKey(row: number, col: number) {
@@ -390,13 +312,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.iceCells.size === 0) return;
 
     const affected = new Set<string>();
-    const offsets = [
-      [0, 0],
-      [-1, 0],
-      [1, 0],
-      [0, -1],
-      [0, 1],
-    ];
+    const offsets = [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]];
 
     matches.forEach((tile) => {
       offsets.forEach(([dr, dc]) => {
@@ -410,26 +326,15 @@ export default class GameScene extends Phaser.Scene {
 
     affected.forEach((key) => {
       const cell = this.iceCells.get(key);
-      if (!cell || cell.hits <= 0) return;
+      if (!cell) return;
 
       cell.hits--;
       if (cell.hits <= 0) {
         this.iceBrokenCells++;
-        this.tweens.add({
-          targets: cell.graphic,
-          alpha: 0,
-          duration: 180,
-          onComplete: () => cell.graphic.destroy(),
-        });
+        cell.graphic.destroy();
         this.iceCells.delete(key);
-        this.cameras.main.shake(70, 0.0015);
       } else {
         this.drawIceCell(cell);
-        this.tweens.add({
-          targets: cell.graphic,
-          alpha: { from: 0.45, to: 1 },
-          duration: 180,
-        });
       }
     });
   }
@@ -449,10 +354,8 @@ export default class GameScene extends Phaser.Scene {
       return;
     }
 
-    const rowDistance = Math.abs(this.selectedTile.row - tile.row);
-    const colDistance = Math.abs(this.selectedTile.col - tile.col);
-
-    if (rowDistance + colDistance !== 1) {
+    const distance = Math.abs(this.selectedTile.row - tile.row) + Math.abs(this.selectedTile.col - tile.col);
+    if (distance !== 1) {
       this.selectedTile.circle.setDisplaySize(110, 110);
       this.selectedTile = tile;
       tile.circle.setDisplaySize(118, 118);
@@ -473,7 +376,6 @@ export default class GameScene extends Phaser.Scene {
     const bY = tileB.circle.y;
 
     this.swapModel(tileA, tileB);
-
     this.tweens.add({ targets: tileA.circle, x: bX, y: bY, duration: 210, ease: "Power2" });
     this.tweens.add({
       targets: tileB.circle,
@@ -533,12 +435,8 @@ export default class GameScene extends Phaser.Scene {
     this.scoreText.setText(`${this.score}\nPUNTI`);
 
     matches.forEach((tile) => {
-      if (tile.type === this.currentLevelConfig.collectType) {
-        this.collectedAmount++;
-      }
-      if (tile.type === this.currentLevelConfig.collectType2) {
-        this.collectedAmount2++;
-      }
+      if (tile.type === this.currentLevelConfig.collectType) this.collectedAmount++;
+      if (tile.type === this.currentLevelConfig.collectType2) this.collectedAmount2++;
     });
 
     this.damageIceAround(matches);
@@ -549,7 +447,6 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.updateObjectiveAndProgress();
-
     if (this.isObjectiveComplete()) {
       this.showLevelCompleted();
       return;
@@ -566,10 +463,10 @@ export default class GameScene extends Phaser.Scene {
 
   private updateObjectiveAndProgress() {
     if (!this.objectiveText || !this.progressFill) return;
-    this.objectiveText.setText(this.getObjectiveLabel());
 
+    this.objectiveText.setText(this.getObjectiveLabel());
     const config = this.currentLevelConfig;
-    const scoreRatio = this.score / Math.max(1, config.targetScore);
+    const scoreRatio = this.score / Math.max(1, this.targetScore);
     const collectRatio = this.collectedAmount / Math.max(1, config.collectAmount ?? 1);
     const collect2Ratio = this.collectedAmount2 / Math.max(1, config.collectAmount2 ?? 1);
     const iceRatio = this.iceTotalCells === 0 ? 1 : this.iceBrokenCells / this.iceTotalCells;
@@ -589,20 +486,16 @@ export default class GameScene extends Phaser.Scene {
     const firstName = this.colorNames[config.collectType ?? 0];
     const secondName = this.colorNames[config.collectType2 ?? 0];
 
-    switch (config.objective) {
-      case "score":
-        return `OBIETTIVO\n${config.targetScore}`;
-      case "collect":
-        return `${firstName}\n${this.collectedAmount}/${config.collectAmount ?? 0}`;
-      case "collectDouble":
-        return `${firstName} ${this.collectedAmount}/${config.collectAmount ?? 0}\n${secondName} ${this.collectedAmount2}/${config.collectAmount2 ?? 0}`;
-      case "ice":
-        return `❄ GHIACCIO\n${this.iceBrokenCells}/${this.iceTotalCells}`;
-      case "iceCollect":
-        return `❄ ${this.iceBrokenCells}/${this.iceTotalCells}\n${firstName} ${this.collectedAmount}/${config.collectAmount ?? 0}`;
-      case "scoreIce":
-        return `${this.score}/${config.targetScore}\n❄ ${this.iceBrokenCells}/${this.iceTotalCells}`;
+    if (config.objective === "score") return `OBIETTIVO\n${this.targetScore}`;
+    if (config.objective === "collect") return `${firstName}\n${this.collectedAmount}/${config.collectAmount ?? 0}`;
+    if (config.objective === "collectDouble") {
+      return `${firstName} ${this.collectedAmount}/${config.collectAmount ?? 0}\n${secondName} ${this.collectedAmount2}/${config.collectAmount2 ?? 0}`;
     }
+    if (config.objective === "ice") return `❄ GHIACCIO\n${this.iceBrokenCells}/${this.iceTotalCells}`;
+    if (config.objective === "iceCollect") {
+      return `❄ ${this.iceBrokenCells}/${this.iceTotalCells}\n${firstName} ${this.collectedAmount}/${config.collectAmount ?? 0}`;
+    }
+    return `${this.score}/${this.targetScore}\n❄ ${this.iceBrokenCells}/${this.iceTotalCells}`;
   }
 
   private isObjectiveComplete() {
@@ -610,22 +503,14 @@ export default class GameScene extends Phaser.Scene {
     const firstDone = this.collectedAmount >= (config.collectAmount ?? 0);
     const secondDone = this.collectedAmount2 >= (config.collectAmount2 ?? 0);
     const iceDone = this.iceTotalCells === 0 || this.iceBrokenCells >= this.iceTotalCells;
-    const scoreDone = this.score >= config.targetScore;
+    const scoreDone = this.score >= this.targetScore;
 
-    switch (config.objective) {
-      case "score":
-        return scoreDone;
-      case "collect":
-        return firstDone;
-      case "collectDouble":
-        return firstDone && secondDone;
-      case "ice":
-        return iceDone;
-      case "iceCollect":
-        return iceDone && firstDone;
-      case "scoreIce":
-        return iceDone && scoreDone;
-    }
+    if (config.objective === "score") return scoreDone;
+    if (config.objective === "collect") return firstDone;
+    if (config.objective === "collectDouble") return firstDone && secondDone;
+    if (config.objective === "ice") return iceDone;
+    if (config.objective === "iceCollect") return iceDone && firstDone;
+    return iceDone && scoreDone;
   }
 
   private createBoosterTray() {
@@ -659,12 +544,7 @@ export default class GameScene extends Phaser.Scene {
     }, () => this.shuffleUses);
 
     this.createBoosterButton(540, "booster-hammer", "MARTELLO", () => {
-      if (
-        this.hammerUses <= 0 ||
-        !this.selectedTile ||
-        this.isProcessing ||
-        this.levelCompleted
-      ) return;
+      if (this.hammerUses <= 0 || !this.selectedTile || this.isProcessing || this.levelCompleted) return;
 
       this.hammerUses--;
       const tile = this.selectedTile;
@@ -689,6 +569,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.createBoosterButton(810, "booster-rocket", "RAZZO", () => {
       if (this.rocketUses <= 0 || this.isProcessing || this.levelCompleted) return;
+
       this.rocketUses--;
       this.isProcessing = true;
       const row = Phaser.Math.Between(0, this.rows - 1);
@@ -704,7 +585,6 @@ export default class GameScene extends Phaser.Scene {
 
       this.damageIceAround(rowTiles);
       this.updateObjectiveAndProgress();
-
       if (this.isObjectiveComplete()) {
         this.showLevelCompleted();
         return;
@@ -737,10 +617,7 @@ export default class GameScene extends Phaser.Scene {
     plate.lineStyle(6, 0xffed91, 1);
     plate.strokeRoundedRect(x - 110, 1474, 220, 135, 28);
 
-    const button = this.add
-      .zone(x, 1540, 220, 135)
-      .setInteractive({ useHandCursor: true });
-
+    const button = this.add.zone(x, 1540, 220, 135).setInteractive({ useHandCursor: true });
     this.add.image(x - 48, 1525, iconKey).setDisplaySize(102, 102);
 
     const count = this.add
@@ -790,46 +667,32 @@ export default class GameScene extends Phaser.Scene {
     return false;
   }
 
-  private hasMatch() {
-    return this.findMatches().length > 0;
-  }
-
   private findMatches() {
     const matches = new Set<Tile>();
 
     for (let row = 0; row < this.rows; row++) {
-      let runStart = 0;
-      for (let col = 1; col <= this.cols; col++) {
-        const previous = this.board[row][col - 1];
-        const current = col < this.cols ? this.board[row][col] : null;
-        if (previous && current && previous.type === current.type) continue;
-
-        const runLength = col - runStart;
-        if (runLength >= 3 && previous) {
-          for (let c = runStart; c < col; c++) {
-            const tile = this.board[row][c];
-            if (tile) matches.add(tile);
-          }
+      for (let col = 0; col < this.cols - 2; col++) {
+        const a = this.board[row][col];
+        const b = this.board[row][col + 1];
+        const c = this.board[row][col + 2];
+        if (a && b && c && a.type === b.type && a.type === c.type) {
+          matches.add(a);
+          matches.add(b);
+          matches.add(c);
         }
-        runStart = col;
       }
     }
 
     for (let col = 0; col < this.cols; col++) {
-      let runStart = 0;
-      for (let row = 1; row <= this.rows; row++) {
-        const previous = this.board[row - 1]?.[col] ?? null;
-        const current = row < this.rows ? this.board[row][col] : null;
-        if (previous && current && previous.type === current.type) continue;
-
-        const runLength = row - runStart;
-        if (runLength >= 3 && previous) {
-          for (let r = runStart; r < row; r++) {
-            const tile = this.board[r][col];
-            if (tile) matches.add(tile);
-          }
+      for (let row = 0; row < this.rows - 2; row++) {
+        const a = this.board[row][col];
+        const b = this.board[row + 1][col];
+        const c = this.board[row + 2][col];
+        if (a && b && c && a.type === b.type && a.type === c.type) {
+          matches.add(a);
+          matches.add(b);
+          matches.add(c);
         }
-        runStart = row;
       }
     }
 
@@ -842,52 +705,40 @@ export default class GameScene extends Phaser.Scene {
         const tile = this.board[row][col];
         if (!tile) continue;
 
-        const neighbors = [
-          this.board[row]?.[col + 1] ?? null,
-          this.board[row + 1]?.[col] ?? null,
-        ];
+        const candidates: Tile[] = [];
+        const right = this.board[row][col + 1];
+        const below = this.board[row + 1]?.[col];
+        if (right) candidates.push(right);
+        if (below) candidates.push(below);
 
-        for (const neighbor of neighbors) {
-          if (!neighbor) continue;
+        for (const neighbor of candidates) {
           const typeA = tile.type;
-          tile.type = neighbor.type;
+          const typeB = neighbor.type;
+          tile.type = typeB;
           neighbor.type = typeA;
-          const available = this.hasMatch();
-          neighbor.type = tile.type;
+          const createsMatch = this.findMatches().length > 0;
           tile.type = typeA;
-          neighbor.type = neighbor.type === typeA ? neighbor.type : neighbor.type;
-
-          // Restore explicitly: the temporary swap above changed both types.
-          tile.type = typeA;
-          neighbor.type = typeA === neighbor.type ? neighbor.type : neighbor.type;
-
-          // Use a clean second restoration to avoid any ambiguity.
-          const originalNeighborType = neighbor.circle.texture.key
-            ? this.tileKeys.indexOf(neighbor.circle.texture.key.replace("tile-", ""))
-            : neighbor.type;
-          neighbor.type = originalNeighborType >= 0 ? originalNeighborType : neighbor.type;
-
-          if (available) return true;
+          neighbor.type = typeB;
+          if (createsMatch) return true;
         }
       }
     }
 
-    // Fallback: a random reshuffle is preferable to a dead board.
     return false;
   }
 
   private shuffleBoard() {
     let attempts = 0;
+
     do {
       for (let row = 0; row < this.rows; row++) {
         for (let col = 0; col < this.cols; col++) {
           const tile = this.board[row][col];
-          if (!tile) continue;
-          tile.type = Phaser.Math.Between(0, this.tileKeys.length - 1);
+          if (tile) tile.type = Phaser.Math.Between(0, this.tileKeys.length - 1);
         }
       }
       attempts++;
-    } while (this.hasMatch() && attempts < 100);
+    } while ((this.findMatches().length > 0 || !this.hasAvailableMove()) && attempts < 120);
 
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
@@ -902,7 +753,6 @@ export default class GameScene extends Phaser.Scene {
   private collapseTiles() {
     for (let col = 0; col < this.cols; col++) {
       let emptyRow = this.rows - 1;
-
       for (let row = this.rows - 1; row >= 0; row--) {
         const tile = this.board[row][col];
         if (!tile) continue;
@@ -920,7 +770,6 @@ export default class GameScene extends Phaser.Scene {
             ease: "Bounce.easeOut",
           });
         }
-
         emptyRow--;
       }
     }
@@ -938,7 +787,6 @@ export default class GameScene extends Phaser.Scene {
 
   private checkCascadeMatches() {
     const matches = this.findMatches();
-
     if (matches.length > 0) {
       this.processMatches(matches, true);
       return;
@@ -978,7 +826,6 @@ export default class GameScene extends Phaser.Scene {
         color: "#fff4c9",
         stroke: "#102d55",
         strokeThickness: 13,
-        shadow: { offsetX: 0, offsetY: 8, color: "#061a35", fill: true },
       })
       .setOrigin(0.5)
       .setDepth(22);
@@ -990,7 +837,6 @@ export default class GameScene extends Phaser.Scene {
         color: "#fff7d5",
         stroke: "#17456f",
         strokeThickness: 13,
-        shadow: { offsetX: 0, offsetY: 8, color: "#d18b00", fill: true },
       })
       .setOrigin(0.5)
       .setDepth(22);
@@ -1008,30 +854,26 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(22);
 
-    const continuePlate = this.drawGlossyButton(540, 1195, 480, 126, "green");
-    continuePlate.setDepth(22);
-
-    const continueButton = this.add
+    const continueButton = this.drawGlossyButton(540, 1195, 480, 126, "green");
+    const continueText = this.add
       .text(540, 1187, "CONTINUA", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "55px",
         color: "#fff8d5",
         stroke: "#255c13",
         strokeThickness: 9,
-        shadow: { offsetX: 0, offsetY: 6, color: "#17440e", fill: true },
       })
       .setOrigin(0.5)
       .setDepth(23)
       .setInteractive({ useHandCursor: true });
 
-    continuePlate.on("pointerup", () => continueButton.emit("pointerup"));
-    continueButton.on("pointerup", () => {
+    continueButton.on("pointerup", () => continueText.emit("pointerup"));
+    continueText.on("pointerup", () => {
       if (this.currentLevel >= levels.length) {
-        continueButton.setText("COMPLETATO!");
-        continueButton.disableInteractive();
+        continueText.setText("COMPLETATO!");
+        continueText.disableInteractive();
         return;
       }
-
       this.currentLevel++;
       this.scene.restart();
     });
@@ -1075,10 +917,8 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(22);
 
-    const retryPlate = this.drawGlossyButton(540, 1105, 460, 120, "red");
-    retryPlate.setDepth(22);
-
-    const retryButton = this.add
+    const retryButton = this.drawGlossyButton(540, 1105, 460, 120, "red");
+    const retryText = this.add
       .text(540, 1097, "RIPROVA", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "52px",
@@ -1090,8 +930,8 @@ export default class GameScene extends Phaser.Scene {
       .setDepth(23)
       .setInteractive({ useHandCursor: true });
 
-    retryPlate.on("pointerup", () => retryButton.emit("pointerup"));
-    retryButton.on("pointerup", () => this.scene.restart());
+    retryButton.on("pointerup", () => retryText.emit("pointerup"));
+    retryText.on("pointerup", () => this.scene.restart());
   }
 
   private drawResultPanel(y: number, height: number) {
@@ -1122,13 +962,21 @@ export default class GameScene extends Phaser.Scene {
       ? { shadow: 0x174f10, base: 0x2f9d18, face: 0x63d92f, shine: 0xb8ff79 }
       : { shadow: 0x621219, base: 0xa91f29, face: 0xeb3944, shine: 0xff8a86 };
 
-    const button = this.add
-      .rectangle(x, y + 12, width, height, palette.shadow, 1)
+    const graphics = this.add.graphics().setDepth(22);
+    graphics.fillStyle(palette.shadow, 1);
+    graphics.fillRoundedRect(x - width / 2, y - height / 2 + 12, width, height, 30);
+    graphics.fillStyle(palette.base, 1);
+    graphics.fillRoundedRect(x - width / 2, y - height / 2, width, height, 30);
+    graphics.fillStyle(palette.face, 1);
+    graphics.fillRoundedRect(x - width / 2 + 9, y - height / 2 + 6, width - 18, height - 24, 25);
+    graphics.fillStyle(palette.shine, 0.8);
+    graphics.fillRoundedRect(x - width * 0.35, y - height * 0.3, width * 0.7, 10, 5);
+    graphics.lineStyle(7, 0xfff4c7, 1);
+    graphics.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 30);
+
+    return this.add
+      .zone(x, y, width, height)
+      .setDepth(24)
       .setInteractive({ useHandCursor: true });
-    this.add.rectangle(x, y, width, height, palette.base, 1).setDepth(button.depth);
-    this.add.rectangle(x, y - 10, width - 18, height - 24, palette.face, 1).setDepth(button.depth);
-    this.add.rectangle(x, y - height * 0.28, width * 0.7, 10, palette.shine, 0.8).setDepth(button.depth);
-    button.setStrokeStyle(7, 0xfff4c7, 1);
-    return button;
   }
 }
