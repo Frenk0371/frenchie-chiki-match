@@ -1,0 +1,54 @@
+.banana-life-badge {
+  position: fixed;
+  left: max(12px, env(safe-area-inset-left));
+  bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px));
+  z-index: 9998;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 1px 7px;
+  min-width: 105px;
+  padding: 8px 13px 9px 10px;
+  border: 4px solid #fff2a8;
+  border-radius: 24px;
+  background: linear-gradient(#764b2b 0 20%, #57321f 21% 70%, #402316 71%);
+  color: #fff;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  box-shadow: inset 0 4px #a8754e, inset 0 -4px #29160f, 0 6px 0 #281710, 0 10px 16px #081b2d55;
+  pointer-events: none;
+}
+
+.banana-life-badge > span {
+  grid-row: 1 / span 2;
+  font-size: 32px;
+  line-height: 1;
+  filter: drop-shadow(0 3px 1px #5f4218aa);
+}
+
+.banana-life-badge strong {
+  font-size: 20px;
+  line-height: 1;
+  text-shadow: 0 2px 0 #2c170e;
+}
+
+.banana-life-badge small {
+  color: #ffe66a;
+  font-size: 10px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.banana-life-badge.empty {
+  border-color: #ffbf9f;
+  background: linear-gradient(#8d4334, #64291f 70%, #451c17 71%);
+}
+
+@media (max-width: 370px) {
+  .banana-life-badge {
+    min-width: 94px;
+    padding: 7px 10px 8px 8px;
+  }
+  .banana-life-badge > span { font-size: 28px; }
+  .banana-life-badge strong { font-size: 18px; }
+  .banana-life-badge small { font-size: 9px; }
+}
