@@ -1,10 +1,6 @@
   function renderHome() {
-    const spotifyKnown = typeof spotifyConnection !== 'undefined';
-    const signedIn = typeof mhUser !== 'undefined' && !!mhUser;
-    const needsSpotify = signedIn && spotifyKnown && !spotifyConnection.connected;
     content.innerHTML = `
       <section class="hero"><h1>La tua <span class="gradient-text">Music House</span>.</h1><p>Brani, artisti, album e playlist in un unico posto.</p></section>
-      ${needsSpotify ? `<section class="setup-card spotify-setup"><span class="spotify-source-pill">Spotify</span><h3>Collega la tua musica</h3><p>Ogni account Music House collega una sola volta il proprio Spotify Premium. Poi ricerca e ascolto funzionano direttamente dall’app.</p><button id="openSpotifyFromHome">Apri Account</button></section>` : ''}
       ${sectionHead('Ascoltati di recente', state.recent.length ? 'Riparti da dove eri rimasto' : '')}
       ${state.recent.length ? `<div class="h-scroll">${state.recent.slice(0, 10).map(track => `<div class="mini-card" data-play-track="${esc(track.id)}"><img src="${esc(track.thumb)}" alt="" /><strong>${esc(track.title)}</strong><small>${esc(track.artist)}</small></div>`).join('')}</div>` : `<div class="empty"><b>Ancora nessun ascolto</b>Cerca una canzone e premi play.</div>`}
       ${sectionHead('Album preferiti', state.favoriteAlbums.length ? `${state.favoriteAlbums.length} salvati` : '')}
@@ -12,13 +8,12 @@
       ${sectionHead('Le tue playlist', state.playlists.length ? `${state.playlists.length} playlist` : '', `<button class="link-btn" data-nav="playlists">Vedi tutte</button>`)}
       ${state.playlists.length ? `<div class="playlist-list">${state.playlists.slice(0,3).map(playlistTile).join('')}</div>` : `<div class="empty"><b>Crea la prima playlist</b>Raccogli i brani che vuoi ascoltare insieme.</div>`}
     `;
-    $('#openSpotifyFromHome')?.addEventListener('click', () => accountBtn?.click());
   }
 
   function renderSearch() {
     const query = esc(currentSearch.query);
     content.innerHTML = `
-      <section class="hero"><h1>Cerca</h1><p>Canzoni singole, artisti e album da Spotify.</p></section>
+      <section class="hero"><h1>Cerca</h1><p>Canzoni singole, artisti e album.</p></section>
       <form class="search-box" id="searchForm"><input id="searchInput" value="${query}" placeholder="Canzone, artista o album…" autocomplete="off" /><button>Cerca</button></form>
       <div class="search-tabs">
         <button data-search-tab="tracks" class="${searchTab === 'tracks' ? 'active' : ''}">Brani</button>
@@ -45,8 +40,7 @@
       return;
     }
     if (currentSearch.error) {
-      host.innerHTML = `<div class="empty" style="margin-top:18px"><b>Ricerca non disponibile</b>${esc(currentSearch.error)}<button class="primary-btn" id="openAccountFromSearch" style="margin-top:14px">Apri Account</button></div>`;
-      $('#openAccountFromSearch')?.addEventListener('click', () => accountBtn?.click());
+      host.innerHTML = `<div class="empty" style="margin-top:18px"><b>Ricerca non disponibile</b>${esc(currentSearch.error)}</div>`;
       return;
     }
     if (!currentSearch.query) {
@@ -55,7 +49,7 @@
     }
     if (searchTab === 'tracks') {
       if (currentSearch.trackError) {
-        host.innerHTML = `<div class="empty" style="margin-top:18px"><b>Brani non disponibili</b>${esc(currentSearch.trackError)}</div>`;
+        host.innerHTML = `<div class="empty" style="margin-top:18px"><b>Brani temporaneamente non disponibili</b>${esc(currentSearch.trackError)}</div>`;
         return;
       }
       host.innerHTML = currentSearch.tracks.length ? `${sectionHead('Brani', `${currentSearch.tracks.length} risultati`)}<div class="track-list">${currentSearch.tracks.map(track => trackRow(track)).join('')}</div>` : `<div class="empty"><b>Nessun brano trovato</b>Prova con un titolo o un artista diverso.</div>`;
@@ -66,4 +60,3 @@
     }
     wireDynamicActions(host);
   }
-
