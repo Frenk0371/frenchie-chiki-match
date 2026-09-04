@@ -73,7 +73,7 @@ function App({ username, onSignOut }: AppProps) {
   const [coins, setCoins] = useState(() => Math.max(0, Number(localStorage.getItem("chiki-coins") || "500")));
   const [inventory, setInventory] = useState<string[]>(() => loadJson("chiki-inventory", [...STARTER_INVENTORY]));
   const [equipped, setEquipped] = useState<Record<string, string>>(() => loadJson("chiki-equipped", { ...STARTER_EQUIPPED }));
-  const [roomState, setRoomState] = useState<Record<string, string | number>>(() => loadJson("chiki-room-state", {}));
+  const [roomState] = useState<Record<string, string | number>>(() => loadJson("chiki-room-state", {}));
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState("");
