@@ -21,6 +21,7 @@ import "./matchEffectsTweaks";
 import "./dragSwapTweaks";
 import "./specialShopTweaks";
 import "./profileAvatarTweaks";
+import "./specialDragActivationTweaks";
 import AuthGate from "./AuthGate";
 
 createRoot(document.getElementById("root")!).render(
