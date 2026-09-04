@@ -27,7 +27,7 @@ const AvatarBody = ({
 }) => (
   <>
     <img className="chiki-avatar-base" src="/chiki-character.webp" alt={alt} />
-    {items.outfit && items.outfit.id !== "outfit_classic" && <WearableLayer item={items.outfit} />}
+    {/* I vestiti restano nell'armadio finche' non avremo asset sagomati davvero sul corpo di Chiki. */}
     {items.collar && <WearableLayer item={items.collar} />}
     {items.glasses && <WearableLayer item={items.glasses} />}
     {items.hat && <WearableLayer item={items.hat} />}
