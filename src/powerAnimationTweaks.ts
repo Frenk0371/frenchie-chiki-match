@@ -2,6 +2,8 @@ import Phaser from "phaser";
 import GameScene from "./game/GameScene";
 
 type SpecialKind = "rocket-h" | "rocket-v" | "bomb" | "rainbow";
+type ToolKind = "hammer" | "rocket" | null;
+
 type PowerTile = {
   row: number;
   col: number;
@@ -36,9 +38,25 @@ type RuntimeScene = {
   trySwap: (a: PowerTile, b: PowerTile) => void;
 };
 
+type ToolState = {
+  active: ToolKind;
+  prompt: Phaser.GameObjects.Text | null;
+};
+
 const proto = GameScene.prototype as any;
 const runtime = (scene: GameScene) => scene as unknown as RuntimeScene;
 const TILE_SIZE = 116;
+const toolStates = new WeakMap<GameScene, ToolState>();
+const specialLocks = new WeakSet<GameScene>();
+
+const toolState = (scene: GameScene) => {
+  let state = toolStates.get(scene);
+  if (!state) {
+    state = { active: null, prompt: null };
+    toolStates.set(scene, state);
+  }
+  return state;
+};
 
 const boardCenter = (scene: GameScene, row: number, col: number) => {
   const r = runtime(scene);
@@ -50,204 +68,315 @@ const boardCenter = (scene: GameScene, row: number, col: number) => {
   };
 };
 
+const clearPrompt = (scene: GameScene) => {
+  const state = toolState(scene);
+  if (state.prompt?.active) state.prompt.destroy();
+  state.prompt = null;
+};
+
+const showToolPrompt = (scene: GameScene, kind: Exclude<ToolKind, null>) => {
+  clearPrompt(scene);
+  const text = kind === "hammer" ? "🔨 TOCCA LA PEDINA DA ROMPERE" : "🚀 TOCCA LA PEDINA BERSAGLIO";
+  const prompt = scene.add
+    .text(540, 1370, text, {
+      fontFamily: '"Lilita One", "Fredoka", sans-serif',
+      fontSize: "30px",
+      color: "#fff6cf",
+      stroke: "#442054",
+      strokeThickness: 7,
+      backgroundColor: "#7b35a8",
+      padding: { x: 18, y: 10 },
+    })
+    .setOrigin(0.5)
+    .setDepth(70)
+    .setScale(0.75);
+  scene.tweens.add({ targets: prompt, scale: 1, duration: 220, ease: "Back.easeOut" });
+  toolState(scene).prompt = prompt;
+};
+
 const makeSmokePuff = (
   scene: GameScene,
   x: number,
   y: number,
   dark = false,
-  depth = 35,
+  depth = 55,
   size = Phaser.Math.Between(15, 28),
 ) => {
-  const colors = dark ? [0x171820, 0x292a33, 0x41424a, 0x5c5555] : [0xffffff, 0xf4f7fb, 0xdfe7ef, 0xcbd6e0];
+  const colors = dark
+    ? [0x111318, 0x22252b, 0x36383d, 0x4b4848]
+    : [0xffffff, 0xf7f9fc, 0xe7edf4, 0xd0dbe5];
   const puff = scene.add
-    .circle(x + Phaser.Math.Between(-9, 9), y + Phaser.Math.Between(-9, 9), size, Phaser.Utils.Array.GetRandom(colors), dark ? 0.76 : 0.84)
+    .circle(
+      x + Phaser.Math.Between(-9, 9),
+      y + Phaser.Math.Between(-9, 9),
+      size,
+      Phaser.Utils.Array.GetRandom(colors),
+      dark ? 0.82 : 0.9,
+    )
     .setDepth(depth)
-    .setScale(0.45);
+    .setScale(0.42);
+
   scene.tweens.add({
     targets: puff,
-    x: puff.x + Phaser.Math.Between(-38, 38),
-    y: puff.y + Phaser.Math.Between(-30, 30),
-    scale: dark ? Phaser.Math.FloatBetween(1.5, 2.3) : Phaser.Math.FloatBetween(1.2, 1.9),
+    x: puff.x + Phaser.Math.Between(-42, 42),
+    y: puff.y + Phaser.Math.Between(-35, 30),
+    scale: dark ? Phaser.Math.FloatBetween(1.6, 2.5) : Phaser.Math.FloatBetween(1.25, 2),
     alpha: 0,
-    duration: dark ? Phaser.Math.Between(430, 680) : Phaser.Math.Between(300, 520),
+    duration: dark ? Phaser.Math.Between(500, 780) : Phaser.Math.Between(350, 560),
     ease: "Cubic.easeOut",
     onComplete: () => puff.destroy(),
   });
 };
 
 const burst = (scene: GameScene, x: number, y: number, color = 0xffdf5d, darkSmoke = false) => {
-  const ring = scene.add.circle(x, y, 28, color, 0.16).setStrokeStyle(9, color, 0.92).setDepth(42);
+  const ring = scene.add
+    .circle(x, y, 28, color, 0.18)
+    .setStrokeStyle(10, color, 0.96)
+    .setDepth(58);
   scene.tweens.add({
     targets: ring,
-    scale: 3.1,
+    scale: darkSmoke ? 4 : 3.2,
     alpha: 0,
-    duration: 330,
+    duration: darkSmoke ? 420 : 320,
     ease: "Cubic.easeOut",
     onComplete: () => ring.destroy(),
   });
-  for (let i = 0; i < (darkSmoke ? 15 : 8); i++) {
-    scene.time.delayedCall(i * 14, () => makeSmokePuff(scene, x, y, darkSmoke, 41, Phaser.Math.Between(13, darkSmoke ? 31 : 22)));
+
+  const amount = darkSmoke ? 22 : 10;
+  for (let i = 0; i < amount; i++) {
+    scene.time.delayedCall(i * 12, () =>
+      makeSmokePuff(scene, x, y, darkSmoke, 57, Phaser.Math.Between(14, darkSmoke ? 34 : 24)),
+    );
   }
 };
 
 const animateShuffle = (scene: GameScene, done: () => void) => {
-  const icon = scene.add.image(540, 870, "booster-shuffle").setDisplaySize(285, 285).setDepth(45).setAlpha(0).setScale(0.45);
-  const halo = scene.add.circle(540, 870, 145, 0x58d9ff, 0.2).setStrokeStyle(12, 0xfff09a, 0.85).setDepth(44).setScale(0.45);
-  scene.tweens.add({ targets: icon, alpha: 1, scale: 1, duration: 180, ease: "Back.easeOut" });
-  scene.tweens.add({ targets: halo, alpha: 0.7, scale: 1, duration: 180, ease: "Back.easeOut" });
-  scene.tweens.add({
-    targets: icon,
-    angle: 720,
-    duration: 620,
-    ease: "Cubic.easeInOut",
-  });
-  scene.tweens.add({
-    targets: halo,
-    angle: -540,
-    scale: 1.2,
-    duration: 620,
-    ease: "Cubic.easeInOut",
-  });
-  scene.cameras.main.shake(620, 0.0011);
-  scene.time.delayedCall(560, () => {
+  const icon = scene.add
+    .image(540, 875, "booster-shuffle")
+    .setDisplaySize(330, 330)
+    .setDepth(62)
+    .setAlpha(0)
+    .setScale(0.35);
+  const halo = scene.add
+    .circle(540, 875, 180, 0x66ddff, 0.2)
+    .setStrokeStyle(14, 0xfff19b, 0.9)
+    .setDepth(61)
+    .setScale(0.4);
+
+  scene.tweens.add({ targets: icon, alpha: 1, scale: 1, duration: 170, ease: "Back.easeOut" });
+  scene.tweens.add({ targets: halo, alpha: 0.72, scale: 1, duration: 170, ease: "Back.easeOut" });
+  scene.tweens.add({ targets: icon, angle: 1080, duration: 780, ease: "Cubic.easeInOut" });
+  scene.tweens.add({ targets: halo, angle: -720, scale: 1.25, duration: 780, ease: "Cubic.easeInOut" });
+  scene.cameras.main.shake(700, 0.0014);
+
+  scene.time.delayedCall(650, () => {
     done();
-    scene.tweens.add({ targets: [icon, halo], alpha: 0, scale: 1.35, duration: 190, onComplete: () => {
-      icon.destroy();
-      halo.destroy();
-    } });
+    scene.tweens.add({
+      targets: [icon, halo],
+      alpha: 0,
+      scale: 1.45,
+      duration: 180,
+      onComplete: () => {
+        icon.destroy();
+        halo.destroy();
+      },
+    });
   });
 };
 
 const animateHammer = (scene: GameScene, tile: PowerTile, done: () => void) => {
   const { x, y } = boardCenter(scene, tile.row, tile.col);
-  const hammer = scene.add.image(x + 95, y - 190, "booster-hammer").setDisplaySize(245, 245).setDepth(46).setAngle(-38).setScale(0.86);
-  const shadow = scene.add.ellipse(x, y + 36, 115, 34, 0x000000, 0.24).setDepth(39).setScale(0.35);
-  scene.tweens.add({ targets: shadow, scaleX: 1, scaleY: 1, alpha: 0.42, duration: 220 });
+  const hammer = scene.add
+    .image(x + 105, y - 220, "booster-hammer")
+    .setDisplaySize(285, 285)
+    .setDepth(65)
+    .setAngle(-42)
+    .setScale(0.9);
+  const shadow = scene.add.ellipse(x, y + 40, 130, 38, 0x000000, 0.3).setDepth(59).setScale(0.25);
+
+  scene.tweens.add({ targets: shadow, scaleX: 1, scaleY: 1, alpha: 0.48, duration: 210 });
   scene.tweens.add({
     targets: hammer,
-    x: x + 24,
-    y: y - 18,
-    angle: 34,
-    scale: 1.08,
-    duration: 250,
+    x: x + 20,
+    y: y - 20,
+    angle: 38,
+    scale: 1.12,
+    duration: 285,
     ease: "Cubic.easeIn",
     onComplete: () => {
-      scene.cameras.main.shake(150, 0.0065);
-      burst(scene, x, y, 0xffe16a, false);
+      scene.cameras.main.shake(180, 0.008);
+      scene.cameras.main.flash(70, 255, 235, 150, false);
+      burst(scene, x, y, 0xffe26a, false);
       if (tile.circle.active) {
-        scene.tweens.add({ targets: tile.circle, scaleX: tile.circle.scaleX * 0.8, scaleY: tile.circle.scaleY * 0.8, duration: 60, yoyo: true });
+        scene.tweens.add({
+          targets: tile.circle,
+          scaleX: tile.circle.scaleX * 0.72,
+          scaleY: tile.circle.scaleY * 0.72,
+          angle: Phaser.Math.Between(-10, 10),
+          duration: 75,
+          yoyo: true,
+        });
       }
-      scene.time.delayedCall(85, done);
+      scene.time.delayedCall(100, done);
       scene.tweens.add({
         targets: hammer,
-        y: y - 145,
-        x: x + 110,
-        angle: -25,
+        x: x + 130,
+        y: y - 175,
+        angle: -28,
         alpha: 0,
-        duration: 210,
+        duration: 230,
         ease: "Cubic.easeOut",
         onComplete: () => hammer.destroy(),
       });
-      scene.tweens.add({ targets: shadow, alpha: 0, scale: 0.25, duration: 180, onComplete: () => shadow.destroy() });
+      scene.tweens.add({ targets: shadow, alpha: 0, scale: 0.2, duration: 190, onComplete: () => shadow.destroy() });
     },
   });
 };
 
-const animateHelpRocket = (scene: GameScene, row: number, done: () => void) => {
-  const r = runtime(scene);
-  const { y } = boardCenter(scene, row, 0);
-  const boardWidth = r.cols * r.tileSize;
-  const left = (1080 - boardWidth) / 2;
-  const startX = left - 105;
-  const endX = left + boardWidth + 105;
-  const rocket = scene.add.image(startX, y, "booster-rocket").setDisplaySize(175, 175).setDepth(46).setAngle(90);
-  const timer = scene.time.addEvent({
-    delay: 32,
+const animateHelpRocket = (scene: GameScene, target: PowerTile, done: () => void) => {
+  const targetPos = boardCenter(scene, target.row, target.col);
+  const startX = 810;
+  const startY = 1530;
+  const rocket = scene.add
+    .image(startX, startY, "booster-rocket")
+    .setDisplaySize(190, 190)
+    .setDepth(66);
+  const angle = Math.atan2(targetPos.y - startY, targetPos.x - startX);
+  rocket.setAngle((angle * 180) / Math.PI + 90);
+
+  const smoke = scene.time.addEvent({
+    delay: 28,
     loop: true,
     callback: () => {
       if (!rocket.active) return;
-      makeSmokePuff(scene, rocket.x - 62, rocket.y + Phaser.Math.Between(-12, 12), false, 43, Phaser.Math.Between(16, 28));
+      const backX = rocket.x - Math.cos(angle) * 58;
+      const backY = rocket.y - Math.sin(angle) * 58;
+      makeSmokePuff(scene, backX, backY, false, 63, Phaser.Math.Between(17, 30));
     },
   });
+
+  scene.tweens.add({
+    targets: rocket,
+    x: targetPos.x,
+    y: targetPos.y,
+    scaleX: rocket.scaleX * 1.08,
+    scaleY: rocket.scaleY * 1.08,
+    duration: 560,
+    ease: "Cubic.easeIn",
+    onComplete: () => {
+      smoke.remove(false);
+      scene.cameras.main.shake(180, 0.006);
+      scene.cameras.main.flash(90, 255, 226, 130, false);
+      burst(scene, targetPos.x, targetPos.y, 0xffdf67, false);
+      rocket.destroy();
+      scene.time.delayedCall(80, done);
+    },
+  });
+};
+
+const trailRocket = (
+  scene: GameScene,
+  x: number,
+  y: number,
+  angle: number,
+  endX: number,
+  endY: number,
+  done: () => void,
+) => {
+  const rocket = scene.add
+    .image(x, y, "special-grid-rocket")
+    .setDisplaySize(120, 120)
+    .setDepth(68)
+    .setAngle(angle);
+  const horizontal = Math.abs(endX - x) >= Math.abs(endY - y);
+  const signX = endX >= x ? 1 : -1;
+  const signY = endY >= y ? 1 : -1;
+  const smoke = scene.time.addEvent({
+    delay: 24,
+    loop: true,
+    callback: () => {
+      if (!rocket.active) return;
+      const sx = horizontal ? rocket.x - signX * 52 : rocket.x + Phaser.Math.Between(-8, 8);
+      const sy = horizontal ? rocket.y + Phaser.Math.Between(-8, 8) : rocket.y - signY * 52;
+      makeSmokePuff(scene, sx, sy, false, 66, Phaser.Math.Between(14, 26));
+    },
+  });
+
   scene.tweens.add({
     targets: rocket,
     x: endX,
-    duration: 610,
+    y: endY,
+    duration: 390,
     ease: "Cubic.easeIn",
     onComplete: () => {
-      timer.remove(false);
-      scene.cameras.main.shake(150, 0.004);
-      burst(scene, endX - 55, y, 0xffe071, false);
+      smoke.remove(false);
       rocket.destroy();
       done();
     },
   });
 };
 
-const animateGridRocket = (scene: GameScene, tile: PowerTile) => {
-  if (!tile.special?.startsWith("rocket")) return;
+const animateGridRocket = (scene: GameScene, tile: PowerTile, done: () => void) => {
   const r = runtime(scene);
+  if (!tile.special?.startsWith("rocket")) {
+    done();
+    return;
+  }
   const horizontal = tile.special === "rocket-h";
   const boardWidth = r.cols * r.tileSize;
   const left = (1080 - boardWidth) / 2;
+  const right = left + boardWidth;
   const top = r.boardY;
-  const clone = scene.add.image(tile.circle.x, tile.circle.y, "special-grid-rocket")
-    .setDisplaySize(110, 110)
-    .setDepth(47)
-    .setAngle(horizontal ? 0 : 90);
-  const endX = horizontal ? left + boardWidth + 70 : clone.x;
-  const endY = horizontal ? clone.y : top + r.rows * r.tileSize + 70;
-  const timer = scene.time.addEvent({
-    delay: 27,
-    loop: true,
-    callback: () => {
-      if (!clone.active) return;
-      const sx = horizontal ? clone.x - 48 : clone.x + Phaser.Math.Between(-9, 9);
-      const sy = horizontal ? clone.y + Phaser.Math.Between(-9, 9) : clone.y - 48;
-      makeSmokePuff(scene, sx, sy, false, 44, Phaser.Math.Between(13, 24));
-    },
-  });
-  scene.tweens.add({
-    targets: clone,
-    x: endX,
-    y: endY,
-    scaleX: clone.scaleX * 1.08,
-    scaleY: clone.scaleY * 1.08,
-    duration: 285,
-    ease: "Cubic.easeIn",
-    onComplete: () => {
-      timer.remove(false);
-      clone.destroy();
-    },
-  });
-};
-
-const animateBomb = (scene: GameScene, tile: PowerTile) => {
+  const bottom = top + r.rows * r.tileSize;
   const x = tile.circle.x;
   const y = tile.circle.y;
-  const clone = scene.add.image(x, y, "special-bomb").setDisplaySize(112, 112).setDepth(47);
+  tile.circle.setAlpha(0.12);
+
+  let finished = 0;
+  const finishOne = () => {
+    finished++;
+    if (finished < 2) return;
+    scene.cameras.main.shake(130, 0.004);
+    done();
+  };
+
+  if (horizontal) {
+    trailRocket(scene, x, y, 0, right + 90, y, finishOne);
+    trailRocket(scene, x, y, 180, left - 90, y, finishOne);
+  } else {
+    trailRocket(scene, x, y, 90, x, bottom + 90, finishOne);
+    trailRocket(scene, x, y, -90, x, top - 90, finishOne);
+  }
+};
+
+const animateBomb = (scene: GameScene, tile: PowerTile, done: () => void) => {
+  const x = tile.circle.x;
+  const y = tile.circle.y;
+  const clone = scene.add.image(x, y, "special-bomb").setDisplaySize(128, 128).setDepth(69);
   scene.tweens.add({
     targets: clone,
-    scaleX: clone.scaleX * 1.42,
-    scaleY: clone.scaleY * 1.42,
-    angle: 16,
-    duration: 155,
+    scaleX: clone.scaleX * 1.55,
+    scaleY: clone.scaleY * 1.55,
+    angle: 22,
+    duration: 190,
     yoyo: true,
+    repeat: 1,
     ease: "Sine.easeInOut",
     onComplete: () => {
       clone.destroy();
-      scene.cameras.main.shake(220, 0.0075);
-      scene.cameras.main.flash(95, 255, 200, 90, false);
-      burst(scene, x, y, 0xffa047, true);
+      scene.cameras.main.shake(260, 0.009);
+      scene.cameras.main.flash(105, 255, 170, 70, false);
+      burst(scene, x, y, 0xff9b3d, true);
+      scene.time.delayedCall(170, done);
     },
   });
 };
 
 const lightning = (scene: GameScene, sx: number, sy: number, tx: number, ty: number, delay: number) => {
   scene.time.delayedCall(delay, () => {
-    const g = scene.add.graphics().setDepth(49);
+    const g = scene.add.graphics().setDepth(72);
     const points: Phaser.Math.Vector2[] = [new Phaser.Math.Vector2(sx, sy)];
-    const segments = 6;
+    const segments = 7;
     for (let i = 1; i < segments; i++) {
       const t = i / segments;
       const baseX = Phaser.Math.Linear(sx, tx, t);
@@ -257,7 +386,7 @@ const lightning = (scene: GameScene, sx: number, sy: number, tx: number, ty: num
       const len = Math.max(1, Math.sqrt(dx * dx + dy * dy));
       const nx = -dy / len;
       const ny = dx / len;
-      const jitter = Phaser.Math.Between(-22, 22);
+      const jitter = Phaser.Math.Between(-24, 24);
       points.push(new Phaser.Math.Vector2(baseX + nx * jitter, baseY + ny * jitter));
     }
     points.push(new Phaser.Math.Vector2(tx, ty));
@@ -269,41 +398,58 @@ const lightning = (scene: GameScene, sx: number, sy: number, tx: number, ty: num
       for (let i = 1; i < points.length; i++) g.lineTo(points[i].x, points[i].y);
       g.strokePath();
     };
-    draw(9, 0x4ac8ff, 0.58);
-    draw(4, 0xffffff, 1);
+    draw(11, 0x3cc6ff, 0.62);
+    draw(5, 0xffffff, 1);
 
-    const hit = scene.add.circle(tx, ty, 24, 0xffffff, 0.72).setDepth(50);
-    scene.tweens.add({ targets: g, alpha: 0, duration: 185, onComplete: () => g.destroy() });
-    scene.tweens.add({ targets: hit, scale: 2.1, alpha: 0, duration: 250, ease: "Cubic.easeOut", onComplete: () => hit.destroy() });
+    const hit = scene.add.circle(tx, ty, 28, 0xffffff, 0.78).setDepth(73);
+    scene.tweens.add({ targets: g, alpha: 0, duration: 220, onComplete: () => g.destroy() });
+    scene.tweens.add({
+      targets: hit,
+      scale: 2.3,
+      alpha: 0,
+      duration: 270,
+      ease: "Cubic.easeOut",
+      onComplete: () => hit.destroy(),
+    });
   });
 };
 
-const animateRainbow = (scene: GameScene, rainbow: PowerTile, target: PowerTile) => {
-  const r = runtime(scene);
-  const targetType = target.baseType ?? target.type;
-  if (targetType < 0) return;
-  const targets = r.board.flat().filter((tile): tile is PowerTile => Boolean(tile) && !tile!.special && (tile!.baseType ?? tile!.type) === targetType);
-
-  scene.tweens.killTweensOf(rainbow.circle);
+const animateRainbowSpin = (scene: GameScene, rainbow: PowerTile, done: () => void) => {
+  const glow = scene.add
+    .circle(rainbow.circle.x, rainbow.circle.y, 52, 0xb4f5ff, 0.28)
+    .setStrokeStyle(9, 0xffffff, 0.8)
+    .setDepth(67);
+  scene.tweens.add({ targets: glow, scale: 2.2, alpha: 0, duration: 520, onComplete: () => glow.destroy() });
   scene.tweens.add({
     targets: rainbow.circle,
     angle: rainbow.circle.angle + 1080,
-    duration: 540,
+    scaleX: rainbow.circle.scaleX * 1.16,
+    scaleY: rainbow.circle.scaleY * 1.16,
+    duration: 520,
     ease: "Cubic.easeInOut",
+    onComplete: done,
   });
+};
 
-  const startX = rainbow.circle.x;
-  const startY = rainbow.circle.y;
-  scene.time.delayedCall(220, () => {
-    targets.forEach((tile, index) => {
-      if (!tile.circle.active) return;
-      lightning(scene, startX, startY, tile.circle.x, tile.circle.y, index * 13);
-      scene.time.delayedCall(80 + index * 13, () => {
-        if (tile.circle.active) burst(scene, tile.circle.x, tile.circle.y, 0x8feaff, false);
-      });
+const animateRainbowLightning = (scene: GameScene, rainbow: PowerTile, targetType: number) => {
+  const r = runtime(scene);
+  const sx = rainbow.circle.x;
+  const sy = rainbow.circle.y;
+  const targets = r.board
+    .flat()
+    .filter(
+      (tile): tile is PowerTile =>
+        Boolean(tile) && !tile!.special && (tile!.baseType ?? tile!.type) === targetType,
+    );
+
+  targets.forEach((tile, index) => {
+    if (!tile.circle.active) return;
+    lightning(scene, sx, sy, tile.circle.x, tile.circle.y, index * 16);
+    scene.time.delayedCall(95 + index * 16, () => {
+      if (tile.circle.active) burst(scene, tile.circle.x, tile.circle.y, 0x8feaff, false);
     });
-    scene.cameras.main.shake(280, 0.0032);
   });
+  scene.cameras.main.shake(260, 0.004);
 };
 
 const resolveHammer = (scene: GameScene, tile: PowerTile) => {
@@ -368,32 +514,28 @@ proto.createBoosterButton = function (
 
   if (label === "MESCOLA") {
     animatedAction = () => {
-      if (r.shuffleUses <= 0 || r.isProcessing || r.levelCompleted) return;
+      if (toolState(this).active || r.shuffleUses <= 0 || r.isProcessing || r.levelCompleted) return;
       r.shuffleUses--;
       r.isProcessing = true;
       animateShuffle(this, () => r.shuffleBoard());
     };
   } else if (label === "MARTELLO") {
     animatedAction = () => {
-      if (r.hammerUses <= 0 || !r.selectedTile || r.isProcessing || r.levelCompleted) return;
-      const tile = r.selectedTile;
+      if (toolState(this).active || r.hammerUses <= 0 || r.isProcessing || r.levelCompleted) return;
       r.hammerUses--;
+      if (r.selectedTile?.circle.active) r.selectedTile.circle.setDisplaySize(TILE_SIZE, TILE_SIZE);
       r.selectedTile = null;
-      if (tile.circle.active) tile.circle.setDisplaySize(TILE_SIZE, TILE_SIZE);
-      r.isProcessing = true;
-      animateHammer(this, tile, () => resolveHammer(this, tile));
+      toolState(this).active = "hammer";
+      showToolPrompt(this, "hammer");
     };
   } else if (label === "RAZZO") {
     animatedAction = () => {
-      if (r.rocketUses <= 0 || r.isProcessing || r.levelCompleted) return;
-      const selected = r.selectedTile;
-      const row = selected ? selected.row : Phaser.Math.Between(0, r.rows - 1);
-      if (selected?.circle.active) selected.circle.setDisplaySize(TILE_SIZE, TILE_SIZE);
-      r.selectedTile = null;
-      const rowTiles = r.board[row].filter((tile): tile is PowerTile => Boolean(tile));
+      if (toolState(this).active || r.rocketUses <= 0 || r.isProcessing || r.levelCompleted) return;
       r.rocketUses--;
-      r.isProcessing = true;
-      animateHelpRocket(this, row, () => resolveHelpRocket(this, row, rowTiles));
+      if (r.selectedTile?.circle.active) r.selectedTile.circle.setDisplaySize(TILE_SIZE, TILE_SIZE);
+      r.selectedTile = null;
+      toolState(this).active = "rocket";
+      showToolPrompt(this, "rocket");
     };
   }
 
@@ -402,20 +544,77 @@ proto.createBoosterButton = function (
 
 const originalSelectTile = proto.selectTile as RuntimeScene["selectTile"];
 proto.selectTile = function (this: GameScene, tile: PowerTile) {
-  if (!runtime(this).isProcessing) {
-    if (tile.special === "rocket-h" || tile.special === "rocket-v") animateGridRocket(this, tile);
-    else if (tile.special === "bomb") animateBomb(this, tile);
+  const r = runtime(this);
+  const state = toolState(this);
+
+  if (state.active === "hammer" && !r.isProcessing && !r.levelCompleted) {
+    state.active = null;
+    clearPrompt(this);
+    r.selectedTile = null;
+    r.isProcessing = true;
+    animateHammer(this, tile, () => resolveHammer(this, tile));
+    return;
   }
+
+  if (state.active === "rocket" && !r.isProcessing && !r.levelCompleted) {
+    state.active = null;
+    clearPrompt(this);
+    r.selectedTile = null;
+    r.isProcessing = true;
+    const row = tile.row;
+    const rowTiles = r.board[row].filter((candidate): candidate is PowerTile => Boolean(candidate));
+    animateHelpRocket(this, tile, () => resolveHelpRocket(this, row, rowTiles));
+    return;
+  }
+
+  if (specialLocks.has(this)) return;
+
+  if ((tile.special === "rocket-h" || tile.special === "rocket-v") && !r.isProcessing && !r.levelCompleted) {
+    specialLocks.add(this);
+    animateGridRocket(this, tile, () => {
+      specialLocks.delete(this);
+      originalSelectTile.call(this, tile);
+    });
+    return;
+  }
+
+  if (tile.special === "bomb" && !r.isProcessing && !r.levelCompleted) {
+    specialLocks.add(this);
+    animateBomb(this, tile, () => {
+      specialLocks.delete(this);
+      originalSelectTile.call(this, tile);
+    });
+    return;
+  }
+
   originalSelectTile.call(this, tile);
 };
 
 const originalTrySwap = proto.trySwap as RuntimeScene["trySwap"];
 proto.trySwap = function (this: GameScene, a: PowerTile, b: PowerTile) {
   const r = runtime(this);
-  if (!r.isProcessing) {
-    const rainbow = a.special === "rainbow" ? a : b.special === "rainbow" ? b : null;
-    const target = rainbow === a ? b : rainbow === b ? a : null;
-    if (rainbow && target && !target.special) animateRainbow(this, rainbow, target);
+  const state = toolState(this);
+  if (state.active) return;
+  if (specialLocks.has(this)) return;
+
+  const rainbow = a.special === "rainbow" ? a : b.special === "rainbow" ? b : null;
+  const target = rainbow === a ? b : rainbow === b ? a : null;
+
+  if (rainbow && target && !target.special && !r.isProcessing && !r.levelCompleted) {
+    const targetType = target.baseType ?? target.type;
+    if (targetType < 0) {
+      originalTrySwap.call(this, a, b);
+      return;
+    }
+
+    specialLocks.add(this);
+    animateRainbowSpin(this, rainbow, () => {
+      specialLocks.delete(this);
+      originalTrySwap.call(this, a, b);
+      this.time.delayedCall(235, () => animateRainbowLightning(this, rainbow, targetType));
+    });
+    return;
   }
+
   originalTrySwap.call(this, a, b);
 };
