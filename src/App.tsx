@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
 import GameScene from "./game/GameScene";
-import { levels } from "./game/levels";
+import { levels, worlds } from "./game/levels";
 import "./App.css";
 import "./Map.css";
 
@@ -30,19 +30,29 @@ const loadLevelStars = (): Record<number, number> => {
   }
 };
 
+const loadUnlockedLevel = () => {
+  const saved = Number(localStorage.getItem("chiki-unlocked-level") || "1");
+  const stars = loadLevelStars();
+  let migrated = Math.min(levels.length, Math.max(1, saved));
+
+  while (migrated < levels.length && (stars[migrated] || 0) > 0) {
+    migrated++;
+  }
+
+  return migrated;
+};
+
+const worldForLevel = (level: number) =>
+  worlds.find((world) => level >= world.firstLevel && level <= world.lastLevel) ?? worlds[0];
+
 function App() {
   const gameContainer = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<AppView>("home");
   const [notice, setNotice] = useState("");
   const [selectedLevel, setSelectedLevel] = useState(1);
-  const [unlockedLevel, setUnlockedLevel] = useState(() => {
-    const saved = Number(localStorage.getItem("chiki-unlocked-level") || "1");
-    const savedStars = loadLevelStars();
-    const migrated = saved === 5 && (savedStars[5] || 0) > 0 ? 6 : saved;
-    return Math.min(levels.length, Math.max(1, migrated));
-  });
-  const [levelStars, setLevelStars] =
-    useState<Record<number, number>>(loadLevelStars);
+  const [unlockedLevel, setUnlockedLevel] = useState(loadUnlockedLevel);
+  const [selectedWorld, setSelectedWorld] = useState(() => worldForLevel(loadUnlockedLevel()).id);
+  const [levelStars, setLevelStars] = useState<Record<number, number>>(loadLevelStars);
   const [selectedOutfit, setSelectedOutfit] = useState(
     () => localStorage.getItem("chiki-outfit") || "Classico",
   );
@@ -71,22 +81,19 @@ function App() {
       ).detail;
 
       setLevelStars((current) => {
-        const updated = {
-          ...current,
-          [level]: Math.max(current[level] || 0, stars),
-        };
+        const updated = { ...current, [level]: Math.max(current[level] || 0, stars) };
         localStorage.setItem("chiki-level-stars", JSON.stringify(updated));
         return updated;
       });
 
       setUnlockedLevel((current) => {
-        const unlocked = Math.max(
-          current,
-          Math.min(levels.length, level + 1),
-        );
+        const unlocked = Math.max(current, Math.min(levels.length, level + 1));
         localStorage.setItem("chiki-unlocked-level", String(unlocked));
         return unlocked;
       });
+
+      const nextWorld = worlds.find((world) => world.firstLevel === level + 1);
+      if (nextWorld) setSelectedWorld(nextWorld.id);
     };
 
     window.addEventListener("chiki-level-complete", completed);
@@ -103,11 +110,18 @@ function App() {
     setView("game");
   };
 
-  const totalStars = Object.values(levelStars).reduce(
-    (sum, stars) => sum + stars,
-    0,
-  );
-  const maxStars = levels.length * 3;
+  const selectWorld = (worldId: number) => {
+    const world = worlds.find((item) => item.id === worldId);
+    if (!world) return;
+    if (world.firstLevel > unlockedLevel) {
+      setNotice(`Completa il Mondo ${world.id - 1} per sbloccarlo`);
+      window.setTimeout(() => setNotice(""), 1800);
+      return;
+    }
+    setSelectedWorld(worldId);
+  };
+
+  const totalStars = Object.values(levelStars).reduce((sum, stars) => sum + stars, 0);
 
   if (view === "leaderboard") {
     const players = [
@@ -115,22 +129,15 @@ function App() {
       { name: "Luna", score: 55200, avatar: "🐶" },
       { name: "Rocky", score: 41900, avatar: "🐾" },
       { name: "Bulldog King", score: 33750, avatar: "🦴" },
-      {
-        name: "Chiki",
-        score: totalStars * 5000 + unlockedLevel * 1200,
-        avatar: "chiki",
-      },
+      { name: "Chiki", score: totalStars * 5000 + unlockedLevel * 1200, avatar: "chiki" },
     ].sort((a, b) => b.score - a.score);
 
-    const myPosition =
-      players.findIndex((player) => player.name === "Chiki") + 1;
+    const myPosition = players.findIndex((player) => player.name === "Chiki") + 1;
 
     return (
       <main className="feature-screen leaderboard-screen">
         <header className="feature-title">
-          <button onClick={() => setView("home")} aria-label="Torna alla home">
-            ‹
-          </button>
+          <button onClick={() => setView("home")} aria-label="Torna alla home">‹</button>
           <div>
             <small>FRENCHIE CHIKI MATCH</small>
             <strong>CLASSIFICA GENERALE</strong>
@@ -147,10 +154,7 @@ function App() {
           </nav>
           <div className="ranking-list">
             {players.map((player, index) => (
-              <article
-                className={player.name === "Chiki" ? "me" : ""}
-                key={player.name}
-              >
+              <article className={player.name === "Chiki" ? "me" : ""} key={player.name}>
                 <b>{index + 1}</b>
                 {player.avatar === "chiki" ? (
                   <img src="/chiki-icon.jpeg" alt="Chiki" />
@@ -162,24 +166,19 @@ function App() {
               </article>
             ))}
           </div>
-          <div className="my-position">
-            LA TUA POSIZIONE <strong>#{myPosition}</strong>
-          </div>
+          <div className="my-position">LA TUA POSIZIONE <strong>#{myPosition}</strong></div>
         </section>
       </main>
     );
   }
 
   if (view === "frenchies") {
-    const active =
-      wardrobe.find((item) => item.name === selectedOutfit) ?? wardrobe[0];
+    const active = wardrobe.find((item) => item.name === selectedOutfit) ?? wardrobe[0];
 
     return (
       <main className="feature-screen frenchies-screen">
         <header className="feature-title">
-          <button onClick={() => setView("home")} aria-label="Torna alla home">
-            ‹
-          </button>
+          <button onClick={() => setView("home")} aria-label="Torna alla home">‹</button>
           <div>
             <small>IL TUO AMICO</small>
             <strong>CHIKI</strong>
@@ -193,9 +192,7 @@ function App() {
           </div>
           <div>
             <h2>Chiki</h2>
-            <p>
-              Livello {unlockedLevel} · {totalStars} stelle
-            </p>
+            <p>Livello {unlockedLevel} · {totalStars} stelle</p>
             <b>{active.name}</b>
           </div>
         </section>
@@ -219,9 +216,7 @@ function App() {
         <div className="collection-progress">
           <strong>COLLEZIONE</strong>
           <span>{wardrobe.length}/6 elementi</span>
-          <div>
-            <i />
-          </div>
+          <div><i /></div>
         </div>
       </main>
     );
@@ -230,61 +225,66 @@ function App() {
   if (view === "game") {
     return (
       <div className="game-shell">
-        <button
-          className="home-back"
-          onClick={() => setView("map")}
-          aria-label="Torna alla mappa"
-        >
-          ‹
-        </button>
+        <button className="home-back" onClick={() => setView("map")} aria-label="Torna alla mappa">‹</button>
         <div ref={gameContainer} className="game-container" />
       </div>
     );
   }
 
   if (view === "map") {
+    const currentWorld = worlds.find((world) => world.id === selectedWorld) ?? worlds[0];
+    const worldLevels = levels.filter((config) => config.world === currentWorld.id);
+    const worldStars = worldLevels.reduce((sum, config) => sum + (levelStars[config.level] || 0), 0);
+
     return (
-      <main className="map-screen">
+      <main className={`map-screen world-${currentWorld.id}`}>
         <header className="map-title">
-          <button onClick={() => setView("home")} aria-label="Torna alla home">
-            ‹
-          </button>
+          <button onClick={() => setView("home")} aria-label="Torna alla home">‹</button>
           <div>
-            <small>MONDO 1</small>
-            <strong>GIARDINO FIORITO</strong>
+            <small>MONDO {currentWorld.id}</small>
+            <strong>{currentWorld.name.toUpperCase()}</strong>
           </div>
-          <span>⭐ {totalStars}/{maxStars}</span>
+          <span>⭐ {worldStars}/45</span>
         </header>
-        <div className="adventure-path">
-          {levels.map((config) => {
+
+        <nav className="world-switcher" aria-label="Seleziona mondo">
+          {worlds.map((world) => {
+            const locked = world.firstLevel > unlockedLevel;
+            return (
+              <button
+                key={world.id}
+                className={`${world.id === currentWorld.id ? "active" : ""} ${locked ? "locked" : ""}`}
+                onClick={() => selectWorld(world.id)}
+              >
+                <b>{world.id}</b>
+                <span>{world.name}</span>
+                <em>{locked ? "LOCK" : `${world.firstLevel}-${world.lastLevel}`}</em>
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className={`adventure-path world-theme-${currentWorld.theme}`}>
+          <p className="world-subtitle">{currentWorld.subtitle}</p>
+          {worldLevels.map((config) => {
             const level = config.level;
             const locked = level > unlockedLevel;
             const hasIce = (config.iceCells?.length ?? 0) > 0;
+            const hasCrates = (config.crateCells?.length ?? 0) > 0;
 
             return (
-              <div
-                className={`level-stop ${locked ? "locked" : ""}`}
-                key={level}
-              >
+              <div className={`level-stop ${locked ? "locked" : ""}`} key={level}>
                 <button disabled={locked} onClick={() => playLevel(level)}>
-                  {locked ? (
-                    <img src="/level-lock-v2.png" alt="" aria-hidden="true" />
-                  ) : (
-                    level
-                  )}
+                  {locked ? <img src="/level-lock-v2.png" alt="" aria-hidden="true" /> : level}
                 </button>
                 <span>
                   <em>
-                    LIVELLO {level}{hasIce ? " · ❄" : ""}
+                    LIVELLO {level}{hasIce ? " · ❄" : ""}{hasCrates ? " · ▣" : ""}
                   </em>
-                  <strong>
-                    {locked ? "DA SBLOCCARE" : config.name.toUpperCase()}
-                  </strong>
+                  <strong>{locked ? "DA SBLOCCARE" : config.name.toUpperCase()}</strong>
                   {!locked && (
                     <small className="level-stars">
-                      {[1, 2, 3].map((star) =>
-                        star <= (levelStars[level] || 0) ? "⭐" : "☆",
-                      )}
+                      {[1, 2, 3].map((star) => star <= (levelStars[level] || 0) ? "⭐" : "☆")}
                     </small>
                   )}
                 </span>
@@ -292,6 +292,7 @@ function App() {
             );
           })}
         </div>
+        {notice && <div className="toast" role="status">{notice}</div>}
       </main>
     );
   }
@@ -307,20 +308,12 @@ function App() {
         </h1>
         <p className="brand-ribbon">L’AVVENTURA PUZZLE PIÙ TENERA!</p>
         <img src="/chiki-character.webp" alt="Chiki" className="chiki-hero" />
-        <button className="play-button" onClick={() => setView("map")}>
-          GIOCA
-        </button>
+        <button className="play-button" onClick={() => setView("map")}>GIOCA</button>
       </section>
       <nav className="main-menu" aria-label="Menu del gioco">
         {menuItems.map((item) => (
-          <button
-            key={item.label}
-            className="available"
-            onClick={() => setView(item.view)}
-          >
-            <span>
-              <img src={item.icon} alt="" aria-hidden="true" />
-            </span>
+          <button key={item.label} className="available" onClick={() => setView(item.view)}>
+            <span><img src={item.icon} alt="" aria-hidden="true" /></span>
             {item.label}
           </button>
         ))}
@@ -338,11 +331,7 @@ function App() {
           </button>
         ))}
       </nav>
-      {notice && (
-        <div className="toast" role="status">
-          {notice}
-        </div>
-      )}
+      {notice && <div className="toast" role="status">{notice}</div>}
     </main>
   );
 }
