@@ -1,0 +1,271 @@
+/* Social layer: richieste amicizia, amici e posizione amici sulla mappa. */
+.social-selectable {
+  position: relative;
+  cursor: pointer;
+  padding-right: 48px !important;
+  transition: transform .15s ease, filter .15s ease;
+}
+.social-selectable:active { transform: scale(.985); }
+.social-player-action {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  min-width: 31px;
+  height: 31px;
+  padding: 0 6px;
+  border: 2px solid #fff5bc;
+  border-radius: 12px;
+  background: linear-gradient(#73d9ff, #2d84c7);
+  color: #fff;
+  font: 700 12px/1 "Fredoka", sans-serif;
+  box-shadow: 0 3px 0 #1b527d;
+}
+.social-player-action.accepted { background: linear-gradient(#86ee66, #3bae32); box-shadow: 0 3px 0 #247921; }
+.social-player-action.outgoing { background: linear-gradient(#ffd96d, #d89825); box-shadow: 0 3px 0 #97651a; }
+.social-player-action.incoming { background: linear-gradient(#e285ff, #9842c1); box-shadow: 0 3px 0 #63257f; }
+
+.utility-menu button { position: relative; }
+.social-notice-badge {
+  position: absolute;
+  top: -5px;
+  right: 3px;
+  z-index: 5;
+  min-width: 23px;
+  height: 23px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: #e84552;
+  color: #fff;
+  font: 900 11px/1 "Fredoka", sans-serif;
+  box-shadow: 0 3px 0 #8d1f2a;
+}
+
+.social-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  background: #0b1724c9;
+  backdrop-filter: blur(4px);
+}
+.social-screen {
+  width: min(100vw, 560px);
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  background:
+    linear-gradient(#75d4ff55, #24324a99),
+    url("/garden-game-bg.jpg") center/cover fixed;
+  color: #fff;
+}
+.social-header {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 52px 1fr 42px;
+  align-items: center;
+  gap: 10px;
+  padding: calc(13px + env(safe-area-inset-top)) 15px 14px;
+  border-bottom: 7px solid #3d185e;
+  background: linear-gradient(160deg, #a659d3, #5c2483);
+  box-shadow: inset 0 5px #ce8cf0, 0 8px 18px #25103966;
+}
+.social-header > button {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: linear-gradient(#a867d3, #653292);
+  color: #fff;
+  font-size: 34px;
+  line-height: 31px;
+  box-shadow: 0 5px 0 #40205f;
+}
+.social-header div { display: grid; line-height: 1; }
+.social-header small { color: #efdfff; font: 700 10px/1 "Fredoka", sans-serif; }
+.social-header strong { font: 400 clamp(20px, 5.7vw, 29px)/1 "Lilita One", "Fredoka", sans-serif; text-shadow: 0 3px #421a5d; }
+.social-header > span { font-size: 30px; }
+.social-content { padding: 20px 17px 34px; }
+.social-panel {
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 5px solid #69778a;
+  border-radius: 27px;
+  background: linear-gradient(#1f2c3eeb, #111c2ceb);
+  box-shadow: inset 0 5px #34465b, 0 8px 0 #0a1320, 0 14px 25px #0005;
+}
+.social-panel h2 {
+  margin: 0 0 13px;
+  color: #ffd85c;
+  font: 400 25px/1 "Lilita One", "Fredoka", sans-serif;
+  text-shadow: 0 2px #714917;
+}
+.social-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: #cbd7e6;
+  font-weight: 700;
+}
+.social-card {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  margin: 10px 0;
+  padding: 11px;
+  border: 3px solid #8a9bb1;
+  border-radius: 18px;
+  background: #192639;
+  box-shadow: inset 0 3px #2d4058, 0 4px 0 #0a1421;
+}
+.social-avatar {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 4px solid #fff3ba;
+  border-radius: 16px;
+  background: linear-gradient(#69cfff, #3485c6);
+  color: #fff;
+  font: 400 25px/1 "Lilita One", sans-serif;
+  box-shadow: 0 4px 0 #244e72;
+}
+.social-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.social-card-copy { min-width: 0; display: grid; gap: 3px; }
+.social-card-copy strong { overflow: hidden; text-overflow: ellipsis; font-size: 17px; white-space: nowrap; }
+.social-card-copy small { color: #b9c9da; font-weight: 700; }
+.social-actions { display: flex; gap: 7px; }
+.social-actions button,
+.social-primary,
+.social-secondary {
+  border: 3px solid #fff4b9;
+  border-radius: 15px;
+  padding: 9px 11px;
+  color: #fff;
+  font: 900 11px/1 "Fredoka", sans-serif;
+  text-shadow: 0 2px #31531e;
+}
+.social-actions .accept,
+.social-primary { background: linear-gradient(#82ef62, #3cb52e); box-shadow: 0 4px 0 #277e20; }
+.social-actions .decline,
+.social-secondary { background: linear-gradient(#ef7b88, #c83e50); box-shadow: 0 4px 0 #862735; }
+.social-primary:disabled { opacity: .65; filter: grayscale(.25); }
+
+.social-player-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #08121dc7;
+  backdrop-filter: blur(5px);
+}
+.social-player-dialog {
+  width: min(92vw, 410px);
+  padding: 23px 20px 20px;
+  border: 6px solid #fff0ac;
+  border-radius: 31px;
+  background: linear-gradient(#7d3da8, #3e205a 28%, #17263a 29%);
+  box-shadow: inset 0 5px #c982e4, 0 10px 0 #21112f, 0 20px 40px #0008;
+  text-align: center;
+}
+.social-player-dialog .social-avatar { width: 78px; height: 78px; margin: 8px auto 12px; border-radius: 23px; font-size: 37px; }
+.social-player-dialog h2 { margin: 0; font: 400 31px/1 "Lilita One", sans-serif; }
+.social-player-dialog p { margin: 8px 0 18px; color: #ced8e5; font-weight: 700; }
+.social-player-dialog .social-primary { width: 100%; min-height: 48px; font-size: 14px; }
+.social-player-dialog .close-social-modal { margin-top: 13px; border: 0; background: transparent; color: #d7dfeb; font-weight: 800; }
+
+.social-map-strip {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  margin: -17px auto 24px;
+  width: 92%;
+  padding: 7px;
+  scrollbar-width: none;
+}
+.social-map-strip::-webkit-scrollbar { display: none; }
+.social-map-chip {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px 6px 6px;
+  border: 3px solid #fff3b2;
+  border-radius: 16px;
+  background: #482461e8;
+  color: #fff;
+  font: 800 10px/1 "Fredoka", sans-serif;
+  box-shadow: 0 4px 0 #291439;
+}
+.social-map-chip i {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #4fa6dc;
+  color: #fff;
+  font-style: normal;
+  font-size: 14px;
+}
+.social-friend-markers {
+  position: absolute;
+  left: 50%;
+  bottom: -18px;
+  z-index: 6;
+  display: flex;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.social-friend-marker {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  margin-left: -5px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: linear-gradient(#8552bd, #4a2b76);
+  color: #fff;
+  font: 400 14px/1 "Lilita One", sans-serif;
+  box-shadow: 0 3px 0 #2d1845, 0 5px 8px #0004;
+}
+.social-friend-marker:first-child { margin-left: 0; }
+.social-friend-marker.more { background: linear-gradient(#efc94e, #b1781f); color: #54320f; }
+
+.social-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  z-index: 1300;
+  transform: translateX(-50%);
+  max-width: min(88vw, 430px);
+  padding: 11px 17px;
+  border: 3px solid #fff;
+  border-radius: 18px;
+  background: #1b2a3eee;
+  color: #fff;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: 0 5px 0 #0c1522, 0 9px 18px #0005;
+}
+
+@media (max-width: 390px) {
+  .social-card { grid-template-columns: 46px minmax(0, 1fr); }
+  .social-avatar { width: 44px; height: 44px; }
+  .social-actions { grid-column: 1 / -1; justify-content: flex-end; }
+}
