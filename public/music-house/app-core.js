@@ -34,7 +34,9 @@
       ...saved,
       favoriteTracks: Array.isArray(saved.favoriteTracks) ? saved.favoriteTracks : [],
       favoriteAlbums: Array.isArray(saved.favoriteAlbums) ? saved.favoriteAlbums : [],
-      playlists: Array.isArray(saved.playlists) ? saved.playlists : [],
+      playlists: Array.isArray(saved.playlists)
+        ? saved.playlists.map(playlist => ({ ...playlist, image: typeof playlist.image === 'string' ? playlist.image : '' }))
+        : [],
       recent: Array.isArray(saved.recent) ? saved.recent : [],
       queue: Array.isArray(saved.queue) ? saved.queue : [],
     };
@@ -125,7 +127,7 @@
   function createPlaylist(name) {
     const clean = String(name || '').trim();
     if (!clean) return null;
-    const playlist = { id: crypto.randomUUID(), name: clean, tracks: [], createdAt: Date.now() };
+    const playlist = { id: crypto.randomUUID(), name: clean, tracks: [], image: '', createdAt: Date.now() };
     state.playlists.unshift(playlist);
     saveState();
     return playlist;
@@ -183,6 +185,13 @@
     </article>`;
   }
 
+  function playlistArtwork(playlist, className = 'playlist-art') {
+    if (playlist?.image) {
+      return `<span class="${className} playlist-art-has-image"><img src="${esc(playlist.image)}" alt="Copertina playlist ${esc(playlist.name)}" /></span>`;
+    }
+    return `<span class="${className}">♫</span>`;
+  }
+
   function playlistTile(playlist) {
-    return `<button class="playlist-tile" data-open-playlist="${esc(playlist.id)}"><span class="playlist-art">♫</span><span><strong>${esc(playlist.name)}</strong><small>${playlist.tracks.length} brani</small></span></button>`;
+    return `<button class="playlist-tile" data-open-playlist="${esc(playlist.id)}">${playlistArtwork(playlist)}<span><strong>${esc(playlist.name)}</strong><small>${playlist.tracks.length} brani</small></span></button>`;
   }
