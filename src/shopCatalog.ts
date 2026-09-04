@@ -22,20 +22,35 @@ export const shopItems: ShopItem[] = [
   { id: "outfit_wizard", kind: "chiki", category: "Vestiti", slot: "outfit", name: "Fatina", icon: "🧚‍♀️", price: 4200, requiredLevel: 55, rarity: "Epico" },
   { id: "outfit_explorer", kind: "chiki", category: "Vestiti", slot: "outfit", name: "Esploratrice", icon: "🧭", price: 1800, requiredLevel: 25, rarity: "Raro" },
   { id: "outfit_winter", kind: "chiki", category: "Vestiti", slot: "outfit", name: "Invernale", icon: "🧣", price: 1500, requiredLevel: 21, rarity: "Raro" },
+
   { id: "hat_cap", kind: "chiki", category: "Accessori testa", slot: "hat", name: "Fiocco lilla", icon: "🎀", price: 300, requiredLevel: 2, rarity: "Comune" },
   { id: "hat_cowboy", kind: "chiki", category: "Accessori testa", slot: "hat", name: "Cappello country", icon: "👒", price: 850, requiredLevel: 12, rarity: "Raro" },
   { id: "hat_top", kind: "chiki", category: "Accessori testa", slot: "hat", name: "Fascinator elegante", icon: "🌸", price: 1200, requiredLevel: 18, rarity: "Raro" },
   { id: "hat_crown", kind: "chiki", category: "Accessori testa", slot: "hat", name: "Tiara dorata", icon: "👑", price: 3000, requiredLevel: 40, rarity: "Epico" },
   { id: "hat_party", kind: "chiki", category: "Accessori testa", slot: "hat", name: "Cerchietto stelline", icon: "✨", price: 600, requiredLevel: 7, rarity: "Comune" },
   { id: "hat_chef", kind: "chiki", category: "Accessori testa", slot: "hat", name: "Cappello pasticcera", icon: "🧁", price: 1100, requiredLevel: 16, rarity: "Raro" },
+
   { id: "glasses_sun", kind: "chiki", category: "Occhiali", slot: "glasses", name: "Occhiali diva", icon: "🕶️", price: 550, requiredLevel: 6, rarity: "Comune" },
   { id: "glasses_star", kind: "chiki", category: "Occhiali", slot: "glasses", name: "Occhiali stellina", icon: "🤩", price: 1600, requiredLevel: 28, rarity: "Raro" },
+
   { id: "collar_red", kind: "chiki", category: "Collari", slot: "collar", name: "Collare cuore", icon: "❤️", price: 400, requiredLevel: 4, rarity: "Comune" },
   { id: "collar_blue", kind: "chiki", category: "Collari", slot: "collar", name: "Collare lilla", icon: "💜", price: 450, requiredLevel: 5, rarity: "Comune" },
   { id: "collar_gold", kind: "chiki", category: "Collari", slot: "collar", name: "Collare gioiello", icon: "💎", price: 2400, requiredLevel: 32, rarity: "Epico" },
+
   { id: "toy_ball", kind: "chiki", category: "Giochi", slot: "toy", name: "Pallina", icon: "🎾", price: 250, requiredLevel: 1, rarity: "Comune" },
   { id: "toy_bone", kind: "chiki", category: "Giochi", slot: "toy", name: "Osso gigante", icon: "🦴", price: 500, requiredLevel: 5, rarity: "Comune" },
   { id: "toy_duck", kind: "chiki", category: "Giochi", slot: "toy", name: "Paperella", icon: "🦆", price: 900, requiredLevel: 15, rarity: "Raro" },
+
+  { id: "food_biscuits", kind: "chiki", category: "Cibo", slot: "food", name: "Biscottini di Chiki", icon: "🍪", price: 150, requiredLevel: 1, rarity: "Comune" },
+  { id: "food_croquettes", kind: "chiki", category: "Cibo", slot: "food", name: "Crocchette premium", icon: "🥩", price: 320, requiredLevel: 4, rarity: "Comune" },
+  { id: "food_heart", kind: "chiki", category: "Cibo", slot: "food", name: "Snack cuoricino", icon: "💗", price: 650, requiredLevel: 9, rarity: "Raro" },
+  { id: "food_cupcake", kind: "chiki", category: "Cibo", slot: "food", name: "Cupcake di Chiki", icon: "🧁", price: 1100, requiredLevel: 18, rarity: "Raro" },
+
+  { id: "care_brush", kind: "chiki", category: "Cura", slot: "care", name: "Spazzola rosa", icon: "🪮", price: 300, requiredLevel: 3, rarity: "Comune" },
+  { id: "care_shampoo", kind: "chiki", category: "Cura", slot: "care", name: "Shampoo delicato", icon: "🧴", price: 800, requiredLevel: 10, rarity: "Comune" },
+  { id: "care_towel", kind: "chiki", category: "Cura", slot: "care", name: "Asciugamano morbido", icon: "🧺", price: 1200, requiredLevel: 20, rarity: "Raro" },
+  { id: "care_perfume", kind: "chiki", category: "Cura", slot: "care", name: "Profumino floreale", icon: "🌸", price: 1900, requiredLevel: 30, rarity: "Raro" },
+
   { id: "bed_basic", kind: "room", category: "Cucce", slot: "bed", name: "Cuccia morbida", icon: "🛏️", price: 0, requiredLevel: 1, rarity: "Comune" },
   { id: "bed_blue", kind: "room", category: "Cucce", slot: "bed", name: "Cuccia cielo", icon: "🛏️", price: 900, requiredLevel: 10, rarity: "Comune" },
   { id: "bed_wood", kind: "room", category: "Cucce", slot: "bed", name: "Cuccia chalet", icon: "🏠", price: 1800, requiredLevel: 24, rarity: "Raro" },
