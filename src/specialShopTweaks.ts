@@ -221,7 +221,23 @@ const makeCard = (offer: Offer) => {
   return article;
 };
 
+const isBoostersOpen = () => {
+  const active = document.querySelector<HTMLButtonElement>(".shop-kind-switch.booster-switch button.active");
+  return Boolean(active?.textContent?.toUpperCase().includes("AIUTI"));
+};
+
+const cleanupSpecialCards = () => {
+  if (isBoostersOpen()) return;
+  document.querySelectorAll<HTMLElement>(".special-shop-heading, [data-special-booster]").forEach((element) => element.remove());
+  document.querySelector<HTMLElement>(".special-shop-message")?.remove();
+};
+
 const ensureSpecialCards = () => {
+  if (!isBoostersOpen()) {
+    cleanupSpecialCards();
+    return;
+  }
+
   const grid = document.querySelector<HTMLElement>(".booster-shop-grid");
   if (!grid || grid.querySelector("[data-special-booster]")) return;
 
@@ -256,6 +272,7 @@ const observer = new MutationObserver(() => {
   observerScheduled = true;
   window.requestAnimationFrame(() => {
     observerScheduled = false;
+    cleanupSpecialCards();
     ensureSpecialCards();
   });
 });
@@ -263,7 +280,9 @@ observer.observe(document.documentElement, { childList: true, subtree: true });
 
 window.addEventListener("storage", () => {
   preserveSpecials();
+  cleanupSpecialCards();
   refreshCounts();
 });
 
+cleanupSpecialCards();
 ensureSpecialCards();
