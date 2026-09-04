@@ -7,7 +7,7 @@ import {
   registerAccount,
   signOutAccount,
 } from "./cloudClient";
-import { unlockHomeAudio } from "./homeMusic";
+import { startHomeMusic, unlockHomeAudio } from "./homeMusic";
 import "./Auth.css";
 
 type Mode = "login" | "register";
@@ -21,6 +21,7 @@ export default function AuthGate() {
   const [booting, setBooting] = useState(true);
   const [working, setWorking] = useState(false);
   const [account, setAccount] = useState<ReadyAccount | null>(null);
+  const [pendingAccount, setPendingAccount] = useState<ReadyAccount | null>(null);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,9 +30,22 @@ export default function AuthGate() {
   const [isError, setIsError] = useState(false);
 
   const enterGame = (readyAccount: ReadyAccount) => {
-    // Ogni nuova apertura parte con la musica attiva. Il giocatore può silenziarla dalla Home.
     localStorage.setItem("chiki-home-music", "on");
+    setPendingAccount(null);
     setAccount(readyAccount);
+  };
+
+  const enterRestoredGame = async () => {
+    if (!pendingAccount) return;
+    localStorage.setItem("chiki-home-music", "on");
+
+    // iOS permette l'audio udibile solo in seguito a un gesto esplicito.
+    // Questo tap avviene prima di mostrare la Home, quindi la musica parte
+    // mentre si entra davvero nel gioco, non dopo aver premuto GIOCA.
+    await unlockHomeAudio();
+    await startHomeMusic();
+    setAccount(pendingAccount);
+    setPendingAccount(null);
   };
 
   useEffect(() => {
@@ -42,7 +56,9 @@ export default function AuthGate() {
         const session = await getValidSession();
         if (!session) return;
         const restored = await bootstrapCloudAccount(session);
-        if (active && restored) enterGame({ username: restored.username });
+        if (active && restored) {
+          setPendingAccount({ username: restored.username });
+        }
       } catch (error) {
         if (active) {
           setIsError(true);
@@ -93,8 +109,7 @@ export default function AuthGate() {
       }
     }
 
-    // Sblocca l'AudioContext nello stesso gesto con cui l'utente entra nel gioco.
-    // Su iPhone questo consente alla musica della Home di partire appena App viene montata.
+    // Il tap sul pulsante di accesso sblocca l'audio prima della chiamata di rete.
     void unlockHomeAudio();
 
     setWorking(true);
@@ -110,12 +125,14 @@ export default function AuthGate() {
           return;
         }
         if (result.account) {
+          void startHomeMusic();
           enterGame({ username: result.account.username });
           return;
         }
       } else {
         const result = await loginAccount(email, password);
         if (!result) throw new Error("Accesso non riuscito.");
+        void startHomeMusic();
         enterGame({ username: result.username });
       }
     } catch (error) {
@@ -136,6 +153,7 @@ export default function AuthGate() {
     setWorking(true);
     await signOutAccount();
     setAccount(null);
+    setPendingAccount(null);
     setEmail("");
     setPassword("");
     setUsername("");
@@ -151,6 +169,22 @@ export default function AuthGate() {
       <main className="auth-screen auth-loading">
         <div className="auth-logo">FRENCHIE<br /><strong>CHIKI</strong><br /><em>MATCH</em></div>
         <p>CARICAMENTO PROFILO…</p>
+      </main>
+    );
+  }
+
+  if (pendingAccount && !account) {
+    return (
+      <main className="auth-screen auth-start-screen">
+        <section className="auth-start-card">
+          <div className="auth-logo">FRENCHIE<br /><strong>CHIKI</strong><br /><em>MATCH</em></div>
+          <img src="/chiki-character.webp" alt="Chiki" className="auth-start-chiki" />
+          <h1>BENTORNATO, {pendingAccount.username.toUpperCase()}!</h1>
+          <p>Il tuo profilo è pronto. Tocca il pulsante per entrare con la musica attiva.</p>
+          <button className="auth-start-button" onClick={() => void enterRestoredGame()}>
+            ▶ ENTRA NEL GIOCO
+          </button>
+        </section>
       </main>
     );
   }
