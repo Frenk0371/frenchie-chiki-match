@@ -10,7 +10,6 @@ import "./HomeEconomy.css";
 import "./PetHubWearableFix.css";
 import "./visualTweaks";
 import "./worldGameplayTweaks";
-import "./matchEffectsTweaks";
 import "./release100Tweaks";
 import "./release500Tweaks";
 import "./cloud500Tweaks";
@@ -18,6 +17,7 @@ import "./advancedGameplayTweaks";
 import "./mapPolish";
 import "./hudReadabilityTweaks";
 import "./boosterEconomyTweaks";
+import "./matchEffectsTweaks";
 import "./profileAvatarTweaks";
 import AuthGate from "./AuthGate";
 
