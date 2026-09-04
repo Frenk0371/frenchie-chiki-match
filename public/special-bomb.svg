@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="bomb" cx="35%" cy="28%" r="70%"><stop stop-color="#6f7182"/><stop offset=".45" stop-color="#343746"/><stop offset="1" stop-color="#141620"/></radialGradient>
+    <linearGradient id="spark" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff86b"/><stop offset=".5" stop-color="#ff9f1f"/><stop offset="1" stop-color="#ff3c59"/></linearGradient>
+    <filter id="g"><feGaussianBlur stdDeviation="2.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect x="5" y="5" width="118" height="118" rx="29" fill="#5a184f" stroke="#ff93da" stroke-width="7"/>
+  <circle cx="62" cy="70" r="39" fill="url(#bomb)" stroke="#0b0c12" stroke-width="6"/>
+  <ellipse cx="49" cy="55" rx="10" ry="7" fill="#fff" opacity=".38"/>
+  <path d="M84 42c7-15 17-17 27-12" fill="none" stroke="#8a542d" stroke-width="8" stroke-linecap="round"/>
+  <g filter="url(#g)">
+    <path d="m110 20 4 10 10 4-10 4-4 10-4-10-10-4 10-4Z" fill="url(#spark)"/>
+    <circle cx="112" cy="34" r="6" fill="#fff6a8"/>
+  </g>
+  <path d="M22 22h28M83 108h25" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".5"/>
+</svg>
