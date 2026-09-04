@@ -25,7 +25,7 @@ import "./specialDragActivationTweaks";
 import "./powerAnimationTweaks";
 import "./helperInputOverlay";
 import "./helperUiFeedbackFix";
-import "./chikiGiftBananaTweaks";
+import "./chikiMilestoneGiftSafe";
 import AuthGate from "./AuthGate";
 import "./uiRefresh.css";
 import "./socialFeatures";
