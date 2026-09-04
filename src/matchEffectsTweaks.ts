@@ -11,7 +11,7 @@ type MatchTile = {
   special?: SpecialKind;
 };
 
-type RuntimeScene = GameScene & {
+type RuntimeScene = {
   rows: number;
   cols: number;
   board: (MatchTile | null)[][];
@@ -19,7 +19,6 @@ type RuntimeScene = GameScene & {
   isProcessing: boolean;
   comboMultiplier: number;
   score: number;
-  scoreText: Phaser.GameObjects.Text;
   collectedAmount: number;
   collectedAmount2: number;
   currentLevelConfig: {
@@ -179,11 +178,11 @@ const matchRuns = (matches: MatchTile[]) => {
     sorted.forEach((col, index) => {
       if (current.length === 0 || col === current[current.length - 1] + 1) current.push(col);
       else {
-        if (current.length >= 3) horizontal.push(current.map((value) => byPosition.get(`${row}:${value}`)!).filter(Boolean));
+        if (current.length >= 3) horizontal.push(current.map((value) => byPosition.get(`${row}:${value}`)!));
         current = [col];
       }
       if (index === sorted.length - 1 && current.length >= 3) {
-        horizontal.push(current.map((value) => byPosition.get(`${row}:${value}`)!).filter(Boolean));
+        horizontal.push(current.map((value) => byPosition.get(`${row}:${value}`)!));
       }
     });
   });
@@ -194,11 +193,11 @@ const matchRuns = (matches: MatchTile[]) => {
     sorted.forEach((row, index) => {
       if (current.length === 0 || row === current[current.length - 1] + 1) current.push(row);
       else {
-        if (current.length >= 3) vertical.push(current.map((value) => byPosition.get(`${value}:${col}`)!).filter(Boolean));
+        if (current.length >= 3) vertical.push(current.map((value) => byPosition.get(`${value}:${col}`)!));
         current = [row];
       }
       if (index === sorted.length - 1 && current.length >= 3) {
-        vertical.push(current.map((value) => byPosition.get(`${value}:${col}`)!).filter(Boolean));
+        vertical.push(current.map((value) => byPosition.get(`${value}:${col}`)!));
       }
     });
   });
