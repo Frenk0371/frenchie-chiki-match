@@ -20,41 +20,45 @@ const readRaw = (): LifeState => {
   return { lives, nextAt: Number.isFinite(next) && next > 0 ? next : null };
 };
 
-const write = (state: LifeState) => {
-  localStorage.setItem(LIVES_KEY, String(clampLives(state.lives)));
-  if (state.nextAt && state.lives < MAX_BANANA_LIVES) localStorage.setItem(NEXT_KEY, String(state.nextAt));
+const persist = (state: LifeState, notify = true) => {
+  const normalized = { lives: clampLives(state.lives), nextAt: state.nextAt };
+  localStorage.setItem(LIVES_KEY, String(normalized.lives));
+  if (normalized.nextAt && normalized.lives < MAX_BANANA_LIVES) localStorage.setItem(NEXT_KEY, String(normalized.nextAt));
   else localStorage.removeItem(NEXT_KEY);
-  window.dispatchEvent(new CustomEvent("chiki-lives-change", { detail: state }));
-  return state;
+  if (notify) window.dispatchEvent(new CustomEvent("chiki-lives-change", { detail: normalized }));
+  return normalized;
 };
 
 export const getLifeState = (): LifeState => {
   const now = Date.now();
   const state = readRaw();
-  if (state.lives >= MAX_BANANA_LIVES) return write({ lives: MAX_BANANA_LIVES, nextAt: null });
+  if (state.lives >= MAX_BANANA_LIVES) {
+    if (state.nextAt) return persist({ lives: MAX_BANANA_LIVES, nextAt: null }, false);
+    return { lives: MAX_BANANA_LIVES, nextAt: null };
+  }
 
-  if (!state.nextAt) return write({ lives: state.lives, nextAt: now + LIFE_REGEN_MS });
+  if (!state.nextAt) return persist({ lives: state.lives, nextAt: now + LIFE_REGEN_MS }, false);
   if (now < state.nextAt) return state;
 
   const gained = 1 + Math.floor((now - state.nextAt) / LIFE_REGEN_MS);
   const lives = clampLives(state.lives + gained);
   const nextAt = lives >= MAX_BANANA_LIVES ? null : state.nextAt + gained * LIFE_REGEN_MS;
-  return write({ lives, nextAt });
+  return persist({ lives, nextAt }, false);
 };
 
 export const consumeBananaLife = () => {
   const state = getLifeState();
   if (state.lives <= 0) return state;
   const lives = state.lives - 1;
-  const nextAt = lives < MAX_BANANA_LIVES ? state.nextAt ?? Date.now() + LIFE_REGEN_MS : null;
-  return write({ lives, nextAt });
+  const nextAt = state.nextAt ?? Date.now() + LIFE_REGEN_MS;
+  return persist({ lives, nextAt });
 };
 
 export const addBananaLife = (amount = 1) => {
   const state = getLifeState();
   const lives = clampLives(state.lives + Math.max(1, amount));
   const nextAt = lives >= MAX_BANANA_LIVES ? null : state.nextAt ?? Date.now() + LIFE_REGEN_MS;
-  return write({ lives, nextAt });
+  return persist({ lives, nextAt });
 };
 
 export const timeUntilNextLife = () => {
