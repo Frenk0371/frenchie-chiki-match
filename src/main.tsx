@@ -13,6 +13,7 @@ import "./worldGameplayTweaks";
 import "./matchEffectsTweaks";
 import "./release100Tweaks";
 import "./release500Tweaks";
+import "./cloud500Tweaks";
 import "./advancedGameplayTweaks";
 import "./mapPolish";
 import AuthGate from "./AuthGate";
