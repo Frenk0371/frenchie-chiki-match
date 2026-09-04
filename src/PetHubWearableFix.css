@@ -1,5 +1,4 @@
-/* Targeted correction: the previous outfit overlay was too large and covered Chiki.
-   Keep the wearable system, but make clothes read as a fitted cartoon vest. */
+/* Targeted correction: fitted wearables plus a feminine cartoon collection for Chiki. */
 
 .wearable-outfit,
 .profile-wearable-outfit,
@@ -25,16 +24,15 @@
     0 24%
   );
   background:
-    linear-gradient(90deg, transparent 46%, #ffffff2e 47% 53%, transparent 54%),
-    linear-gradient(#79c8ff 0 18%, #4c9dde 19% 68%, #2f7db8 69%) !important;
+    linear-gradient(90deg, transparent 46%, #ffffff38 47% 53%, transparent 54%),
+    linear-gradient(#f6a9d5 0 18%, #d86eaf 19% 68%, #a94289 69%) !important;
   box-shadow:
-    inset 0 4px #bde7ff,
-    inset 0 -4px #1d639c,
-    0 3px 0 #164e86 !important;
+    inset 0 4px #ffd9ee,
+    inset 0 -4px #87366f,
+    0 3px 0 #7a2d65 !important;
   filter: drop-shadow(0 4px 2px #0003) !important;
 }
 
-/* Remove the oversized synthetic sleeves from the old version. */
 .wearable-outfit::before,
 .wearable-outfit::after,
 .profile-wearable-outfit::before,
@@ -45,64 +43,253 @@
   display: none !important;
 }
 
-/* Small collar detail for a polo-like look, without covering the face or legs. */
+/* Feminine outfits: bright, playful and readable without covering Chiki. */
 .piece-outfit_sport {
   background:
-    radial-gradient(ellipse at 50% 4%, #183f6b 0 10%, transparent 11%),
-    linear-gradient(90deg, transparent 46%, #ffffff2e 47% 53%, transparent 54%),
-    linear-gradient(#79c8ff 0 18%, #4c9dde 19% 68%, #2f7db8 69%) !important;
+    radial-gradient(circle at 76% 30%, #fff6b8 0 5%, #f8c536 6% 8%, transparent 9%),
+    linear-gradient(90deg, transparent 46%, #ffffff3a 47% 53%, transparent 54%),
+    linear-gradient(#ffabd8 0 18%, #df6ab1 19% 68%, #ad3d88 69%) !important;
+  box-shadow: inset 0 4px #ffd9ef, inset 0 -4px #8c2f70, 0 3px 0 #76255e !important;
 }
 
 .piece-outfit_rain {
   background:
-    linear-gradient(90deg, transparent 47%, #fff3a955 48% 52%, transparent 53%),
-    linear-gradient(#ffd95e 0 18%, #f2b82f 19% 68%, #ce8915 69%) !important;
+    linear-gradient(90deg, transparent 47%, #fff8bd66 48% 52%, transparent 53%),
+    linear-gradient(#ffd977 0 18%, #f4af4d 19% 68%, #d57d2b 69%) !important;
+  box-shadow: inset 0 4px #fff1b0, inset 0 -4px #a65c20, 0 3px 0 #8e4c18 !important;
 }
 
 .piece-outfit_sailor {
   background:
-    linear-gradient(90deg, transparent 46%, #ffffff30 47% 53%, transparent 54%),
-    linear-gradient(#84ccff 0 18%, #3979bd 19% 66%, #1c477f 67%) !important;
+    linear-gradient(180deg, #ffeaf5 0 14%, transparent 15%),
+    linear-gradient(90deg, transparent 46%, #ffffff35 47% 53%, transparent 54%),
+    linear-gradient(#86cfff 0 18%, #527fc2 19% 66%, #344f91 67%) !important;
+  box-shadow: inset 0 4px #d9f3ff, inset 0 -4px #293e7a, 0 3px 0 #203362 !important;
 }
 
 .piece-outfit_royal {
+  width: 37% !important;
+  height: 20% !important;
+  bottom: 17% !important;
+  clip-path: polygon(20% 0, 38% 0, 50% 12%, 62% 0, 80% 0, 86% 35%, 100% 100%, 0 100%, 14% 35%);
   background:
-    linear-gradient(90deg, transparent 46%, #ffe9ff38 47% 53%, transparent 54%),
-    linear-gradient(#dfa9fb 0 18%, #9149ca 19% 66%, #5c298e 67%) !important;
+    radial-gradient(circle at 50% 28%, #ffe98d 0 5%, #efbb28 6% 8%, transparent 9%),
+    linear-gradient(#f5b2ff 0 15%, #d975e6 16% 58%, #9b48bd 59%) !important;
+  box-shadow: inset 0 4px #ffd9ff, inset 0 -4px #71328f, 0 3px 0 #632877 !important;
 }
 
 .piece-outfit_wizard {
   background:
-    linear-gradient(90deg, transparent 46%, #e6dcff30 47% 53%, transparent 54%),
-    linear-gradient(#a992ff 0 18%, #6850d9 19% 66%, #402c9c 67%) !important;
+    radial-gradient(circle at 76% 28%, #fff5a8 0 4%, transparent 5%),
+    linear-gradient(#c7b1ff 0 18%, #9270e7 19% 66%, #6345bd 67%) !important;
+  box-shadow: inset 0 4px #e9ddff, inset 0 -4px #4f35a0, 0 3px 0 #432e86 !important;
 }
 
 .piece-outfit_explorer {
   background:
-    linear-gradient(90deg, transparent 46%, #e9ffd62e 47% 53%, transparent 54%),
-    linear-gradient(#acd98c 0 18%, #719f56 19% 66%, #486b37 67%) !important;
+    linear-gradient(90deg, transparent 46%, #fff6dd32 47% 53%, transparent 54%),
+    linear-gradient(#b9e7a3 0 18%, #78b66b 19% 66%, #4c7d49 67%) !important;
+  box-shadow: inset 0 4px #e3ffd5, inset 0 -4px #3e6c3a, 0 3px 0 #355d31 !important;
 }
 
 .piece-outfit_winter {
   background:
-    linear-gradient(90deg, transparent 46%, #ffdada2f 47% 53%, transparent 54%),
-    linear-gradient(#ff9494 0 18%, #d95460 19% 66%, #9f303d 67%) !important;
+    linear-gradient(180deg, #fff3fb 0 12%, transparent 13%),
+    linear-gradient(#ffb1ca 0 18%, #e56591 19% 66%, #ae3d69 67%) !important;
+  box-shadow: inset 0 4px #ffdce8, inset 0 -4px #8f3156, 0 3px 0 #762946 !important;
 }
 
-/* In the room the outfit should never overpower Chiki. */
 .room-chiki .wearable-outfit {
   z-index: 7 !important;
 }
 
-/* Profile and purchase preview scale independently with their Chiki image. */
-.mini-chiki-wrap .profile-wearable-outfit {
+.mini-chiki-wrap .profile-wearable-outfit,
+.celebration-chiki .celebration-wearable-outfit {
   bottom: 18% !important;
   width: 33% !important;
   height: 18% !important;
 }
 
-.celebration-chiki .celebration-wearable-outfit {
-  bottom: 18% !important;
-  width: 33% !important;
+/* Fiocco lilla: replaces the generic baseball-cap shape. */
+.piece-hat_cap {
+  top: 1% !important;
+  width: 42% !important;
+  height: 20% !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: radial-gradient(circle at 50% 48%, #ffe2f4 0 10%, #b95cb3 11% 18%, transparent 19%) !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+.piece-hat_cap::before,
+.piece-hat_cap::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute;
+  top: 16%;
+  width: 47%;
+  height: 65%;
+  border: 3px solid #7d3b83;
+  background: linear-gradient(#e7a4e5, #b85bb4 68%, #91408f);
+  box-shadow: inset 0 3px #f8c9f2;
+}
+.piece-hat_cap::before {
+  left: 1%;
+  border-radius: 65% 35% 55% 38%;
+  transform: rotate(-17deg);
+}
+.piece-hat_cap::after {
+  right: 1%;
+  border-radius: 35% 65% 38% 55%;
+  transform: rotate(17deg);
+}
+
+/* Country hat: softer straw with a rose band. */
+.piece-hat_cowboy {
+  top: -2% !important;
+  width: 51% !important;
   height: 18% !important;
+  border-color: #8d6335 !important;
+  border-radius: 55% 55% 32% 32% !important;
+  background: linear-gradient(#f4d79c, #d4a964 62%, #aa7c3e 63%) !important;
+  box-shadow: inset 0 4px #fff0bf, inset 0 -3px #8e6534 !important;
+}
+.piece-hat_cowboy::after {
+  right: 8% !important;
+  bottom: 20% !important;
+  width: 84% !important;
+  height: 22% !important;
+  border-width: 2px !important;
+  border-color: #843761 !important;
+  background: #c95f94 !important;
+  border-radius: 999px !important;
+}
+
+/* Fascinator: small elegant flower instead of a top hat. */
+.piece-hat_top {
+  top: 1% !important;
+  width: 32% !important;
+  height: 15% !important;
+  border: 3px solid #89385e !important;
+  border-radius: 55% 45% 50% 44% !important;
+  background: linear-gradient(#ffb7d6, #dc6da3 64%, #aa416f) !important;
+  box-shadow: inset 0 3px #ffdcea !important;
+  transform: translateX(-36%) rotate(-11deg) !important;
+}
+.piece-hat_top::after {
+  content: "✿" !important;
+  display: grid !important;
+  place-items: center;
+  right: -16% !important;
+  bottom: -13% !important;
+  width: 46% !important;
+  height: 70% !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #ffe68b;
+  font-size: 20px;
+}
+
+/* Tiara. */
+.piece-hat_crown {
+  top: -8% !important;
+  width: 39% !important;
+  height: 22% !important;
+  background: linear-gradient(#fff4a8, #f5c937 62%, #d49117 63%) !important;
+  border-color: #9b6511 !important;
+  clip-path: polygon(0 100%, 9% 42%, 27% 63%, 50% 10%, 73% 63%, 91% 42%, 100% 100%) !important;
+}
+.piece-hat_crown::after { display: none !important; }
+
+/* Cerchietto con stelline. */
+.piece-hat_party {
+  top: 2% !important;
+  width: 40% !important;
+  height: 15% !important;
+  border: 4px solid #7b3e91 !important;
+  border-bottom: 0 !important;
+  border-radius: 50% 50% 0 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.piece-hat_party::after {
+  content: "★" !important;
+  display: grid !important;
+  place-items: center;
+  right: 4% !important;
+  bottom: 33% !important;
+  width: 34% !important;
+  height: 82% !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #ffd958;
+  font-size: 22px;
+  filter: drop-shadow(0 2px 0 #8e5c12);
+}
+
+/* Pasticcera: white toque with a pink band. */
+.piece-hat_chef {
+  top: -7% !important;
+  width: 43% !important;
+  height: 23% !important;
+  border-color: #b4bac5 !important;
+  border-radius: 48% 48% 18% 18% !important;
+  background: linear-gradient(#fff, #f7f7fb 62%, #dfe4eb 63%) !important;
+  box-shadow: inset 0 4px #fff !important;
+}
+.piece-hat_chef::after {
+  right: 9% !important;
+  bottom: 8% !important;
+  width: 82% !important;
+  height: 20% !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #e875ad !important;
+}
+
+/* Fashion glasses. */
+.piece-glasses_sun::before,
+.piece-glasses_sun::after {
+  border-color: #8f3d76 !important;
+  background: linear-gradient(#ffb9dcaa, #8f5dc2bb) !important;
+}
+.piece-glasses_star::before,
+.piece-glasses_star::after {
+  border-color: #d19b20 !important;
+  background: linear-gradient(#fff2a8aa, #ee8fd7bb) !important;
+}
+
+/* Collars: heart, lilac and jewel. */
+.piece-collar_red {
+  background: linear-gradient(#ff8ca9, #df4f79 62%, #aa3157 63%) !important;
+  border-color: #7e2544 !important;
+  box-shadow: inset 0 4px #ffc1d1 !important;
+}
+.piece-collar_red::after {
+  content: "♥" !important;
+  display: grid !important;
+  place-items: center;
+  width: 22% !important;
+  border-color: #9d6b14 !important;
+  background: linear-gradient(#ffe988, #e9b528) !important;
+  color: #d64b71;
+  font-size: 12px;
+}
+.piece-collar_blue {
+  background: linear-gradient(#c69cff, #9566dd 62%, #6842b2 63%) !important;
+  border-color: #4d2f89 !important;
+  box-shadow: inset 0 4px #e0c8ff !important;
+}
+.piece-collar_gold {
+  background: linear-gradient(#ffe996, #e6b63a 62%, #b47a16 63%) !important;
+  border-color: #7c530d !important;
+  box-shadow: inset 0 4px #fff3bd !important;
+}
+.piece-collar_gold::after {
+  content: "◆" !important;
+  display: grid !important;
+  place-items: center;
+  background: linear-gradient(#baf3ff, #6ac8e8) !important;
+  color: #2f87a8;
+  font-size: 11px;
 }
