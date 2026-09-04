@@ -4,8 +4,12 @@ import { playChikiBark } from "./petAudio";
 import ChikiAvatar from "./ChikiAvatar";
 import { shopItems, shopItemById, type ShopItem, type ShopKind } from "./shopCatalog";
 import "./Shop.css";
+import "./BoosterShop.css";
 import "./PetHubPolish.css";
 import "./Wardrobe.css";
+
+type BoosterCounts = { shuffle: number; hammer: number; rocket: number };
+type ShopMode = ShopKind | "boosters";
 
 type PetHubProps = {
   username: string;
@@ -14,6 +18,7 @@ type PetHubProps = {
   coins: number;
   inventory: string[];
   equipped: Record<string, string>;
+  boosters: BoosterCounts;
   onBack: () => void;
   onBuy: (item: ShopItem) => Promise<void>;
   onEquip: (item: ShopItem) => void;
@@ -21,6 +26,38 @@ type PetHubProps = {
 };
 
 type HubTab = "room" | "chiki" | "shop";
+
+type BoosterOffer = {
+  id: keyof BoosterCounts;
+  name: string;
+  price: number;
+  image: string;
+  description: string;
+};
+
+const boosterOffers: BoosterOffer[] = [
+  {
+    id: "shuffle",
+    name: "MESCOLA",
+    price: 50,
+    image: "/booster-shuffle.webp",
+    description: "Rimescola tutte le pedine quando il tabellone si complica.",
+  },
+  {
+    id: "hammer",
+    name: "MARTELLO",
+    price: 75,
+    image: "/booster-hammer.webp",
+    description: "Rompe una pedina scelta e colpisce anche l'ostacolo vicino.",
+  },
+  {
+    id: "rocket",
+    name: "RAZZO",
+    price: 100,
+    image: "/booster-rocket.webp",
+    description: "Spazza via una riga intera e può liberare diversi ostacoli.",
+  },
+];
 
 const ownedItemsFor = (inventory: string[], kind: ShopKind) =>
   shopItems.filter((item) => item.kind === kind && inventory.includes(item.id));
@@ -71,13 +108,14 @@ export default function PetHub({
   coins,
   inventory,
   equipped,
+  boosters,
   onBack,
   onBuy,
   onEquip,
   onClearSlot,
 }: PetHubProps) {
   const [tab, setTab] = useState<HubTab>("room");
-  const [shopKind, setShopKind] = useState<ShopKind>("chiki");
+  const [shopKind, setShopKind] = useState<ShopMode>("boosters");
   const [category, setCategory] = useState("TUTTO");
   const [wardrobeFilter, setWardrobeFilter] = useState("TUTTO");
   const [buyingId, setBuyingId] = useState("");
@@ -100,6 +138,7 @@ export default function PetHub({
     : equippedItems;
 
   const shopCategories = useMemo(() => {
+    if (shopKind === "boosters") return [];
     const values = shopItems.filter((item) => item.kind === shopKind).map((item) => item.category);
     return ["TUTTO", ...Array.from(new Set(values))];
   }, [shopKind]);
@@ -115,9 +154,11 @@ export default function PetHub({
   const wardrobeOwned = chikiCatalog.filter((item) => inventory.includes(item.id)).length;
   const wardrobePercent = Math.round((wardrobeOwned / Math.max(1, chikiCatalog.length)) * 100);
 
-  const visibleShop = shopItems.filter(
-    (item) => item.kind === shopKind && (category === "TUTTO" || item.category === category),
-  );
+  const visibleShop = shopKind === "boosters"
+    ? []
+    : shopItems.filter(
+        (item) => item.kind === shopKind && (category === "TUTTO" || item.category === category),
+      );
 
   const openChikiShop = (targetCategory = "TUTTO") => {
     setShopKind("chiki");
@@ -141,6 +182,42 @@ export default function PetHub({
           ? "Non hai abbastanza Monete Chiki."
           : lower.includes("level_required")
             ? `Devi raggiungere il livello ${item.requiredLevel}.`
+            : raw,
+      );
+    } finally {
+      setBuyingId("");
+    }
+  };
+
+  const buyBooster = async (offer: BoosterOffer) => {
+    const id = `booster_${offer.id}`;
+    setBuyingId(id);
+    setMessage("");
+
+    const boosterItem: ShopItem = {
+      id,
+      kind: "chiki",
+      category: "Aiuti",
+      slot: id,
+      name: offer.name,
+      icon: "✨",
+      price: offer.price,
+      requiredLevel: 1,
+      rarity: "Comune",
+    };
+
+    try {
+      await onBuy(boosterItem);
+      setMessage(`${offer.name} +1! Lo troverai subito nel prossimo livello.`);
+      void playPurchaseJingle();
+    } catch (error) {
+      const raw = error instanceof Error ? error.message : "Acquisto non riuscito.";
+      const lower = raw.toLowerCase();
+      setMessage(
+        lower.includes("not_enough_coins")
+          ? "Non hai abbastanza Monete Chiki."
+          : lower.includes("booster_max")
+            ? "Hai già raggiunto il massimo di 99 aiuti di questo tipo."
             : raw,
       );
     } finally {
@@ -360,61 +437,97 @@ export default function PetHub({
             <p>Completa i livelli e migliora le stelle per guadagnare Monete Chiki.</p>
           </div>
 
-          <div className="shop-kind-switch">
+          <div className="shop-kind-switch booster-switch">
+            <button
+              className={shopKind === "boosters" ? "active" : ""}
+              onClick={() => { setShopKind("boosters"); setCategory("TUTTO"); }}
+            >
+              🧰 AIUTI
+            </button>
             <button
               className={shopKind === "chiki" ? "active" : ""}
               onClick={() => { setShopKind("chiki"); setCategory("TUTTO"); }}
             >
-              🐶 PER CHIKI
+              🐶 CHIKI
             </button>
             <button
               className={shopKind === "room" ? "active" : ""}
               onClick={() => { setShopKind("room"); setCategory("TUTTO"); }}
             >
-              🏠 PER LA STANZA
+              🏠 STANZA
             </button>
-          </div>
-
-          <div className="shop-categories">
-            {shopCategories.map((value) => (
-              <button key={value} className={category === value ? "active" : ""} onClick={() => setCategory(value)}>
-                {value}
-              </button>
-            ))}
           </div>
 
           {message && <div className="shop-message">{message}</div>}
 
-          <div className="shop-grid">
-            {visibleShop.map((item) => {
-              const owned = inventory.includes(item.id);
-              const locked = unlockedLevel < item.requiredLevel;
-              const active = equipped[item.slot] === item.id;
-              const canEquip = ["hat", "glasses", "collar", "toy"].includes(item.slot);
-              return (
-                <article key={item.id} className={`shop-card rarity-${item.rarity.toLowerCase()} ${locked ? "locked" : ""}`}>
-                  <ItemArt item={item} />
-                  <small>{item.category} · {item.rarity}</small>
-                  <strong>{item.name}</strong>
-                  {locked ? (
-                    <button disabled>🔒 LIV. {item.requiredLevel}</button>
-                  ) : owned ? (
-                    canEquip ? (
-                      <button className="owned" disabled={active} onClick={() => onEquip(item)}>
-                        {collectionLabel(item, active)}
-                      </button>
-                    ) : (
-                      <button className="owned" disabled>{collectionLabel(item, active)}</button>
-                    )
-                  ) : (
-                    <button disabled={buyingId === item.id} onClick={() => void buy(item)}>
-                      {buyingId === item.id ? "..." : `🪙 ${item.price.toLocaleString("it-IT")}`}
+          {shopKind === "boosters" ? (
+            <>
+              <div className="booster-shop-intro">
+                <small>MONETE → POTENZIAMENTI</small>
+                <strong>RICARICA GLI AIUTI</strong>
+                <p>Compra un aiuto alla volta. Il numero acquistato resta disponibile anche nei livelli successivi.</p>
+              </div>
+              <div className="booster-shop-grid">
+                {boosterOffers.map((offer) => (
+                  <article className="booster-shop-card" key={offer.id}>
+                    <div className="booster-shop-art">
+                      <img src={offer.image} alt="" aria-hidden="true" />
+                      <span className="booster-shop-count">×{boosters[offer.id]}</span>
+                    </div>
+                    <strong>{offer.name}</strong>
+                    <p>{offer.description}</p>
+                    <button
+                      disabled={buyingId === `booster_${offer.id}` || boosters[offer.id] >= 99}
+                      onClick={() => void buyBooster(offer)}
+                    >
+                      {buyingId === `booster_${offer.id}` ? "..." : `🪙 ${offer.price}`}
                     </button>
-                  )}
-                </article>
-              );
-            })}
-          </div>
+                  </article>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="shop-categories">
+                {shopCategories.map((value) => (
+                  <button key={value} className={category === value ? "active" : ""} onClick={() => setCategory(value)}>
+                    {value}
+                  </button>
+                ))}
+              </div>
+
+              <div className="shop-grid">
+                {visibleShop.map((item) => {
+                  const owned = inventory.includes(item.id);
+                  const locked = unlockedLevel < item.requiredLevel;
+                  const active = equipped[item.slot] === item.id;
+                  const canEquip = ["hat", "glasses", "collar", "toy"].includes(item.slot);
+                  return (
+                    <article key={item.id} className={`shop-card rarity-${item.rarity.toLowerCase()} ${locked ? "locked" : ""}`}>
+                      <ItemArt item={item} />
+                      <small>{item.category} · {item.rarity}</small>
+                      <strong>{item.name}</strong>
+                      {locked ? (
+                        <button disabled>🔒 LIV. {item.requiredLevel}</button>
+                      ) : owned ? (
+                        canEquip ? (
+                          <button className="owned" disabled={active} onClick={() => onEquip(item)}>
+                            {collectionLabel(item, active)}
+                          </button>
+                        ) : (
+                          <button className="owned" disabled>{collectionLabel(item, active)}</button>
+                        )
+                      ) : (
+                        <button disabled={buyingId === item.id} onClick={() => void buy(item)}>
+                          {buyingId === item.id ? "..." : `🪙 ${item.price.toLocaleString("it-IT")}`}
+                        </button>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </section>
       )}
 
