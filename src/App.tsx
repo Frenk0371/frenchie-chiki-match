@@ -4,6 +4,7 @@ import GameScene from "./game/GameScene";
 import { levels, worlds } from "./game/levels";
 import PetHub from "./PetHub";
 import { type ShopItem } from "./shopCatalog";
+import { playEquipPop, startHomeMusic, stopHomeMusic } from "./homeMusic";
 import {
   claimLevelReward,
   fetchLeaderboard,
@@ -13,6 +14,7 @@ import {
 } from "./cloudClient";
 import "./App.css";
 import "./Map.css";
+import "./HomeAudio.css";
 
 type AppView = "home" | "map" | "game" | "leaderboard" | "frenchies";
 
@@ -77,6 +79,9 @@ function App({ username, onSignOut }: AppProps) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState("");
+  const [musicEnabled, setMusicEnabled] = useState(
+    () => localStorage.getItem("chiki-home-music") !== "off",
+  );
 
   useEffect(() => {
     if (view !== "game" || !gameContainer.current) return;
@@ -94,6 +99,27 @@ function App({ username, onSignOut }: AppProps) {
     });
     return () => game.destroy(true);
   }, [view, selectedLevel]);
+
+  useEffect(() => {
+    localStorage.setItem("chiki-home-music", musicEnabled ? "on" : "off");
+
+    if (view !== "home" || !musicEnabled) {
+      stopHomeMusic();
+      return;
+    }
+
+    const unlockAudio = () => {
+      void startHomeMusic();
+    };
+
+    void startHomeMusic();
+    window.addEventListener("pointerdown", unlockAudio, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", unlockAudio);
+      stopHomeMusic();
+    };
+  }, [view, musicEnabled]);
 
   useEffect(() => {
     const completed = (event: Event) => {
@@ -215,11 +241,19 @@ function App({ username, onSignOut }: AppProps) {
     const result = await purchaseShopItem(item.id);
     setCoins(result.new_coins);
     setInventory(result.new_inventory);
+    setEquipped((current) => ({ ...current, [item.slot]: item.id }));
+
+    if (item.slot === "outfit") {
+      setSelectedOutfit(item.name);
+      localStorage.setItem("chiki-outfit", item.name);
+    }
   };
 
   const equipItem = (item: ShopItem) => {
     if (!inventory.includes(item.id)) return;
     setEquipped((current) => ({ ...current, [item.slot]: item.id }));
+    void playEquipPop();
+
     if (item.slot === "outfit") {
       setSelectedOutfit(item.name);
       localStorage.setItem("chiki-outfit", item.name);
@@ -232,6 +266,15 @@ function App({ username, onSignOut }: AppProps) {
       const updated = { ...current };
       delete updated[slot];
       return updated;
+    });
+  };
+
+  const toggleMusic = () => {
+    setMusicEnabled((current) => {
+      const next = !current;
+      if (next) void startHomeMusic();
+      else stopHomeMusic();
+      return next;
     });
   };
 
@@ -396,6 +439,14 @@ function App({ username, onSignOut }: AppProps) {
   return (
     <main className="home-screen">
       <div className="sky-glow" />
+      <button
+        className={`home-music-toggle ${musicEnabled ? "on" : ""}`}
+        onClick={toggleMusic}
+        aria-label={musicEnabled ? "Disattiva musica" : "Attiva musica"}
+      >
+        <span>{musicEnabled ? "♫" : "♪"}</span>
+        <small>{musicEnabled ? "MUSICA" : "MUTA"}</small>
+      </button>
       <div className="home-wallet">🪙 {coins.toLocaleString("it-IT")}</div>
       <section className="brand-panel" aria-label="Frenchie Chiki Match">
         <h1 className="game-logo">
