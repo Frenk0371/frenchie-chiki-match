@@ -24,6 +24,7 @@ import "./profileAvatarTweaks";
 import "./specialDragActivationTweaks";
 import "./powerAnimationTweaks";
 import "./helperTouchFix";
+import "./boosterControlFix";
 import AuthGate from "./AuthGate";
 import "./uiRefresh.css";
 import "./socialFeatures";
