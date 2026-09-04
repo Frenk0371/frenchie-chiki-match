@@ -85,11 +85,13 @@ const ensureBadge = () => {
     badge = document.createElement("div");
     badge.className = "banana-life-badge";
     badge.setAttribute("aria-live", "polite");
+    badge.setAttribute("aria-label", "Vite banana");
     document.body.appendChild(badge);
   }
+
   const state = getLifeState();
   const timer = state.lives < MAX_BANANA_LIVES ? timeUntilNextLife() : 0;
-  const html = `<span>🍌</span><strong>${state.lives}/${MAX_BANANA_LIVES}</strong>${timer > 0 ? `<small>+1 ${formatLifeTimer(timer)}</small>` : ""}`;
+  const html = `<span class="banana-life-icon">🍌</span><strong>×${state.lives}</strong>${timer > 0 ? `<small>+1 tra ${formatLifeTimer(timer)}</small>` : `<small>VITE PIENE</small>`}`;
   if (badge.innerHTML !== html) badge.innerHTML = html;
   badge.classList.toggle("empty", state.lives === 0);
 };
