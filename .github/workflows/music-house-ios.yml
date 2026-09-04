@@ -1,0 +1,52 @@
+name: Build Music House IPA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'MusicHouse-iOS/**'
+      - '.github/workflows/music-house-ios.yml'
+
+jobs:
+  build-ipa:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: MusicHouse-iOS
+        run: xcodegen generate
+
+      - name: Build unsigned iPhone app
+        working-directory: MusicHouse-iOS
+        run: |
+          xcodebuild \
+            -project MusicHouse.xcodeproj \
+            -scheme MusicHouse \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package IPA
+        working-directory: MusicHouse-iOS
+        run: |
+          rm -rf Payload MusicHouse.ipa
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/MusicHouse.app Payload/
+          zip -qry MusicHouse.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MusicHouse-ipa
+          path: MusicHouse-iOS/MusicHouse.ipa
+          if-no-files-found: error
+          retention-days: 14
