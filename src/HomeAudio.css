@@ -48,13 +48,31 @@
   border: 2px solid #fff8d6;
   border-radius: 50%;
   background: #183a59aa;
-  font-size: 21px;
+  font-size: 0;
   line-height: 1;
 }
 
+.home-music-toggle span::after {
+  content: "🔇";
+  font-size: 18px;
+}
+
+.home-music-toggle.on span::after {
+  content: "🔊";
+}
+
 .home-music-toggle small {
-  font-size: 9px;
+  font-size: 0;
   letter-spacing: .25px;
+}
+
+.home-music-toggle small::after {
+  content: "RIATTIVA";
+  font-size: 9px;
+}
+
+.home-music-toggle.on small::after {
+  content: "MUTO";
 }
 
 @media (max-width: 390px) {
