@@ -1,25 +1,26 @@
 .home-music-toggle {
   position: absolute;
-  z-index: 6;
+  z-index: 7;
   left: 12px;
-  top: calc(10px + env(safe-area-inset-top));
+  top: auto;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  width: 58px;
+  height: 58px;
+  min-height: 58px;
+  padding: 4px;
   display: grid;
-  grid-template-columns: 32px auto;
-  align-items: center;
-  gap: 5px;
-  min-height: 46px;
-  padding: 5px 10px 6px 7px;
+  place-items: center;
   border: 4px solid #fff4be;
-  border-radius: 22px;
+  border-radius: 50%;
   background: linear-gradient(#6f8eaa, #36546f 58%, #263f57 59%);
   color: #fff;
   font-family: "Fredoka", sans-serif;
   font-weight: 900;
   box-shadow:
-    inset 0 4px #a9c1d4,
-    inset 0 -4px #1b3146,
-    0 5px 0 #14293e,
-    0 9px 15px #10263f44;
+    inset 0 5px #a9c1d4,
+    inset 0 -5px #1b3146,
+    0 6px 0 #14293e,
+    0 10px 16px #10263f44;
   text-shadow: 0 2px 0 #18334d;
 }
 
@@ -27,22 +28,19 @@
   background: linear-gradient(#b868dc, #8141b0 58%, #602c8c 59%);
   border-color: #ffe6a0;
   box-shadow:
-    inset 0 4px #dca0f1,
-    inset 0 -4px #4b236f,
-    0 5px 0 #3e1c5e,
-    0 9px 15px #35144955;
+    inset 0 5px #dca0f1,
+    inset 0 -5px #4b236f,
+    0 6px 0 #3e1c5e,
+    0 10px 16px #35144955;
 }
 
 .home-music-toggle:active {
-  transform: translateY(3px);
-  box-shadow:
-    inset 0 3px #c8d7e2,
-    0 2px 0 #14293e;
+  transform: translateY(3px) scale(.98);
 }
 
 .home-music-toggle span {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
   border: 2px solid #fff8d6;
@@ -54,7 +52,7 @@
 
 .home-music-toggle span::after {
   content: "🔇";
-  font-size: 18px;
+  font-size: 23px;
 }
 
 .home-music-toggle.on span::after {
@@ -62,28 +60,24 @@
 }
 
 .home-music-toggle small {
-  font-size: 0;
-  letter-spacing: .25px;
-}
-
-.home-music-toggle small::after {
-  content: "RIATTIVA";
-  font-size: 9px;
-}
-
-.home-music-toggle.on small::after {
-  content: "MUTO";
+  display: none;
 }
 
 @media (max-width: 390px) {
   .home-music-toggle {
-    left: 8px;
-    top: calc(7px + env(safe-area-inset-top));
-    min-height: 42px;
-    padding-right: 8px;
+    left: 9px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    width: 54px;
+    height: 54px;
+    min-height: 54px;
   }
 
-  .home-music-toggle small {
-    display: none;
+  .home-music-toggle span {
+    width: 37px;
+    height: 37px;
+  }
+
+  .home-music-toggle span::after {
+    font-size: 21px;
   }
 }
