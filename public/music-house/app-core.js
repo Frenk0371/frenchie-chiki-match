@@ -28,20 +28,24 @@
   let ytApiReady = false;
   let toastTimer = null;
 
+  function normalizeSavedState(saved = {}) {
+    const next = {
+      ...DEFAULT_STATE,
+      ...saved,
+      favoriteTracks: Array.isArray(saved.favoriteTracks) ? saved.favoriteTracks : [],
+      favoriteAlbums: Array.isArray(saved.favoriteAlbums) ? saved.favoriteAlbums : [],
+      playlists: Array.isArray(saved.playlists) ? saved.playlists : [],
+      recent: Array.isArray(saved.recent) ? saved.recent : [],
+      queue: Array.isArray(saved.queue) ? saved.queue : [],
+    };
+    delete next.settings;
+    return next;
+  }
+
   function loadState() {
     try {
       const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-      const next = {
-        ...DEFAULT_STATE,
-        ...saved,
-        favoriteTracks: Array.isArray(saved.favoriteTracks) ? saved.favoriteTracks : [],
-        favoriteAlbums: Array.isArray(saved.favoriteAlbums) ? saved.favoriteAlbums : [],
-        playlists: Array.isArray(saved.playlists) ? saved.playlists : [],
-        recent: Array.isArray(saved.recent) ? saved.recent : [],
-        queue: Array.isArray(saved.queue) ? saved.queue : [],
-      };
-      delete next.settings;
-      return next;
+      return normalizeSavedState(saved);
     } catch {
       return structuredClone(DEFAULT_STATE);
     }
@@ -49,6 +53,7 @@
 
   function saveState() {
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    if (typeof scheduleCloudSave === 'function') scheduleCloudSave();
   }
 
   // Riscrive una volta lo stato per eliminare eventuali vecchie API key salvate sul dispositivo.
