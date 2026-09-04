@@ -2,6 +2,7 @@ const SUPABASE_URL = "https://xrkqeelwutjzyqxgvxmm.supabase.co";
 const SUPABASE_KEY = "sb_publishable_vQVI5HTbjy6lrDZLmoJfkw_ulzJMIkO";
 const SESSION_KEY = "chiki-auth-session-v1";
 const PENDING_USERNAME_KEY = "chiki-pending-username";
+const LAST_USER_KEY = "chiki-last-user-id";
 
 export type CloudSession = {
   access_token: string;
@@ -75,6 +76,13 @@ const storeSession = (session: CloudSession) => {
 const clearSession = () => {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem("chiki-username");
+};
+
+const clearLocalProgress = () => {
+  localStorage.removeItem("chiki-unlocked-level");
+  localStorage.removeItem("chiki-level-stars");
+  localStorage.removeItem("chiki-outfit");
+  localStorage.removeItem(LAST_USER_KEY);
 };
 
 const baseHeaders = () => ({
@@ -174,6 +182,12 @@ const ensureProfile = async (
   return username;
 };
 
+const defaultProgress = (): CloudProgress => ({
+  unlocked_level: 1,
+  level_stars: {},
+  selected_outfit: "Classico",
+});
+
 const readLocalProgress = () => {
   let levelStars: Record<number, number> = {};
   try {
@@ -250,17 +264,23 @@ export const bootstrapCloudAccount = async (sessionArg?: CloudSession) => {
   session = storeSession({ ...session, user });
   const username = await ensureProfile(session, user);
 
-  const local = readLocalProgress();
+  const lastUserId = localStorage.getItem(LAST_USER_KEY);
+  const canUseLegacyOrOwnLocal = !lastUserId || lastUserId === user.id;
+  const local = canUseLegacyOrOwnLocal ? readLocalProgress() : defaultProgress();
   const cloud = await loadCloudProgress(session);
   const merged: CloudProgress = cloud
     ? {
         unlocked_level: Math.max(local.unlocked_level, cloud.unlocked_level),
         level_stars: mergeStars(local.level_stars, cloud.level_stars || {}),
-        selected_outfit: cloud.selected_outfit || local.selected_outfit || "Classico",
+        selected_outfit:
+          canUseLegacyOrOwnLocal && local.selected_outfit !== "Classico"
+            ? local.selected_outfit
+            : cloud.selected_outfit || local.selected_outfit || "Classico",
       }
     : local;
 
   writeLocalProgress(merged);
+  localStorage.setItem(LAST_USER_KEY, user.id);
   await saveCloudProgress(merged);
   return { session, user, username, progress: merged };
 };
@@ -311,6 +331,14 @@ export const loginAccount = async (email: string, password: string) => {
 
 export const signOutAccount = async () => {
   const session = readStoredSession();
+  if (session?.user?.id) {
+    try {
+      await saveCloudProgress(readLocalProgress());
+    } catch {
+      // The cloud copy normally stays current through automatic sync.
+    }
+  }
+
   if (session?.access_token) {
     try {
       await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
@@ -321,7 +349,9 @@ export const signOutAccount = async () => {
       // Local sign-out still proceeds if the network is unavailable.
     }
   }
+
   clearSession();
+  clearLocalProgress();
 };
 
 export const fetchLeaderboard = async (): Promise<LeaderboardEntry[]> => {
