@@ -1,0 +1,162 @@
+.profile-dog-avatar {
+  display: block;
+  object-fit: contain;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #fff7df 0 42%, #e7bd73 43% 100%);
+  box-shadow: inset 0 2px #ffffffaa, 0 3px 0 #4d2b19;
+}
+
+.profile-dog-fawn { filter: saturate(1.08) contrast(1.03); }
+.profile-dog-cream { filter: sepia(.16) saturate(.68) brightness(1.24) contrast(.92); }
+.profile-dog-black { filter: grayscale(1) brightness(.55) contrast(1.45); }
+.profile-dog-blue { filter: grayscale(.6) sepia(.18) hue-rotate(155deg) saturate(.75) brightness(.82) contrast(1.15); }
+.profile-dog-chocolate { filter: sepia(.78) saturate(1.65) brightness(.72) hue-rotate(338deg) contrast(1.1); }
+.profile-dog-pied { filter: grayscale(.8) brightness(1.08) contrast(1.45); }
+.profile-dog-lilac { filter: grayscale(.38) sepia(.16) hue-rotate(222deg) saturate(.72) brightness(.92); }
+.profile-dog-red { filter: sepia(.58) saturate(1.7) hue-rotate(332deg) brightness(.92) contrast(1.06); }
+
+.home-account span {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-account .profile-dog-avatar {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #fff0b8;
+}
+
+.profile-avatar-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
+  background: #10243bd9;
+  backdrop-filter: blur(7px);
+}
+
+.profile-avatar-panel {
+  width: min(94vw, 500px);
+  max-height: 88dvh;
+  overflow: auto;
+  padding: 18px 16px 16px;
+  border: 5px solid #ffe47d;
+  border-radius: 30px;
+  background: linear-gradient(#6e38a0, #3c1c64);
+  box-shadow: 0 10px 0 #26123d, 0 18px 40px #0007, inset 0 3px #ffffff55;
+  color: #fff;
+  font-family: "Fredoka", sans-serif;
+}
+
+.profile-avatar-heading {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  text-align: center;
+  text-shadow: 0 3px #2a123c;
+}
+
+.profile-avatar-heading small {
+  color: #f0d5ff;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.profile-avatar-heading strong {
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  color: #fff1ad;
+  font-size: clamp(27px, 7vw, 37px);
+  letter-spacing: .3px;
+}
+
+.profile-avatar-heading span {
+  margin-top: 3px;
+  padding: 5px 12px;
+  border-radius: 14px;
+  background: #2b1646aa;
+  color: #fff;
+  font-weight: 900;
+}
+
+.profile-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.profile-avatar-choice {
+  min-width: 0;
+  padding: 7px 4px 8px;
+  border: 3px solid #c58be7;
+  border-radius: 20px;
+  background: linear-gradient(#fff5dd, #edc36f);
+  box-shadow: 0 5px 0 #683978;
+  color: #4a284c;
+  font: 900 10px/1.05 "Fredoka", sans-serif;
+  cursor: pointer;
+}
+
+.profile-avatar-choice .profile-dog-avatar {
+  width: min(18vw, 78px);
+  height: min(18vw, 78px);
+  margin: 0 auto 6px;
+  border: 3px solid #fff;
+}
+
+.profile-avatar-choice small {
+  display: block;
+  min-height: 20px;
+}
+
+.profile-avatar-choice.selected {
+  border-color: #fff7a1;
+  background: linear-gradient(#ffe865, #ffb51f);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #8d4d12, 0 0 0 3px #fff6b8;
+}
+
+.profile-avatar-status {
+  min-height: 24px;
+  margin: 15px 0 8px;
+  text-align: center;
+  color: #ffe879;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.profile-avatar-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.profile-avatar-actions button {
+  padding: 11px 8px;
+  border: 3px solid #fff;
+  border-radius: 17px;
+  background: linear-gradient(#63d654, #3ca734);
+  color: #fff;
+  font: 900 13px "Fredoka", sans-serif;
+  box-shadow: 0 4px 0 #1e6d22;
+}
+
+.profile-avatar-actions button.danger {
+  background: linear-gradient(#e86d70, #ba3945);
+  box-shadow: 0 4px 0 #72202b;
+}
+
+.ranking-list img.profile-dog-avatar {
+  width: 42px;
+  height: 42px;
+  padding: 1px;
+  border: 2px solid #fff2ba;
+}
+
+@media (max-width: 390px) {
+  .profile-avatar-grid { gap: 6px; }
+  .profile-avatar-choice { padding-inline: 2px; font-size: 9px; }
+}
