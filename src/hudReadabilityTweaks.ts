@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 import GameScene from "./game/GameScene";
 
-// HUD leggibile su mobile: in alto solo livello/punti e mosse;
-// obiettivi grandi in basso a destra, accanto al contatore vite.
+// HUD mobile: in alto solo livello/punti e mosse; obiettivi compatti sotto gli aiuti.
+// Gli aiuti emettono un breve suono solo quando vengono realmente consumati.
 const proto = GameScene.prototype as any;
 
 const compactObjectiveText = (value: string) =>
@@ -13,6 +13,66 @@ const compactObjectiveText = (value: string) =>
     .replace(/FIORI/g, "🌸")
     .replace(/GEMME/g, "💎")
     .replace(/CHIKI/g, "🐶");
+
+let boosterAudioContext: AudioContext | null = null;
+
+const getBoosterAudioContext = () => {
+  if (typeof window === "undefined") return null;
+  const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+  if (!AudioContextCtor) return null;
+  if (!boosterAudioContext) boosterAudioContext = new AudioContextCtor();
+  if (boosterAudioContext.state === "suspended") void boosterAudioContext.resume();
+  return boosterAudioContext;
+};
+
+const playTone = (
+  ctx: AudioContext,
+  type: OscillatorType,
+  startFrequency: number,
+  endFrequency: number,
+  duration: number,
+  volume: number,
+  delay = 0,
+) => {
+  const start = ctx.currentTime + delay;
+  const oscillator = ctx.createOscillator();
+  const gain = ctx.createGain();
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(startFrequency, start);
+  oscillator.frequency.exponentialRampToValueAtTime(Math.max(1, endFrequency), start + duration);
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.linearRampToValueAtTime(volume, start + 0.018);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  oscillator.connect(gain);
+  gain.connect(ctx.destination);
+  oscillator.start(start);
+  oscillator.stop(start + duration + 0.02);
+};
+
+const playBoosterSound = (label: string) => {
+  const ctx = getBoosterAudioContext();
+  if (!ctx) return;
+
+  if (label === "MESCOLA") {
+    // Doppio scintillio crescente, rapido e leggero.
+    playTone(ctx, "sine", 360, 820, 0.24, 0.075);
+    playTone(ctx, "triangle", 560, 1180, 0.20, 0.045, 0.05);
+    return;
+  }
+
+  if (label === "MARTELLO") {
+    // Colpo cartoon corto e pieno.
+    playTone(ctx, "triangle", 150, 58, 0.17, 0.12);
+    playTone(ctx, "sine", 92, 48, 0.12, 0.07, 0.015);
+    return;
+  }
+
+  if (label === "RAZZO") {
+    // Whoosh ascendente da lancio.
+    playTone(ctx, "sawtooth", 190, 960, 0.34, 0.065);
+    playTone(ctx, "sine", 280, 1320, 0.27, 0.045, 0.035);
+  }
+};
 
 const originalCreateHud = proto.createHud as (this: GameScene) => void;
 proto.createHud = function (this: GameScene) {
@@ -77,41 +137,41 @@ proto.createHud = function (this: GameScene) {
     .setAlign("center")
     .setDepth(42);
 
-  // Nuovo pannello obiettivi grande in basso a destra.
+  // Pannello obiettivi compatto: completamente sotto la barra degli aiuti e affiancato alle vite.
   const objectivePanel = this.add.graphics().setDepth(40);
   objectivePanel.fillStyle(0x4b260d, 0.96);
-  objectivePanel.fillRoundedRect(548, 1605, 480, 245, 36);
+  objectivePanel.fillRoundedRect(615, 1692, 395, 176, 30);
   objectivePanel.fillStyle(0x7b3f16, 1);
-  objectivePanel.fillRoundedRect(558, 1592, 460, 235, 32);
-  objectivePanel.lineStyle(9, 0xffe18a, 1);
-  objectivePanel.strokeRoundedRect(548, 1592, 480, 245, 36);
-  objectivePanel.lineStyle(4, 0xffb82f, 1);
-  objectivePanel.strokeRoundedRect(562, 1606, 452, 217, 28);
+  objectivePanel.fillRoundedRect(622, 1682, 381, 166, 27);
+  objectivePanel.lineStyle(7, 0xffe18a, 1);
+  objectivePanel.strokeRoundedRect(615, 1682, 395, 176, 30);
+  objectivePanel.lineStyle(3, 0xffb82f, 1);
+  objectivePanel.strokeRoundedRect(627, 1694, 371, 150, 23);
 
   this.add
-    .text(788, 1632, "OBIETTIVI", {
+    .text(812, 1713, "OBIETTIVI", {
       fontFamily: '"Lilita One", "Fredoka", sans-serif',
-      fontSize: "31px",
+      fontSize: "25px",
       color: "#ffe873",
       fontStyle: "bold",
       stroke: "#54280e",
-      strokeThickness: 4,
+      strokeThickness: 3,
       align: "center",
     })
     .setOrigin(0.5)
     .setDepth(42);
 
   objectiveText
-    .setPosition(788, 1736)
+    .setPosition(812, 1787)
     .setFontFamily('"Lilita One", "Fredoka", sans-serif')
-    .setFontSize(54)
+    .setFontSize(42)
     .setFontStyle("bold")
     .setColor("#ffffff")
-    .setStroke("#3a1707", 6)
+    .setStroke("#3a1707", 5)
     .setAlign("center")
-    .setLineSpacing(10)
-    .setWordWrapWidth(430, false)
-    .setFixedSize(430, 150)
+    .setLineSpacing(4)
+    .setWordWrapWidth(350, false)
+    .setFixedSize(350, 112)
     .setPadding(0, 0, 0, 0)
     .setOrigin(0.5)
     .setDepth(42);
@@ -127,11 +187,39 @@ proto.updateObjectiveAndProgress = function (this: GameScene) {
   objectiveText.setText(compactObjectiveText(objectiveText.text));
 
   const lineCount = Math.max(1, objectiveText.text.split("\n").length);
-  const size = lineCount <= 2 ? 54 : lineCount === 3 ? 43 : 34;
+  const size = lineCount <= 2 ? 42 : lineCount === 3 ? 34 : 28;
   objectiveText
-    .setPosition(788, lineCount <= 2 ? 1738 : 1746)
+    .setPosition(812, lineCount <= 2 ? 1788 : 1794)
     .setFontSize(size)
-    .setLineSpacing(lineCount <= 2 ? 10 : 4)
-    .setFixedSize(430, 160)
+    .setLineSpacing(lineCount <= 2 ? 4 : 1)
+    .setFixedSize(350, 118)
     .setDepth(42);
+};
+
+// Suoni distinti per gli aiuti. Il suono parte soltanto se il contatore dell'aiuto diminuisce.
+const originalCreateBoosterButton = proto.createBoosterButton as (
+  this: GameScene,
+  x: number,
+  iconKey: string,
+  label: string,
+  action: () => void,
+  remaining: () => number,
+) => void;
+
+proto.createBoosterButton = function (
+  this: GameScene,
+  x: number,
+  iconKey: string,
+  label: string,
+  action: () => void,
+  remaining: () => number,
+) {
+  const actionWithSound = () => {
+    const before = remaining();
+    action();
+    const after = remaining();
+    if (after < before) playBoosterSound(label);
+  };
+
+  originalCreateBoosterButton.call(this, x, iconKey, label, actionWithSound, remaining);
 };
