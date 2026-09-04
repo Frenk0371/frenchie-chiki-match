@@ -1,0 +1,402 @@
+/* UI refresh: armadio full-width + nodi livello a zampa */
+
+/* =============================
+   ARMADIO DI CHIKI
+   ============================= */
+.chiki-wardrobe-section {
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+}
+
+.wardrobe-title-row {
+  align-items: center !important;
+  gap: 14px !important;
+  margin-bottom: 24px !important;
+}
+
+.wardrobe-title-row small {
+  font-size: 15px !important;
+  letter-spacing: 1px !important;
+}
+
+.wardrobe-title-row h2 {
+  font-size: clamp(40px, 10.8vw, 56px) !important;
+  line-height: .88 !important;
+  text-shadow: 0 5px 0 #fff0ad !important;
+}
+
+.wardrobe-title-row > button {
+  min-width: 122px !important;
+  min-height: 64px !important;
+  padding: 15px 18px 17px !important;
+  border-width: 6px !important;
+  border-radius: 31px !important;
+  font-size: 22px !important;
+}
+
+/* Elimina il vecchio pannello laterale: l'armadio diventa protagonista. */
+.wardrobe-layout {
+  display: block !important;
+  width: 100% !important;
+  overflow: visible !important;
+}
+
+.wardrobe-chiki-panel {
+  display: none !important;
+}
+
+.wardrobe-cabinet {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  padding: 92px 16px 22px !important;
+  border-width: 9px !important;
+  border-radius: 38px 38px 32px 32px !important;
+}
+
+/* Header interno dell'armadio con faccia di Chiki. */
+.wardrobe-cabinet::before {
+  content: "ARMADIO DI CHIKI" !important;
+  position: absolute !important;
+  left: 88px !important;
+  right: 15px !important;
+  top: 14px !important;
+  height: 58px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 5px solid #865129 !important;
+  border-radius: 24px 24px 14px 14px !important;
+  background: linear-gradient(#e8ab69, #b86d39 67%, #8b4b27 68%) !important;
+  color: #fff0c0 !important;
+  font-family: "Lilita One", "Fredoka", sans-serif !important;
+  font-size: clamp(20px, 5.4vw, 28px) !important;
+  letter-spacing: .8px !important;
+  line-height: 1 !important;
+  text-shadow: 0 3px 0 #6b361c !important;
+  box-shadow: inset 0 5px #f6ca91, 0 5px 0 #5d321a !important;
+}
+
+.wardrobe-cabinet::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 14px !important;
+  top: 5px !important;
+  width: 76px !important;
+  height: 76px !important;
+  transform: none !important;
+  border: 6px solid #fff0b6 !important;
+  border-radius: 50% !important;
+  background: #9be3ff url("/chiki-icon.jpeg") center 26% / 150% auto no-repeat !important;
+  box-shadow: inset 0 4px #ffffffb8, 0 5px 0 #70401f, 0 8px 15px #301b1155 !important;
+  pointer-events: none !important;
+}
+
+.wardrobe-cabinet-top {
+  min-height: 92px !important;
+  padding: 16px 18px !important;
+  border-width: 5px !important;
+  border-radius: 25px !important;
+}
+
+.wardrobe-cabinet-top small {
+  font-size: 13px !important;
+  letter-spacing: .5px !important;
+}
+
+.wardrobe-cabinet-top strong {
+  margin-top: 2px !important;
+  font-size: 38px !important;
+}
+
+.wardrobe-cabinet-top > span {
+  font-size: 33px !important;
+}
+
+.wardrobe-progress {
+  height: 19px !important;
+  margin: 14px 5px 18px !important;
+  border-width: 4px !important;
+}
+
+/* 4 categorie per riga, come nel nuovo mockup. */
+.wardrobe-filters {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 9px !important;
+  padding: 10px !important;
+  border-width: 5px !important;
+  border-radius: 23px !important;
+}
+
+.wardrobe-filters button {
+  min-height: 94px !important;
+  padding: 10px 3px 12px !important;
+  border-width: 4px !important;
+  border-radius: 20px !important;
+}
+
+.wardrobe-filters button::after {
+  bottom: 7px !important;
+  width: 27px !important;
+  height: 5px !important;
+}
+
+.wardrobe-filters span {
+  font-size: 34px !important;
+  line-height: 1 !important;
+}
+
+.wardrobe-filters small {
+  margin-top: 7px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  text-overflow: clip !important;
+}
+
+.wardrobe-shelf-label {
+  margin: 15px 5px 13px !important;
+}
+
+.wardrobe-shelf-label span {
+  font-size: 17px !important;
+}
+
+.wardrobe-shelf-label small {
+  padding: 7px 11px !important;
+  border-width: 3px !important;
+  border-radius: 13px !important;
+  font-size: 14px !important;
+}
+
+/* Le card restano a una colonna, ma ora sfruttano tutta la larghezza. */
+.wardrobe-shelves {
+  grid-template-columns: 1fr !important;
+  gap: 18px !important;
+  padding: 15px 12px 20px !important;
+  border-width: 6px !important;
+  border-radius: 25px !important;
+}
+
+.wardrobe-slot {
+  grid-template-columns: 94px minmax(0, 1fr) !important;
+  min-height: 126px !important;
+  padding: 15px 44px 19px 13px !important;
+  gap: 14px !important;
+  border-width: 5px !important;
+  border-radius: 24px 24px 15px 15px !important;
+}
+
+.wardrobe-slot-icon {
+  width: 88px !important;
+  height: 88px !important;
+  border-width: 5px !important;
+  border-radius: 24px !important;
+  font-size: 56px !important;
+}
+
+.wardrobe-slot.empty .wardrobe-slot-icon {
+  font-size: 48px !important;
+}
+
+.wardrobe-slot-copy strong {
+  font-size: 20px !important;
+  line-height: 1.05 !important;
+}
+
+.wardrobe-slot-copy small {
+  margin-top: 9px !important;
+  font-size: 13px !important;
+  line-height: 1.05 !important;
+}
+
+.wardrobe-slot-badge {
+  right: 10px !important;
+  top: 10px !important;
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 18px !important;
+}
+
+.wardrobe-footnote {
+  gap: 8px !important;
+  margin-top: 20px !important;
+}
+
+.wardrobe-footnote span {
+  padding: 11px 13px !important;
+  font-size: 13px !important;
+}
+
+/* =============================
+   MAPPA: NUMERI DENTRO UNA ZAMPA
+   ============================= */
+.map-screen {
+  --paw-pad-top: #76ea42;
+  --paw-pad-bottom: #2fa51f;
+  --paw-pad-shadow: #267e1d;
+}
+
+.world-2 {
+  --paw-pad-top: #64d5f4;
+  --paw-pad-bottom: #287fb7;
+  --paw-pad-shadow: #205d88;
+}
+
+.world-3 {
+  --paw-pad-top: #bc6fd6;
+  --paw-pad-bottom: #64358d;
+  --paw-pad-shadow: #472567;
+}
+
+.level-stop button {
+  position: relative !important;
+  isolation: isolate !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 108px !important;
+  height: 116px !important;
+  flex: 0 0 108px !important;
+  padding: 41px 0 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 44% !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-family: "Lilita One", "Fredoka", sans-serif !important;
+  font-size: 42px !important;
+  line-height: 1 !important;
+  text-shadow: 0 4px 0 var(--paw-pad-shadow), 0 0 2px #17320d !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 8px 0 #a86f34) drop-shadow(0 12px 12px #18372355) !important;
+}
+
+/* Disegno della zampa: 4 polpastrelli rosa + cuscinetto centrale colorato. */
+.level-stop button::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: -2 !important;
+  border-radius: 45% !important;
+  background:
+    radial-gradient(ellipse 16px 21px at 18% 34%, #f58f94 0 66%, #fff0b0 69% 84%, transparent 87%),
+    radial-gradient(ellipse 17px 23px at 39% 18%, #f69ca1 0 66%, #fff0b0 69% 84%, transparent 87%),
+    radial-gradient(ellipse 17px 23px at 61% 18%, #f69ca1 0 66%, #fff0b0 69% 84%, transparent 87%),
+    radial-gradient(ellipse 16px 21px at 82% 34%, #f58f94 0 66%, #fff0b0 69% 84%, transparent 87%),
+    radial-gradient(ellipse 42px 36px at 50% 72%, var(--paw-pad-top) 0 57%, var(--paw-pad-bottom) 60% 70%, #fff0b0 73% 84%, transparent 87%) !important;
+}
+
+/* Piccolo riflesso lucido sul cuscinetto centrale. */
+.level-stop button::after {
+  content: "" !important;
+  position: absolute !important;
+  z-index: -1 !important;
+  left: 38px !important;
+  top: 68px !important;
+  width: 32px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: #ffffff66 !important;
+  transform: rotate(-8deg) !important;
+}
+
+.level-stop button img {
+  width: 48px !important;
+  height: 48px !important;
+  transform: translateY(3px) !important;
+  filter: drop-shadow(0 4px 2px #34454a66) !important;
+}
+
+.level-stop.locked button {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: grayscale(.72) saturate(.55) drop-shadow(0 8px 0 #7c765f) drop-shadow(0 12px 12px #263f2b55) !important;
+}
+
+/* Evidenzia automaticamente l'ultimo livello sbloccato prima del primo bloccato. */
+.level-stop:not(.locked):has(+ .level-stop.locked) button,
+.level-stop:not(.locked):last-of-type button {
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 5px #fff1a8aa, 0 0 0 10px #fff7c852, 0 0 28px 12px #fff0a066 !important;
+  animation: pawPulse 1.55s ease-in-out infinite !important;
+}
+
+@keyframes pawPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 8px 0 #a86f34) drop-shadow(0 12px 12px #18372355) brightness(1); }
+  50% { transform: scale(1.07); filter: drop-shadow(0 8px 0 #a86f34) drop-shadow(0 13px 15px #18372366) brightness(1.1); }
+}
+
+/* Disattiva la vecchia animazione circolare: usa pawPulse. */
+.level-stop:not(.locked):last-of-type button {
+  animation-name: pawPulse !important;
+}
+
+@media (max-width: 370px) {
+  .wardrobe-cabinet {
+    padding-left: 11px !important;
+    padding-right: 11px !important;
+  }
+
+  .wardrobe-cabinet::before {
+    left: 78px !important;
+    font-size: 18px !important;
+  }
+
+  .wardrobe-cabinet::after {
+    width: 66px !important;
+    height: 66px !important;
+  }
+
+  .wardrobe-filters {
+    gap: 6px !important;
+    padding: 7px !important;
+  }
+
+  .wardrobe-filters button {
+    min-height: 82px !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
+
+  .wardrobe-filters span {
+    font-size: 29px !important;
+  }
+
+  .wardrobe-filters small {
+    font-size: 9px !important;
+  }
+
+  .wardrobe-slot {
+    grid-template-columns: 80px minmax(0, 1fr) !important;
+  }
+
+  .wardrobe-slot-icon {
+    width: 75px !important;
+    height: 75px !important;
+    font-size: 48px !important;
+  }
+
+  .wardrobe-slot-copy strong {
+    font-size: 17px !important;
+  }
+
+  .wardrobe-slot-copy small {
+    font-size: 11px !important;
+  }
+
+  .level-stop button {
+    width: 96px !important;
+    height: 105px !important;
+    flex-basis: 96px !important;
+    font-size: 38px !important;
+    padding-top: 38px !important;
+  }
+
+  .level-stop button::before {
+    background:
+      radial-gradient(ellipse 14px 19px at 18% 34%, #f58f94 0 66%, #fff0b0 69% 84%, transparent 87%),
+      radial-gradient(ellipse 15px 21px at 39% 18%, #f69ca1 0 66%, #fff0b0 69% 84%, transparent 87%),
+      radial-gradient(ellipse 15px 21px at 61% 18%, #f69ca1 0 66%, #fff0b0 69% 84%, transparent 87%),
+      radial-gradient(ellipse 14px 19px at 82% 34%, #f58f94 0 66%, #fff0b0 69% 84%, transparent 87%),
+      radial-gradient(ellipse 38px 33px at 50% 72%, var(--paw-pad-top) 0 57%, var(--paw-pad-bottom) 60% 70%, #fff0b0 73% 84%, transparent 87%) !important;
+  }
+}
