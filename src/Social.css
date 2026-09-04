@@ -1,4 +1,13 @@
 /* Social layer: richieste amicizia, amici e posizione amici sulla mappa. */
+
+/* La home deve restare pulita: eventuali chip amici sono visibili solo nella mappa. */
+.home-screen .social-map-strip,
+.home-screen .social-map-chip,
+.home-screen .social-friend-markers,
+.home-screen .social-friend-marker {
+  display: none !important;
+}
+
 .social-selectable {
   position: relative;
   cursor: pointer;
