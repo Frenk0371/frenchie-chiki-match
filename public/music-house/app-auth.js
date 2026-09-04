@@ -23,10 +23,6 @@
     };
   }
 
-  function emitAuthChange() {
-    window.dispatchEvent(new CustomEvent('music-house-auth-change', { detail: { user: mhUser } }));
-  }
-
   function setAccountError(message = '') {
     if (!accountError) return;
     accountError.textContent = message;
@@ -135,7 +131,6 @@
       await ensureProfile(mhUser);
       await loadCloudState(mhUser);
       refreshAccountUI();
-      emitAuthChange();
       accountModal.hidden = true;
       toastMessage(`Ciao ${displayNameFor(mhUser)}`);
     } catch (error) {
@@ -170,7 +165,6 @@
         await ensureProfile(mhUser, name);
         await loadCloudState(mhUser);
         refreshAccountUI();
-        emitAuthChange();
         accountModal.hidden = true;
         toastMessage('Account creato');
       } else {
@@ -186,7 +180,6 @@
   async function signOutMusicHouse() {
     if (!mhSupabase) return;
     await saveCloudState().catch(() => {});
-    if (typeof disconnectSpotifyPlayer === 'function') disconnectSpotifyPlayer();
     await mhSupabase.auth.signOut();
     mhUser = null;
     suppressCloudSave = true;
@@ -194,7 +187,6 @@
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
     suppressCloudSave = false;
     refreshAccountUI();
-    emitAuthChange();
     accountModal.hidden = true;
     render();
     if (typeof updatePlayerUI === 'function') updatePlayerUI();
@@ -204,7 +196,6 @@
   function openAccountModal() {
     setAccountError();
     refreshAccountUI();
-    if (typeof refreshSpotifyConnectionUI === 'function') refreshSpotifyConnectionUI().catch(() => {});
     accountModal.hidden = false;
   }
 
@@ -226,7 +217,6 @@
       await ensureProfile(mhUser);
       await loadCloudState(mhUser).catch(() => {});
     }
-    emitAuthChange();
 
     mhSupabase.auth.onAuthStateChange(async (event, session) => {
       const nextUser = session?.user || null;
@@ -237,7 +227,6 @@
         await ensureProfile(mhUser);
         await loadCloudState(mhUser).catch(() => {});
       }
-      emitAuthChange();
     });
   }
 
