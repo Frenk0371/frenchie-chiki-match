@@ -58,7 +58,7 @@ export type WorldConfig = {
 
 type ExtraObstacleKey = 'chainCells' | 'woodCells' | 'grassCells' | 'snowCells' | 'rockCells' | 'mudCells';
 
-const world = (
+const makeWorld = (
   id: number,
   name: string,
   subtitle: string,
@@ -73,42 +73,39 @@ const world = (
 });
 
 export const worlds: WorldConfig[] = [
-  world(1, 'Giardino Fiorito', 'Impara, raccogli e scopri i primi ostacoli', 'garden'),
-  world(2, 'Valle Gelata', 'Ghiaccio, neve e mosse sempre più preziose', 'ice'),
-  world(3, 'Castello di Chiki', 'Casse, legno e missioni a più obiettivi', 'castle'),
-  world(4, 'Bosco Incantato', 'Erba, catene e combinazioni sempre più ragionate', 'night'),
-  world(5, 'Vulcano di Chiki', 'Rocce, fango e ostacoli resistenti', 'volcano'),
-  world(6, 'Prato delle Farfalle', 'Erba alta, fiori e prime catene', 'garden'),
-  world(7, 'Caverna di Cristallo', 'Ghiaccio, neve e cristalli resistenti', 'ice'),
-  world(8, 'Villaggio di Legno', 'Tavole, casse e passaggi stretti', 'castle'),
-  world(9, 'Foresta delle Liane', 'Erba, catene e missioni intrecciate', 'night'),
-  world(10, 'Montagna Innevata', 'Neve profonda e ostacoli a più strati', 'ice'),
-  world(11, 'Ponte delle Catene', 'Catene rinforzate e poche mosse preziose', 'castle'),
-  world(12, 'Palude Frizzante', 'Fango, erba e combinazioni imprevedibili', 'night'),
-  world(13, 'Lago delle Ninfee', 'Raccolte multiple e sentieri verdi', 'garden'),
-  world(14, 'Miniera di Chiki', 'Legno, rocce e casse nella miniera', 'castle'),
-  world(15, 'Tempesta Bianca', 'Neve, ghiaccio e barriere sempre più dure', 'ice'),
-  world(16, 'Giungla Segreta', 'Erba fitta, fango e catene nascoste', 'night'),
-  world(17, 'Fortezza delle Rocce', 'Rocce dure e barriere combinate', 'castle'),
-  world(18, 'Giardino delle Stelle', 'Combo, raccolte e ostacoli misti', 'garden'),
-  world(19, 'Gola del Vento', 'Catene, rocce e passaggi difficili', 'night'),
-  world(20, 'Picco delle Banane', 'Sfide dure con più occasioni di trovare banane', 'garden'),
-  world(21, 'Grotte di Lava', 'Rocce, legno e fango a più strati', 'volcano'),
-  world(22, 'Regno di Neve', 'Neve profonda, ghiaccio e catene', 'ice'),
-  world(23, 'Torre delle Catene', 'Barriere rinforzate e obiettivi multipli', 'castle'),
-  world(24, 'Bosco delle Meraviglie', 'Quasi tutti gli ostacoli si combinano', 'night'),
-  world(25, 'Corona di Chiki', 'La sfida finale con tutti gli ostacoli', 'volcano'),
+  makeWorld(1, 'Giardino Fiorito', 'Impara, raccogli e scopri i primi ostacoli', 'garden'),
+  makeWorld(2, 'Valle Gelata', 'Ghiaccio, neve e mosse sempre più preziose', 'ice'),
+  makeWorld(3, 'Castello di Chiki', 'Casse, legno e missioni a più obiettivi', 'castle'),
+  makeWorld(4, 'Bosco Incantato', 'Erba, catene e combinazioni sempre più ragionate', 'night'),
+  makeWorld(5, 'Vulcano di Chiki', 'Rocce, fango e ostacoli resistenti', 'volcano'),
+  makeWorld(6, 'Prato delle Farfalle', 'Erba alta, fiori e prime catene', 'garden'),
+  makeWorld(7, 'Caverna di Cristallo', 'Ghiaccio, neve e cristalli resistenti', 'ice'),
+  makeWorld(8, 'Villaggio di Legno', 'Tavole, casse e passaggi stretti', 'castle'),
+  makeWorld(9, 'Foresta delle Liane', 'Erba, catene e missioni intrecciate', 'night'),
+  makeWorld(10, 'Montagna Innevata', 'Neve profonda e ostacoli a più strati', 'ice'),
+  makeWorld(11, 'Ponte delle Catene', 'Catene rinforzate e poche mosse preziose', 'castle'),
+  makeWorld(12, 'Palude Frizzante', 'Fango, erba e combinazioni imprevedibili', 'night'),
+  makeWorld(13, 'Lago delle Ninfee', 'Raccolte multiple e sentieri verdi', 'garden'),
+  makeWorld(14, 'Miniera di Chiki', 'Legno, rocce e casse nella miniera', 'castle'),
+  makeWorld(15, 'Tempesta Bianca', 'Neve, ghiaccio e barriere sempre più dure', 'ice'),
+  makeWorld(16, 'Giungla Segreta', 'Erba fitta, fango e catene nascoste', 'night'),
+  makeWorld(17, 'Fortezza delle Rocce', 'Rocce dure e barriere combinate', 'castle'),
+  makeWorld(18, 'Giardino delle Stelle', 'Combo, raccolte e ostacoli misti', 'garden'),
+  makeWorld(19, 'Gola del Vento', 'Catene, rocce e passaggi difficili', 'night'),
+  makeWorld(20, 'Picco delle Banane', 'Sfide dure con più occasioni di trovare banane', 'garden'),
+  makeWorld(21, 'Grotte di Lava', 'Rocce, legno e fango a più strati', 'volcano'),
+  makeWorld(22, 'Regno di Neve', 'Neve profonda, ghiaccio e catene', 'ice'),
+  makeWorld(23, 'Torre delle Catene', 'Barriere rinforzate e obiettivi multipli', 'castle'),
+  makeWorld(24, 'Bosco delle Meraviglie', 'Quasi tutti gli ostacoli si combinano', 'night'),
+  makeWorld(25, 'Corona di Chiki', 'La sfida finale con tutti gli ostacoli', 'volcano'),
 ];
 
-const ALL_POSITIONS: Array<[number, number]> = [];
-for (let rowIndex = 0; rowIndex < 8; rowIndex++) {
-  for (let colIndex = 0; colIndex < 7; colIndex++) ALL_POSITIONS.push([rowIndex, colIndex]);
+const POSITIONS: Array<[number, number]> = [];
+for (let row = 0; row < 8; row++) {
+  for (let col = 0; col < 7; col++) POSITIONS.push([row, col]);
 }
 
-const keyOf = (row: number, col: number) => `${row}:${col}`;
-
-const cellKeys = (cells: ObstacleCellConfig[] = []) =>
-  new Set(cells.map((cell) => keyOf(cell.row, cell.col)));
+const cellKey = (row: number, col: number) => `${row}:${col}`;
 
 const spreadCells = (
   seed: number,
@@ -118,12 +115,12 @@ const spreadCells = (
 ): ObstacleCellConfig[] => {
   const result: ObstacleCellConfig[] = [];
   const used = new Set(occupied);
-  let cursor = Math.abs(seed * 17 + 29) % ALL_POSITIONS.length;
+  let cursor = Math.abs(seed * 17 + 29) % POSITIONS.length;
   let guard = 0;
 
-  while (result.length < Math.min(count, ALL_POSITIONS.length - used.size) && guard < 500) {
-    const [row, col] = ALL_POSITIONS[cursor % ALL_POSITIONS.length];
-    const key = keyOf(row, col);
+  while (result.length < Math.min(count, POSITIONS.length - used.size) && guard < 500) {
+    const [row, col] = POSITIONS[cursor % POSITIONS.length];
+    const key = cellKey(row, col);
     if (!used.has(key)) {
       result.push({ row, col, hits });
       used.add(key);
@@ -163,11 +160,18 @@ const WORLD_OBSTACLES: Record<number, ExtraObstacleKey[]> = {
   25: ['grassCells', 'snowCells', 'chainCells', 'woodCells', 'rockCells', 'mudCells'],
 };
 
-const levelNames = [
+const LEVEL_NAMES = [
   'Prime mosse', 'Pioggia di punti', 'Raccolta verde', 'Doppia raccolta', 'Sfida di Chiki',
   'Gelo leggero', 'Sentiero gelato', 'Trappola nascosta', 'Casse sul percorso', 'Prova del mondo',
   'Passaggio segreto', 'Raccolta difficile', 'Barriera rinforzata', 'Labirinto di Chiki', 'Corsa contro le mosse',
   'Fortezza', 'Doppia barriera', 'Tempesta', 'Sfida estrema', 'Finale del mondo',
+];
+
+const OBJECTIVES: LevelObjective[] = [
+  'score', 'score', 'collect', 'collectDouble', 'score',
+  'ice', 'iceCollect', 'scoreIce', 'crate', 'crateCollect',
+  'iceCrate', 'collectDouble', 'scoreCrate', 'iceCrateCollect', 'score',
+  'ice', 'crateCollect', 'iceCrate', 'scoreIce', 'iceCrateCollect',
 ];
 
 const boostersFor = (level: number): BoosterConfig[] => {
@@ -188,23 +192,13 @@ const boostersFor = (level: number): BoosterConfig[] => {
   ];
 };
 
-const objectiveFor = (local: number): LevelObjective => {
-  const sequence: LevelObjective[] = [
-    'score', 'score', 'collect', 'collectDouble', 'score',
-    'ice', 'iceCollect', 'scoreIce', 'crate', 'crateCollect',
-    'iceCrate', 'collectDouble', 'scoreCrate', 'iceCrateCollect', 'score',
-    'ice', 'crateCollect', 'iceCrate', 'scoreIce', 'iceCrateCollect',
-  ];
-  return sequence[local - 1];
-};
-
 const needsIce = (objective: LevelObjective) =>
   objective === 'ice' || objective === 'iceCollect' || objective === 'scoreIce' || objective === 'iceCrate' || objective === 'iceCrateCollect';
 
 const needsCrates = (objective: LevelObjective) =>
   objective === 'crate' || objective === 'crateCollect' || objective === 'scoreCrate' || objective === 'iceCrate' || objective === 'iceCrateCollect';
 
-const numberOfExtraKinds = (worldId: number) => {
+const extraKindsForWorld = (worldId: number) => {
   if (worldId <= 3) return 1;
   if (worldId <= 7) return 2;
   if (worldId <= 13) return 3;
@@ -213,7 +207,7 @@ const numberOfExtraKinds = (worldId: number) => {
   return 6;
 };
 
-const hitStrength = (worldId: number, local: number, kind: ExtraObstacleKey) => {
+const hitsFor = (worldId: number, local: number, kind: ExtraObstacleKey) => {
   const boss = local === 10 || local === 20;
   if (worldId <= 4) return 1;
   if (worldId <= 9) return boss ? 2 : 1;
@@ -230,10 +224,10 @@ const movesFor = (worldId: number, local: number) => {
   return Math.max(14, 25 - worldPressure - localPressure + bossBonus);
 };
 
-const targetFor = (level: number, worldId: number, local: number) =>
+const scoreTargetFor = (level: number, worldId: number, local: number) =>
   3500 + level * 95 + worldId * 180 + (local === 20 ? 1800 : 0);
 
-const collectFor = (level: number, local: number) =>
+const collectTargetFor = (level: number, local: number) =>
   7 + Math.floor(level / 28) + Math.floor(local / 5);
 
 const bananaChanceFor = (worldId: number, level: number) => {
@@ -245,69 +239,71 @@ const bananaChanceFor = (worldId: number, level: number) => {
 const makeLevel = (level: number): LevelConfig => {
   const worldId = Math.ceil(level / 20);
   const local = ((level - 1) % 20) + 1;
-  const objective = objectiveFor(local);
-  const targetScore = objective === 'score' || objective === 'scoreIce' || objective === 'scoreCrate'
-    ? targetFor(level, worldId, local)
-    : 0;
+  const objective = OBJECTIVES[local - 1];
+  const hasScoreGoal = objective === 'score' || objective === 'scoreIce' || objective === 'scoreCrate';
 
   const config: LevelConfig = {
     level,
     world: worldId,
-    name: local === 20 ? `Finale ${worlds[worldId - 1].name}` : levelNames[local - 1],
+    name: local === 20 ? `Finale ${worlds[worldId - 1].name}` : LEVEL_NAMES[local - 1],
     moves: movesFor(worldId, local),
-    targetScore,
+    targetScore: hasScoreGoal ? scoreTargetFor(level, worldId, local) : 0,
     objective,
     bananaChance: bananaChanceFor(worldId, level),
     boosters: boostersFor(level),
   };
 
-  const amount = collectFor(level, local);
+  const collectAmount = collectTargetFor(level, local);
   if (objective === 'collect' || objective === 'iceCollect' || objective === 'crateCollect' || objective === 'iceCrateCollect') {
     config.collectType = (worldId + local) % 6;
-    config.collectAmount = amount;
+    config.collectAmount = collectAmount;
   }
   if (objective === 'collectDouble') {
     config.collectType = (worldId + local) % 6;
-    config.collectAmount = amount;
+    config.collectAmount = collectAmount;
     config.collectType2 = (worldId + local + 3) % 6;
-    config.collectAmount2 = Math.max(5, amount - 2);
+    config.collectAmount2 = Math.max(5, collectAmount - 2);
   }
 
   const occupied = new Set<string>();
 
   if (needsIce(objective)) {
-    const iceCount = Math.min(14, 5 + Math.floor(worldId / 4) + (local >= 15 ? 2 : 0));
-    const iceHits = worldId >= 15 ? 2 : worldId >= 8 && (local === 10 || local === 20) ? 2 : 1;
-    config.iceCells = spreadCells(level + 11, iceCount, iceHits, occupied);
-    config.iceCells.forEach((cell) => occupied.add(keyOf(cell.row, cell.col)));
+    const count = Math.min(14, 5 + Math.floor(worldId / 4) + (local >= 15 ? 2 : 0));
+    const hits = worldId >= 15 ? 2 : worldId >= 8 && (local === 10 || local === 20) ? 2 : 1;
+    config.iceCells = spreadCells(level + 11, count, hits, occupied);
+    config.iceCells.forEach((cell) => occupied.add(cellKey(cell.row, cell.col)));
   }
 
   if (needsCrates(objective)) {
-    const crateCount = Math.min(13, 5 + Math.floor(worldId / 5) + (local >= 16 ? 2 : 0));
-    const crateHits = worldId >= 18 ? 2 : worldId >= 10 && local === 20 ? 2 : 1;
-    config.crateCells = spreadCells(level + 37, crateCount, crateHits, occupied);
-    config.crateCells.forEach((cell) => occupied.add(keyOf(cell.row, cell.col)));
+    const count = Math.min(13, 5 + Math.floor(worldId / 5) + (local >= 16 ? 2 : 0));
+    const hits = worldId >= 18 ? 2 : worldId >= 10 && local === 20 ? 2 : 1;
+    config.crateCells = spreadCells(level + 37, count, hits, occupied);
+    config.crateCells.forEach((cell) => occupied.add(cellKey(cell.row, cell.col)));
   }
 
   const pool = WORLD_OBSTACLES[worldId] ?? [];
-  const unlockedPool = pool.filter((kind) => {
+  const available = pool.filter((kind) => {
     if (worldId === 1 && kind === 'grassCells') return local >= 8;
     if (worldId === 2 && kind === 'snowCells') return local >= 2;
     if (worldId === 3 && kind === 'woodCells') return local >= 3;
     return true;
   });
 
-  const desiredKinds = Math.min(numberOfExtraKinds(worldId), unlockedPool.length);
-  const rotated = unlockedPool.length === 0
-    ? []
-    : [...unlockedPool.slice((local - 1) % unlockedPool.length), ...unlockedPool.slice(0, (local - 1) % unlockedPool.length)];
+  const start = available.length > 0 ? (local - 1) % available.length : 0;
+  const rotated = available.length > 0
+    ? [...available.slice(start), ...available.slice(0, start)]
+    : [];
 
-  rotated.slice(0, desiredKinds).forEach((kind, index) => {
+  rotated.slice(0, Math.min(extraKindsForWorld(worldId), available.length)).forEach((kind, index) => {
     const baseCount = 3 + Math.floor(worldId / 5) + Math.floor((local - 1) / 8);
     const bossExtra = local === 10 || local === 20 ? 2 : 0;
-    const count = Math.min(8, baseCount + bossExtra);
-    const cells = spreadCells(level * (index + 3) + worldId, count, hitStrength(worldId, local, kind), occupied);
-    cells.forEach((cell) => occupied.add(keyOf(cell.row, cell.col)));
+    const cells = spreadCells(
+      level * (index + 3) + worldId,
+      Math.min(8, baseCount + bossExtra),
+      hitsFor(worldId, local, kind),
+      occupied,
+    );
+    cells.forEach((cell) => occupied.add(cellKey(cell.row, cell.col)));
     config[kind] = cells;
   });
 
