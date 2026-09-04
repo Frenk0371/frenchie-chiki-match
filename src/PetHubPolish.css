@@ -1,0 +1,369 @@
+/* Final polish for Chiki: wearable layers, bark reaction and chunkier cartoon UI. */
+.pet-hub {
+  background:
+    radial-gradient(circle at 14% 18%, #ffffff45 0 1.5%, transparent 1.9%),
+    radial-gradient(circle at 86% 28%, #fff6a14a 0 2%, transparent 2.5%),
+    linear-gradient(#74d9ff 0 24%, #73dc59 24% 100%);
+}
+
+.pet-hub-tabs button,
+.shop-kind-switch button,
+.shop-categories button,
+.hub-section-title > button,
+.shop-card > button,
+.celebration-card > button {
+  border-radius: 28px !important;
+  font-family: "Lilita One", "Fredoka", sans-serif !important;
+  letter-spacing: .35px;
+}
+
+.pet-hub-tabs button {
+  min-height: 68px !important;
+  font-size: 15px !important;
+  border-width: 5px !important;
+  box-shadow:
+    inset 0 6px #89a9c8,
+    inset 0 -5px #203d57,
+    0 7px 0 #132a3e,
+    0 11px 15px #0c1f3144 !important;
+}
+
+.pet-hub-tabs button.active {
+  box-shadow:
+    inset 0 6px #e4b3f6,
+    inset 0 -5px #65278e,
+    0 7px 0 #4b216a,
+    0 12px 17px #3d175255 !important;
+}
+
+.chiki-room {
+  height: 470px !important;
+  border-radius: 44px !important;
+  border-width: 9px !important;
+  box-shadow:
+    inset 0 8px #ffffffa0,
+    inset 0 -8px #d39439,
+    0 12px 0 #8b5a28,
+    0 22px 34px #20321e55 !important;
+}
+
+.room-status b,
+.room-status span {
+  font-size: 15px !important;
+  padding: 9px 13px !important;
+  border-radius: 19px !important;
+}
+
+.room-chiki {
+  width: 254px !important;
+  bottom: 38px !important;
+  overflow: visible !important;
+}
+
+.room-chiki.barking {
+  animation: chikiBarkBounce .46s cubic-bezier(.2, 1.55, .45, 1) both !important;
+}
+
+.room-chiki img,
+.mini-chiki-wrap img,
+.celebration-chiki img {
+  position: relative;
+  z-index: 5;
+}
+
+.room-hint {
+  font-size: 9px !important;
+  padding: 5px 11px !important;
+  border-radius: 13px !important;
+}
+
+.room-reaction {
+  left: 56% !important;
+  top: 110px !important;
+  font-family: "Lilita One", "Fredoka", sans-serif;
+  font-size: 19px !important;
+  border-radius: 22px 22px 22px 6px !important;
+  padding: 10px 14px !important;
+}
+
+/* Wearables are now real overlay pieces instead of floating emoji in front of Chiki. */
+.wearable,
+.profile-wearable,
+.celebration-wearable {
+  position: absolute;
+  z-index: 14;
+  pointer-events: none;
+  display: block;
+  filter: drop-shadow(0 5px 3px #0004);
+}
+
+.wearable b,
+.profile-wearable b,
+.celebration-wearable b {
+  display: none;
+}
+
+/* Outfit: soft cartoon shirt fitted to the chest. */
+.wearable-outfit,
+.profile-wearable-outfit,
+.celebration-wearable-outfit {
+  left: 50%;
+  bottom: 15.5%;
+  width: 45%;
+  height: 28%;
+  transform: translateX(-50%);
+  border: 4px solid #164e86;
+  border-radius: 28% 28% 38% 38%;
+  background: linear-gradient(#7bc8ff 0 14%, #4d9fe1 15% 62%, #2d7aba 63%);
+  box-shadow: inset 0 5px #bde7ff, inset 0 -5px #1d639c;
+}
+
+.wearable-outfit::before,
+.wearable-outfit::after,
+.profile-wearable-outfit::before,
+.profile-wearable-outfit::after,
+.celebration-wearable-outfit::before,
+.celebration-wearable-outfit::after {
+  content: "";
+  position: absolute;
+  top: 12%;
+  width: 34%;
+  height: 38%;
+  border: 4px solid #164e86;
+  background: inherit;
+  border-radius: 50% 50% 38% 38%;
+  z-index: -1;
+}
+.wearable-outfit::before,
+.profile-wearable-outfit::before,
+.celebration-wearable-outfit::before { left: -23%; transform: rotate(22deg); }
+.wearable-outfit::after,
+.profile-wearable-outfit::after,
+.celebration-wearable-outfit::after { right: -23%; transform: rotate(-22deg); }
+
+.piece-outfit_rain { background: linear-gradient(#ffd85a 0 14%, #f4b92f 15% 62%, #ce8915 63%); border-color: #84550d; box-shadow: inset 0 5px #fff0a4, inset 0 -5px #a96a0a; }
+.piece-outfit_sailor { background: linear-gradient(#80c7ff 0 14%, #2f6fb6 15% 58%, #173d78 59%); border-color: #102d5b; }
+.piece-outfit_royal { background: linear-gradient(#d69cf7 0 14%, #8f45c8 15% 58%, #5b278e 59%); border-color: #3b145f; box-shadow: inset 0 5px #edc9ff, inset 0 -5px #4c1c79; }
+.piece-outfit_wizard { background: linear-gradient(#9e83ff 0 14%, #6549d7 15% 58%, #3d2a9a 59%); border-color: #291d6f; }
+.piece-outfit_explorer { background: linear-gradient(#a7d985 0 14%, #6ea052 15% 58%, #456834 59%); border-color: #314c25; }
+.piece-outfit_winter { background: linear-gradient(#ff8a8a 0 14%, #d84d59 15% 58%, #9d2d3a 59%); border-color: #71212a; }
+
+/* Hats sit on the head. */
+.wearable-hat,
+.profile-wearable-hat,
+.celebration-wearable-hat {
+  left: 50%;
+  top: -4%;
+  width: 45%;
+  height: 18%;
+  transform: translateX(-50%) rotate(-3deg);
+  border: 4px solid #173d70;
+  border-radius: 55% 55% 28% 28%;
+  background: linear-gradient(#6ec6ff, #2d86d1 62%, #1b5f9f 63%);
+  box-shadow: inset 0 5px #b7e6ff, inset 0 -4px #174e85;
+}
+.wearable-hat::after,
+.profile-wearable-hat::after,
+.celebration-wearable-hat::after {
+  content: "";
+  position: absolute;
+  right: -22%;
+  bottom: -12%;
+  width: 55%;
+  height: 26%;
+  border-radius: 60%;
+  background: #2d86d1;
+  border: 4px solid #173d70;
+}
+
+.piece-hat_cowboy { background: linear-gradient(#dca76c, #9a6332 62%, #75451f 63%); border-color: #5c3518; }
+.piece-hat_top { background: linear-gradient(#4a4b57, #22242c 62%, #111318 63%); border-color: #090b0f; border-radius: 20% 20% 8% 8%; height: 23%; top: -8%; }
+.piece-hat_crown { background: linear-gradient(#fff087, #f7c928 62%, #dc9712 63%); border-color: #9d6410; clip-path: polygon(0 100%, 8% 28%, 28% 55%, 50% 8%, 72% 55%, 92% 28%, 100% 100%); border-radius: 0; height: 24%; top: -10%; }
+.piece-hat_crown::after { display: none; }
+.piece-hat_party { background: linear-gradient(#ff87d0, #9f54df 62%, #5f2fa7 63%); border-color: #49227e; clip-path: polygon(50% 0, 100% 100%, 0 100%); border-radius: 0; height: 27%; top: -11%; }
+.piece-hat_party::after { display: none; }
+.piece-hat_chef { background: linear-gradient(#fff, #f4f4f4 62%, #d9e0e7 63%); border-color: #a6b2bd; height: 24%; top: -9%; border-radius: 46% 46% 18% 18%; }
+.piece-hat_chef::after { display: none; }
+
+/* Glasses sit across the eyes. */
+.wearable-glasses,
+.profile-wearable-glasses,
+.celebration-wearable-glasses {
+  left: 50%;
+  top: 31%;
+  width: 42%;
+  height: 13%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent 43%, #2a2431 43% 57%, transparent 57%);
+}
+.wearable-glasses::before,
+.wearable-glasses::after,
+.profile-wearable-glasses::before,
+.profile-wearable-glasses::after,
+.celebration-wearable-glasses::before,
+.celebration-wearable-glasses::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 42%;
+  height: 100%;
+  border: 5px solid #2a2431;
+  border-radius: 45%;
+  background: linear-gradient(#8ee6ff99, #2679c5aa);
+  box-shadow: inset 0 4px #d9f7ff88;
+}
+.wearable-glasses::before,
+.profile-wearable-glasses::before,
+.celebration-wearable-glasses::before { left: 0; }
+.wearable-glasses::after,
+.profile-wearable-glasses::after,
+.celebration-wearable-glasses::after { right: 0; }
+.piece-glasses_star::before,
+.piece-glasses_star::after { border-color: #f4b827; background: linear-gradient(#fff099aa, #e980d7bb); transform: rotate(5deg); }
+
+/* Collars hug the neck. */
+.wearable-collar,
+.profile-wearable-collar,
+.celebration-wearable-collar {
+  left: 50%;
+  top: 49%;
+  width: 38%;
+  height: 9%;
+  transform: translateX(-50%);
+  border: 4px solid #7c211f;
+  border-radius: 50%;
+  background: linear-gradient(#f25c52, #bd302d 62%, #8f211f 63%);
+  box-shadow: inset 0 4px #ff9f94;
+}
+.wearable-collar::after,
+.profile-wearable-collar::after,
+.celebration-wearable-collar::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: 18%;
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 3px solid #a66b10;
+  background: linear-gradient(#ffe67d, #e2a51d);
+  box-shadow: inset 0 2px #fff2aa;
+}
+.piece-collar_blue { background: linear-gradient(#66c7ff, #3287d3 62%, #225e9b 63%); border-color: #184774; box-shadow: inset 0 4px #a9e4ff; }
+.piece-collar_gold { background: linear-gradient(#ffe883, #e7b324 62%, #b77a10 63%); border-color: #80510b; box-shadow: inset 0 4px #fff3b0; }
+
+/* Cartoon room objects: larger and with soft toy-like presentation. */
+.room-object {
+  display: grid;
+  place-items: center;
+  min-width: 72px;
+  min-height: 72px;
+  border-radius: 28px;
+  filter: drop-shadow(0 8px 5px #0004) !important;
+}
+.room-object b {
+  display: block;
+  line-height: 1;
+  filter: saturate(1.18) contrast(1.03);
+}
+.room-bed { left: 12px !important; bottom: 38px !important; font-size: 106px !important; }
+.room-bowl { right: 17px !important; bottom: 44px !important; font-size: 80px !important; }
+.room-toy { right: 102px !important; bottom: 52px !important; font-size: 64px !important; }
+.room-lamp { right: 21px !important; top: 62px !important; font-size: 90px !important; }
+.room-decor { left: 19px !important; top: 82px !important; font-size: 88px !important; }
+.room-rug { font-size: 108px !important; }
+
+.hub-section-title small { font-size: 14px !important; }
+.hub-section-title strong { font-size: 33px !important; }
+.hub-section-title > button {
+  min-width: 120px !important;
+  padding: 14px 17px 15px !important;
+  font-size: 19px !important;
+  border-width: 5px !important;
+  box-shadow: inset 0 6px #b7f294, inset 0 -5px #2d9625, 0 8px 0 #26771f, 0 12px 16px #1d5b1944 !important;
+}
+
+.collection-item,
+.shop-card {
+  border-radius: 34px !important;
+  border-width: 6px !important;
+}
+.collection-item {
+  min-height: 166px !important;
+  grid-template-columns: 102px 1fr !important;
+  padding: 14px !important;
+}
+.collection-item strong { font-size: 18px !important; }
+.collection-item small { font-size: 11px !important; }
+
+.cartoon-item-art {
+  width: 126px !important;
+  height: 118px !important;
+  border-radius: 36px !important;
+  border-width: 6px !important;
+  box-shadow:
+    inset 0 7px #ffffffcc,
+    inset 0 -6px #5aa7c766,
+    0 7px 0 #4f8aa7,
+    0 11px 16px #23445d44 !important;
+}
+.cartoon-item-art b {
+  font-size: 68px !important;
+  transform: scale(1.06);
+  filter: drop-shadow(0 6px 3px #15334f4d) saturate(1.18);
+}
+.cartoon-item-art.compact {
+  width: 94px !important;
+  height: 90px !important;
+  border-radius: 28px !important;
+}
+.cartoon-item-art.compact b { font-size: 54px !important; }
+
+.shop-card > small { font-size: 11px !important; }
+.shop-card > strong { font-size: 21px !important; line-height: 1.03 !important; }
+.shop-card > button {
+  min-height: 62px !important;
+  font-size: 19px !important;
+  border-width: 5px !important;
+  box-shadow: inset 0 5px #b7f294, inset 0 -5px #2d9625, 0 7px 0 #26771f !important;
+}
+
+.mini-chiki-wrap,
+.celebration-chiki {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.celebration-card h2 {
+  font-size: clamp(34px, 9vw, 48px) !important;
+  line-height: .94 !important;
+}
+.celebration-chiki {
+  width: 245px !important;
+  margin-inline: auto;
+}
+.celebration-chiki img { width: 100% !important; }
+.celebration-card > strong { font-size: 31px !important; }
+.celebration-card > p { font-size: 17px !important; }
+.celebration-card > button {
+  min-height: 68px !important;
+  font-size: 27px !important;
+  border-width: 5px !important;
+}
+
+@keyframes chikiBarkBounce {
+  0% { transform: translateX(-50%) translateY(0) scale(1); }
+  22% { transform: translateX(-50%) translateY(-16px) scale(1.045) rotate(-2deg); }
+  48% { transform: translateX(-50%) translateY(0) scale(.99) rotate(2deg); }
+  72% { transform: translateX(-50%) translateY(-7px) scale(1.02); }
+  100% { transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@media (max-width: 390px) {
+  .chiki-room { height: 445px !important; }
+  .room-chiki { width: 238px !important; }
+  .cartoon-item-art { width: 112px !important; height: 106px !important; }
+  .collection-item { grid-template-columns: 88px 1fr !important; }
+  .hub-section-title strong { font-size: 30px !important; }
+}
