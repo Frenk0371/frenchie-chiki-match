@@ -1,113 +1,93 @@
   async function runSearch(query) {
     currentSearch = { query, tracks: [], artists: [], albums: [], loading: true, error: '', trackError: '' };
     renderSearchResults();
-
-    if (!mhUser) {
-      currentSearch.loading = false;
-      currentSearch.error = 'Accedi al tuo account Music House per cercare e ascoltare musica.';
-      renderSearchResults();
-      return;
-    }
-
     try {
-      if (!spotifyConnection?.connected) {
-        await refreshSpotifyConnectionUI().catch(() => {});
-      }
-      if (!spotifyConnection?.configured) throw new Error('Spotify è pronto nell’app, ma manca ancora la configurazione iniziale del Client ID.');
-      if (!spotifyConnection?.connected) throw new Error('Collega il tuo account Spotify da Account per cercare e ascoltare musica.');
+      const results = await Promise.allSettled([
+        searchMusicBrainzArtists(query),
+        searchMusicBrainzAlbums(query),
+        searchYouTube(query),
+      ]);
 
-      const params = new URLSearchParams({
-        q: query,
-        type: 'track,artist,album',
-        limit: '20',
-      });
-      const data = await spotifyApi(`/search?${params}`);
-
-      currentSearch.tracks = (data?.tracks?.items || []).map(normalizeTrack).filter(track => track.id);
-      currentSearch.artists = (data?.artists?.items || []).map(normalizeArtist).filter(artist => artist.id);
-      currentSearch.albums = (data?.albums?.items || []).map(normalizeAlbum).filter(album => album.id);
+      currentSearch.artists = results[0].status === 'fulfilled' ? results[0].value : [];
+      currentSearch.albums = results[1].status === 'fulfilled' ? results[1].value : [];
+      currentSearch.tracks = results[2].status === 'fulfilled' ? results[2].value : [];
+      currentSearch.trackError = results[2].status === 'rejected'
+        ? (results[2].reason?.message || 'Riprova tra poco.')
+        : '';
       currentSearch.loading = false;
       currentSearch.error = '';
-      currentSearch.trackError = '';
     } catch (error) {
       currentSearch.loading = false;
-      currentSearch.error = error?.message || 'Ricerca Spotify non disponibile. Riprova tra poco.';
+      currentSearch.error = error?.message || 'Riprova tra poco.';
     }
     renderSearchResults();
   }
 
-  async function openArtist(id) {
-    const artist = currentSearch.artists.find(item => item.id === id) || { id, name: 'Artista', image: '' };
-    const avatar = artist.image
-      ? `<img src="${esc(artist.image)}" alt="${esc(artist.name)}" />`
-      : '♫';
+  async function searchYouTube(query) {
+    const response = await fetch(`/api/music-house/search?q=${encodeURIComponent(query)}`, {
+      headers: { Accept: 'application/json' },
+    });
+    const data = await response.json().catch(() => ({}));
 
-    content.innerHTML = `<div class="back-row"><button id="backToSearch">‹ Torna alla ricerca</button></div><section class="artist-hero"><div class="artist-avatar">${avatar}</div><div><h1>${esc(artist.name)}</h1><p>Discografia Spotify</p></div></section><div class="track-list"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>`;
-    $('#backToSearch').addEventListener('click', renderSearch);
-
-    try {
-      let url = `/artists/${encodeURIComponent(id)}/albums?include_groups=album,single&limit=50`;
-      const all = [];
-      let pages = 0;
-      while (url && pages < 4) {
-        const data = await spotifyApi(url);
-        all.push(...(data?.items || []));
-        url = data?.next || '';
-        pages++;
+    if (!response.ok) {
+      if (data?.code === 'SEARCH_NOT_CONFIGURED') {
+        throw new Error('La ricerca musicale non è ancora configurata sul server.');
       }
-
-      const seen = new Set();
-      const albums = all
-        .map(normalizeAlbum)
-        .filter(album => {
-          const key = `${album.title.toLowerCase()}|${album.year}|${album.type}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        })
-        .sort((a, b) => String(b.year).localeCompare(String(a.year)));
-
-      content.innerHTML = `<div class="back-row"><button id="backToSearch">‹ Torna alla ricerca</button></div><section class="artist-hero"><div class="artist-avatar">${avatar}</div><div><h1>${esc(artist.name)}</h1><p>${albums.length} pubblicazioni</p></div></section>${albums.length ? `<div class="grid">${albums.map(albumCard).join('')}</div>` : `<div class="empty"><b>Nessuna pubblicazione trovata</b></div>`}`;
-      $('#backToSearch').addEventListener('click', renderSearch);
-      wireDynamicActions(content);
-    } catch (error) {
-      content.innerHTML += `<div class="empty"><b>Discografia non disponibile</b>${esc(error?.message || 'Riprova tra poco.')}</div>`;
+      throw new Error(data?.error || 'Ricerca YouTube non disponibile.');
     }
+
+    return Array.isArray(data.tracks) ? data.tracks.map(normalizeTrack).filter(track => track.id) : [];
   }
 
-  async function openAlbum(albumId) {
-    const known = [...currentSearch.albums, ...state.favoriteAlbums].find(item => item.id === albumId);
-    content.innerHTML = `<div class="back-row"><button id="backToSearch">‹ Torna indietro</button></div><div class="track-list"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>`;
+  async function searchMusicBrainzArtists(query) {
+    const response = await fetch(`https://musicbrainz.org/ws/2/artist/?query=${encodeURIComponent(query)}&fmt=json&limit=12`);
+    if (!response.ok) return [];
+    const data = await response.json();
+    return (data.artists || []).map(item => ({ id: item.id, name: item.name, country: item.country || '', disambiguation: item.disambiguation || '' }));
+  }
+
+  async function searchMusicBrainzAlbums(query) {
+    const response = await fetch(`https://musicbrainz.org/ws/2/release-group/?query=${encodeURIComponent(query)}&fmt=json&limit=18`);
+    if (!response.ok) return [];
+    const data = await response.json();
+    return (data['release-groups'] || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      artist: item['artist-credit']?.map(a => a.name).join(', ') || 'Artista',
+      year: item['first-release-date']?.slice(0,4) || '',
+      type: item['primary-type'] || '',
+      cover: `https://coverartarchive.org/release-group/${item.id}/front-250`,
+    }));
+  }
+
+  async function openArtist(id) {
+    const artist = currentSearch.artists.find(item => item.id === id) || { id, name: 'Artista' };
+    content.innerHTML = `<div class="back-row"><button id="backToSearch">‹ Torna alla ricerca</button></div><section class="artist-hero"><div class="artist-avatar">♫</div><div><h1>${esc(artist.name)}</h1><p>Discografia</p></div></section><div class="track-list"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>`;
     $('#backToSearch').addEventListener('click', renderSearch);
-
     try {
-      const data = await spotifyApi(`/albums/${encodeURIComponent(albumId)}`);
-      const album = normalizeAlbum(data);
-      const tracks = (data?.tracks?.items || []).map(track => normalizeTrack({
-        ...track,
-        album: {
-          name: data.name,
-          images: data.images,
-        },
-      })).filter(track => track.id);
-
-      content.innerHTML = `
-        <div class="back-row"><button id="backToSearch">‹ Torna alla ricerca</button></div>
-        <section class="album-hero">
-          <img src="${esc(album.cover)}" alt="Copertina ${esc(album.title)}" />
-          <div><small>ALBUM</small><h1>${esc(album.title)}</h1><p>${esc(album.artist)}${album.year ? ` · ${esc(album.year)}` : ''} · ${tracks.length} brani</p></div>
-        </section>
-        ${tracks.length ? `<button class="primary-btn" id="playAlbumBtn">▶ Riproduci album</button><div class="track-list album-tracks">${tracks.map(track => trackRow(track)).join('')}</div>` : `<div class="empty"><b>Nessun brano disponibile</b></div>`}
-      `;
+      const response = await fetch(`https://musicbrainz.org/ws/2/release-group?artist=${encodeURIComponent(id)}&fmt=json&limit=100`);
+      const data = await response.json();
+      const albums = (data['release-groups'] || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        artist: artist.name,
+        year: item['first-release-date']?.slice(0,4) || '',
+        type: item['primary-type'] || '',
+        cover: `https://coverartarchive.org/release-group/${item.id}/front-250`,
+      })).sort((a,b) => String(b.year).localeCompare(String(a.year)));
+      content.innerHTML = `<div class="back-row"><button id="backToSearch">‹ Torna alla ricerca</button></div><section class="artist-hero"><div class="artist-avatar">♫</div><div><h1>${esc(artist.name)}</h1><p>${albums.length} pubblicazioni trovate</p></div></section>${albums.length ? `<div class="grid">${albums.map(albumCard).join('')}</div>` : `<div class="empty"><b>Nessuna pubblicazione trovata</b></div>`}`;
       $('#backToSearch').addEventListener('click', renderSearch);
-      $('#playAlbumBtn')?.addEventListener('click', () => playTrack(tracks[0], tracks, 0));
-      wireDynamicActions(content, tracks);
-    } catch (error) {
-      content.innerHTML = `<div class="back-row"><button id="backToSearch">‹ Torna alla ricerca</button></div><div class="empty"><b>Album non disponibile</b>${esc(error?.message || known?.title || 'Riprova tra poco.')}</div>`;
-      $('#backToSearch').addEventListener('click', renderSearch);
+      wireDynamicActions(content);
+    } catch {
+      content.innerHTML += `<div class="empty"><b>Discografia non disponibile</b>Riprova tra poco.</div>`;
     }
   }
 
   function searchAlbumOnYouTube(albumId) {
-    return openAlbum(albumId);
+    const album = [...currentSearch.albums, ...state.favoriteAlbums].find(item => item.id === albumId);
+    if (!album) return;
+    navigate('search');
+    searchTab = 'tracks';
+    $('#searchInput') && ($('#searchInput').value = `${album.artist} ${album.title}`);
+    runSearch(`${album.artist} ${album.title}`);
   }
