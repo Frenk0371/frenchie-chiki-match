@@ -111,3 +111,70 @@
     margin-top: -8px !important;
   }
 }
+
+/* Final logo pass: closer to the supplied reference without changing the rest of the Home. */
+.home-screen .reference-logo {
+  width: min(91vw, 482px) !important;
+  margin: -8px auto 7px !important;
+}
+
+/* Make the brown backing follow the lettering more closely. */
+.home-screen .reference-logo .logo-svg > g > path:nth-of-type(1),
+.home-screen .reference-logo .logo-svg > g > path:nth-of-type(2) {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleX(.88) scaleY(.95);
+}
+
+/* Bring both paws closer to CHIKI, matching the reference composition. */
+.home-screen .reference-logo .logo-svg .paw-mark {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleX(.9) translateY(-2px);
+}
+
+/* Give FRENCHIE a slightly fuller, softer presence. */
+.home-screen .reference-logo .logo-svg text:nth-of-type(1),
+.home-screen .reference-logo .logo-svg text:nth-of-type(2),
+.home-screen .reference-logo .logo-svg text:nth-of-type(3) {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleX(1.035) translateY(-3px);
+}
+
+/* MATCH is intentionally a little wider, as in the supplied logo. */
+.home-screen .reference-logo .logo-svg text:nth-of-type(7),
+.home-screen .reference-logo .logo-svg text:nth-of-type(8),
+.home-screen .reference-logo .logo-svg text:nth-of-type(9) {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleX(1.085);
+}
+
+.home-screen .brand-ribbon {
+  margin-top: 0 !important;
+}
+
+/* Keep the middle menu label readable and stop the trophy from crowding it. */
+.home-screen .main-menu button:nth-child(2) {
+  font-size: 12px !important;
+  letter-spacing: -0.35px !important;
+}
+
+.home-screen .main-menu button:nth-child(2) span {
+  height: 50px !important;
+}
+
+.home-screen .main-menu button:nth-child(2) span img {
+  width: 59px !important;
+  height: 59px !important;
+  transform: translateY(-3px);
+}
+
+@media (max-height: 760px) {
+  .home-screen .reference-logo {
+    width: min(88vw, 438px) !important;
+    margin-top: -9px !important;
+    margin-bottom: 5px !important;
+  }
+}
