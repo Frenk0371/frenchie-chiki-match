@@ -1,0 +1,160 @@
+.booster-shop-intro {
+  margin: 14px 0 16px;
+  padding: 16px 17px;
+  border: 5px solid #ffe58b;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #7040a0, #3b235d);
+  box-shadow: inset 0 5px #a66fc8, 0 7px 0 #26163e, 0 12px 18px #24143744;
+  color: #fff7d6;
+  text-align: center;
+}
+
+.booster-shop-intro small {
+  display: block;
+  color: #ffe66f;
+  font: 400 12px "Lilita One", "Fredoka", sans-serif;
+  letter-spacing: .8px;
+}
+
+.booster-shop-intro strong {
+  display: block;
+  margin-top: 3px;
+  font: 400 clamp(27px, 7vw, 38px)/.95 "Lilita One", "Fredoka", sans-serif;
+  text-shadow: 0 3px 0 #402059;
+}
+
+.booster-shop-intro p {
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.booster-shop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.booster-shop-card {
+  position: relative;
+  min-width: 0;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 7px 10px;
+  border: 5px solid #ffe39a;
+  border-radius: 27px;
+  background: linear-gradient(#fff8d8 0 48%, #ffc95d 49% 100%);
+  color: #4f2a50;
+  text-align: center;
+  box-shadow: inset 0 5px #fff, inset 0 -5px #d89425, 0 7px 0 #986020, 0 12px 16px #56331236;
+}
+
+.booster-shop-card::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  top: 9px;
+  height: 7px;
+  border-radius: 999px;
+  background: #ffffffb8;
+}
+
+.booster-shop-art {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  margin: 8px auto 6px;
+  display: grid;
+  place-items: center;
+  border: 5px solid #fff;
+  border-radius: 25px;
+  background: linear-gradient(#60c9ff, #207ebd);
+  box-shadow: inset 0 5px #b9eaff, 0 5px 0 #165a91;
+}
+
+.booster-shop-art img {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 2px #123e6255);
+}
+
+.booster-shop-count {
+  position: absolute;
+  right: -8px;
+  top: -9px;
+  min-width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  padding: 0 7px;
+  border: 3px solid #fff3b4;
+  border-radius: 16px;
+  background: linear-gradient(#a955cf, #743095);
+  color: #fff;
+  font: 400 16px "Lilita One", "Fredoka", sans-serif;
+  box-shadow: 0 3px 0 #4c1d66;
+}
+
+.booster-shop-card strong {
+  min-height: 35px;
+  display: grid;
+  place-items: center;
+  font: 400 17px/1 "Lilita One", "Fredoka", sans-serif;
+  text-shadow: 0 2px #fff2c1;
+}
+
+.booster-shop-card p {
+  min-height: 46px;
+  margin: 5px 0 8px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #76513c;
+}
+
+.booster-shop-card button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: auto;
+  padding: 8px 3px;
+  border: 4px solid #fff7be;
+  border-radius: 20px;
+  background: linear-gradient(#7de94e 0 51%, #38b52a 52% 100%);
+  color: #fff;
+  font: 400 17px "Lilita One", "Fredoka", sans-serif;
+  box-shadow: inset 0 5px #b8f497, inset 0 -4px #268c20, 0 6px 0 #26741f;
+  text-shadow: 0 2px 0 #277b20;
+}
+
+.booster-shop-card button:disabled {
+  filter: grayscale(.35);
+  opacity: .7;
+}
+
+.shop-kind-switch.booster-switch {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.shop-kind-switch.booster-switch button {
+  min-width: 0;
+  min-height: 66px;
+  padding: 8px 4px;
+  font-size: 11px;
+}
+
+@media (max-width: 390px) {
+  .booster-shop-grid { gap: 7px; }
+  .booster-shop-card { min-height: 246px; padding-left: 5px; padding-right: 5px; }
+  .booster-shop-art { width: 76px; height: 76px; }
+  .booster-shop-art img { width: 72px; height: 72px; }
+  .booster-shop-card strong { font-size: 15px; }
+  .booster-shop-card p { font-size: 8px; }
+  .booster-shop-card button { font-size: 15px; }
+}
