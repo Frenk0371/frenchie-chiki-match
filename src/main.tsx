@@ -26,6 +26,7 @@ import "./powerAnimationTweaks";
 import "./helperInputOverlay";
 import "./helperUiFeedbackFix";
 import "./chikiMilestoneGiftSafe";
+import "./nextLevelContinueTweaks";
 import AuthGate from "./AuthGate";
 import "./uiRefresh.css";
 import "./socialFeatures";
