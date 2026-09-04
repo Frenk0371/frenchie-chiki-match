@@ -9,11 +9,11 @@ import "./visualTweaks";
 import "./worldGameplayTweaks";
 import "./matchEffectsTweaks";
 import "./release100Tweaks";
-import App from "./App.tsx";
+import AuthGate from "./AuthGate";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <AuthGate />
   </StrictMode>,
 );
 
