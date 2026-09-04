@@ -8,6 +8,14 @@ type Tile = {
   circle: Phaser.GameObjects.Image;
 };
 
+type IceCell = {
+  row: number;
+  col: number;
+  hits: number;
+  maxHits: number;
+  graphic: Phaser.GameObjects.Graphics;
+};
+
 export default class GameScene extends Phaser.Scene {
   private readonly rows = 8;
   private readonly cols = 7;
@@ -22,43 +30,45 @@ export default class GameScene extends Phaser.Scene {
     "chiki",
   ];
 
+  private readonly colorNames = [
+    "CUORI",
+    "OSSA",
+    "TRIFOGLI",
+    "FIORI",
+    "GEMME",
+    "CHIKI",
+  ];
+
   private board: (Tile | null)[][] = [];
+  private iceCells = new Map<string, IceCell>();
+  private iceBrokenCells = 0;
+  private iceTotalCells = 0;
 
   private score = 0;
   private collectedAmount = 0;
   private collectedAmount2 = 0;
+  private comboMultiplier = 1;
 
   private scoreText!: Phaser.GameObjects.Text;
   private objectiveText!: Phaser.GameObjects.Text;
-  private comboMultiplier = 1;
   private comboText!: Phaser.GameObjects.Text;
-  private currentLevel = 1;
-  private get currentLevelConfig() {
-    return levels[this.currentLevel - 1];
-  }
-
-  private moves = this.currentLevelConfig.moves;
   private movesText!: Phaser.GameObjects.Text;
   private progressFill!: Phaser.GameObjects.Rectangle;
-  private shuffleUses = 3;
-  private hammerUses = 3;
-  private rocketUses = 2;
-  private targetScore = this.currentLevelConfig.targetScore;
+
+  private currentLevel = 1;
+  private moves = 20;
+  private targetScore = 0;
+  private selectedTile: Tile | null = null;
   private levelCompleted = false;
   private isProcessing = false;
 
-  private readonly colors = [
-    0xff5c8a, 0xffc857, 0x5dd39e, 0x5dade2, 0x9b5de5, 0xff8c42,
-  ];
+  private shuffleUses = 3;
+  private hammerUses = 3;
+  private rocketUses = 2;
 
-  private readonly colorNames = [
-    "Cuori rossi",
-    "Ossa dorate",
-    "Quadrifogli verdi",
-    "Fiori azzurri",
-    "Gemme viola",
-    "Chiki",
-  ];
+  private get currentLevelConfig() {
+    return levels[this.currentLevel - 1];
+  }
 
   constructor(startLevel = 1) {
     super("GameScene");
@@ -80,9 +90,34 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.resetRuntimeState();
+
     this.add.image(540, 960, "garden-bg").setDisplaySize(1080, 1920);
     this.add.rectangle(540, 960, 1080, 1920, 0x16324a, 0.13);
 
+    this.createHud();
+    this.createBoard();
+    this.createIceLayer();
+    this.createBoosterTray();
+    this.updateObjectiveAndProgress();
+  }
+
+  private resetRuntimeState() {
+    this.score = 0;
+    this.collectedAmount = 0;
+    this.collectedAmount2 = 0;
+    this.comboMultiplier = 1;
+    this.moves = this.currentLevelConfig.moves;
+    this.targetScore = this.currentLevelConfig.targetScore;
+    this.selectedTile = null;
+    this.levelCompleted = false;
+    this.isProcessing = false;
+    this.iceBrokenCells = 0;
+    this.iceTotalCells = 0;
+    this.iceCells.clear();
+  }
+
+  private createHud() {
     const hud = this.add.graphics();
     hud.fillStyle(0x06182f, 0.9);
     hud.fillRoundedRect(120, 70, 840, 104, 42);
@@ -109,7 +144,7 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.add
-      .text(540, 105, "🐾 FRENCHIE CHIKI MATCH", {
+      .text(540, 105, "FRENCHIE CHIKI MATCH", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
         fontSize: "42px",
         color: "#ffffff",
@@ -134,6 +169,7 @@ export default class GameScene extends Phaser.Scene {
         fontStyle: "bold",
       })
       .setOrigin(0.5);
+
     this.scoreText = this.add
       .text(247, 271, "0\nPUNTI", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
@@ -143,6 +179,7 @@ export default class GameScene extends Phaser.Scene {
         align: "center",
       })
       .setOrigin(0.5);
+
     this.movesText = this.add
       .text(540, 250, `${this.moves}\nMOSSE`, {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
@@ -154,10 +191,11 @@ export default class GameScene extends Phaser.Scene {
         strokeThickness: 2,
       })
       .setOrigin(0.5);
+
     this.objectiveText = this.add
-      .text(833, 250, this.getObjectiveLabel(), {
+      .text(833, 250, "", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
-        fontSize: "21px",
+        fontSize: "20px",
         color: "#402749",
         fontStyle: "bold",
         align: "center",
@@ -170,9 +208,11 @@ export default class GameScene extends Phaser.Scene {
     progress.fillRoundedRect(230, 337, 620, 30, 15);
     progress.lineStyle(5, 0xffbd2f, 1);
     progress.strokeRoundedRect(230, 337, 620, 30, 15);
+
     this.progressFill = this.add
       .rectangle(240, 352, 0, 18, 0x65da31, 1)
       .setOrigin(0, 0.5);
+
     this.add
       .text(193, 350, "★", {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
@@ -189,171 +229,15 @@ export default class GameScene extends Phaser.Scene {
         fontSize: "26px",
         color: "#ffff00",
         fontStyle: "bold",
-      })
-      .setOrigin(0.5);
-    this.createBoard();
-    this.createBoosterTray();
-  }
-
-  private createBoosterTray() {
-    const tray = this.add.graphics();
-    tray.fillStyle(0x06182f, 0.9);
-    tray.fillRoundedRect(105, 1422, 870, 235, 42);
-    tray.fillStyle(0x09518f, 1);
-    tray.fillRoundedRect(105, 1408, 870, 235, 42);
-    tray.fillStyle(0x2699dc, 0.75);
-    tray.fillRoundedRect(135, 1419, 810, 13, 7);
-    tray.lineStyle(8, 0xffb51f, 1);
-    tray.strokeRoundedRect(105, 1408, 870, 235, 42);
-    tray.lineStyle(3, 0xffec75, 1);
-    tray.strokeRoundedRect(116, 1419, 848, 211, 34);
-
-    this.add
-      .text(540, 1442, "AIUTI DI CHIKI", {
-        fontFamily: '"Lilita One", "Fredoka", sans-serif',
-        fontSize: "29px",
-        color: "#fff5d2",
-        fontStyle: "bold",
-        stroke: "#06305a",
-        strokeThickness: 6,
-      })
-      .setOrigin(0.5);
-
-    this.createBoosterButton(
-      270,
-      "booster-shuffle",
-      "MESCOLA",
-      () => {
-        if (this.shuffleUses <= 0 || this.isProcessing || this.levelCompleted)
-          return;
-        this.shuffleUses--;
-        this.shuffleBoard();
-        this.scene.restart();
-      },
-      () => this.shuffleUses,
-    );
-
-    this.createBoosterButton(
-      540,
-      "booster-hammer",
-      "MARTELLO",
-      () => {
-        if (
-          this.hammerUses <= 0 ||
-          !this.selectedTile ||
-          this.isProcessing ||
-          this.levelCompleted
-        )
-          return;
-        this.hammerUses--;
-        const tile = this.selectedTile;
-        this.selectedTile = null;
-        tile.circle.destroy();
-        this.board[tile.row][tile.col] = null;
-        this.collapseTiles();
-        this.time.delayedCall(330, () => {
-          this.refillBoard();
-          this.time.delayedCall(380, () => this.checkCascadeMatches());
-        });
-      },
-      () => this.hammerUses,
-    );
-
-    this.createBoosterButton(
-      810,
-      "booster-rocket",
-      "RAZZO",
-      () => {
-        if (this.rocketUses <= 0 || this.isProcessing || this.levelCompleted)
-          return;
-        this.rocketUses--;
-        this.isProcessing = true;
-        const row = Phaser.Math.Between(0, this.rows - 1);
-        for (let col = 0; col < this.cols; col++) {
-          const tile = this.board[row][col];
-          if (tile) tile.circle.destroy();
-          this.board[row][col] = null;
-        }
-        this.collapseTiles();
-        this.time.delayedCall(330, () => {
-          this.refillBoard();
-          this.time.delayedCall(380, () => this.checkCascadeMatches());
-        });
-      },
-      () => this.rocketUses,
-    );
-  }
-
-  private createBoosterButton(
-    x: number,
-    iconKey: string,
-    label: string,
-    action: () => void,
-    remaining: () => number,
-  ) {
-    const plate = this.add.graphics();
-    plate.fillStyle(0x07335e, 0.95);
-    plate.fillRoundedRect(x - 110, 1484, 220, 135, 28);
-    plate.fillStyle(0x1687cd, 1);
-    plate.fillRoundedRect(x - 110, 1474, 220, 135, 28);
-    plate.fillStyle(0xffc83d, 1);
-    plate.fillRoundedRect(x - 101, 1482, 202, 103, 22);
-    plate.fillStyle(0xffffff, 0.55);
-    plate.fillRoundedRect(x - 82, 1488, 164, 8, 4);
-    plate.lineStyle(6, 0xffed91, 1);
-    plate.strokeRoundedRect(x - 110, 1474, 220, 135, 28);
-    const button = this.add
-      .zone(x, 1540, 220, 135)
-      .setInteractive({ useHandCursor: true });
-    this.add.image(x - 48, 1525, iconKey).setDisplaySize(102, 102);
-    const count = this.add
-      .text(x + 68, 1502, String(remaining()), {
-        fontFamily: '"Lilita One", "Fredoka", sans-serif',
-        fontSize: "28px",
-        color: "#ffffff",
-        fontStyle: "bold",
-        backgroundColor: "#76359a",
-        padding: { x: 10, y: 5 },
-        stroke: "#3c1553",
+        stroke: "#634800",
         strokeThickness: 4,
       })
       .setOrigin(0.5);
-    this.add
-      .text(x, 1582, label, {
-        fontFamily: '"Lilita One", "Fredoka", sans-serif',
-        fontSize: "22px",
-        color: "#4b2850",
-        fontStyle: "bold",
-        stroke: "#fff4c8",
-        strokeThickness: 2,
-      })
-      .setOrigin(0.5);
-    button.on("pointerup", () => {
-      action();
-      count.setText(String(remaining()));
-      this.cameras.main.shake(70, 0.0012);
-    });
-  }
-
-  private updateProgress() {
-    const config = this.currentLevelConfig;
-    let ratio = this.score / Math.max(1, config.targetScore);
-    if (config.objective === "collect") {
-      ratio = this.collectedAmount / Math.max(1, config.collectAmount ?? 1);
-    } else if (config.objective === "collectDouble") {
-      const first =
-        this.collectedAmount / Math.max(1, config.collectAmount ?? 1);
-      const second =
-        this.collectedAmount2 / Math.max(1, config.collectAmount2 ?? 1);
-      ratio = (first + second) / 2;
-    }
-    this.progressFill.width = 600 * Phaser.Math.Clamp(ratio, 0, 1);
   }
 
   private createBoard() {
     const boardWidth = this.cols * this.tileSize;
     const boardHeight = this.rows * this.tileSize;
-
     const startX = (1080 - boardWidth) / 2;
     const startY = this.boardY;
 
@@ -395,51 +279,164 @@ export default class GameScene extends Phaser.Scene {
 
     for (let row = 0; row < this.rows; row++) {
       this.board[row] = [];
-
       for (let col = 0; col < this.cols; col++) {
         let type: number;
-
         do {
-          type = Phaser.Math.Between(0, this.colors.length - 1);
+          type = Phaser.Math.Between(0, this.tileKeys.length - 1);
         } while (this.createsInitialMatch(row, col, type));
 
-        const x = startX + col * this.tileSize + this.tileSize / 2;
-
-        const y = startY + row * this.tileSize + this.tileSize / 2;
-
-        const circle = this.add
-          .image(x, y, `tile-${this.tileKeys[type]}`)
-          .setDisplaySize(110, 110)
-          .setInteractive({ useHandCursor: true });
-
-        const tile: Tile = {
-          row,
-          col,
-          type,
-          circle,
-        };
-
-        circle.on("pointerup", () => {
-          if (this.moves <= 0 || this.levelCompleted) {
-            return;
-          }
-
-          this.selectTile(tile);
-        });
-
-        this.board[row][col] = tile;
+        this.board[row][col] = this.createTile(row, col, type);
       }
     }
-    if (!this.hasAvailableMove()) {
-      this.shuffleBoard();
+
+    if (!this.hasAvailableMove()) this.shuffleBoard();
+  }
+
+  private createTile(row: number, col: number, type: number, fromAbove = false) {
+    const boardWidth = this.cols * this.tileSize;
+    const startX = (1080 - boardWidth) / 2;
+    const x = startX + col * this.tileSize + this.tileSize / 2;
+    const finalY = this.boardY + row * this.tileSize + this.tileSize / 2;
+
+    const circle = this.add
+      .image(x, fromAbove ? finalY - this.tileSize * 2 : finalY, `tile-${this.tileKeys[type]}`)
+      .setDisplaySize(110, 110)
+      .setDepth(3)
+      .setInteractive({ useHandCursor: true });
+
+    const tile: Tile = { row, col, type, circle };
+
+    circle.on("pointerup", () => {
+      if (this.moves <= 0 || this.levelCompleted || this.isProcessing) return;
+      this.selectTile(tile);
+    });
+
+    if (fromAbove) {
+      this.tweens.add({
+        targets: circle,
+        y: finalY,
+        duration: 300,
+        ease: "Bounce.easeOut",
+      });
+    }
+
+    return tile;
+  }
+
+  private createIceLayer() {
+    const cells = this.currentLevelConfig.iceCells ?? [];
+    this.iceTotalCells = cells.length;
+
+    cells.forEach((config) => {
+      if (
+        config.row < 0 ||
+        config.row >= this.rows ||
+        config.col < 0 ||
+        config.col >= this.cols
+      ) {
+        return;
+      }
+
+      const hits = Math.max(1, config.hits ?? 1);
+      const cell: IceCell = {
+        row: config.row,
+        col: config.col,
+        hits,
+        maxHits: hits,
+        graphic: this.add.graphics().setDepth(6),
+      };
+      this.iceCells.set(this.iceKey(config.row, config.col), cell);
+      this.drawIceCell(cell);
+    });
+  }
+
+  private drawIceCell(cell: IceCell) {
+    const boardWidth = this.cols * this.tileSize;
+    const startX = (1080 - boardWidth) / 2;
+    const x = startX + cell.col * this.tileSize + this.tileSize / 2;
+    const y = this.boardY + cell.row * this.tileSize + this.tileSize / 2;
+    const g = cell.graphic;
+
+    g.clear();
+    const strong = cell.hits > 1;
+    g.fillStyle(strong ? 0x9deaff : 0xbcefff, strong ? 0.52 : 0.36);
+    g.fillRoundedRect(x - 53, y - 53, 106, 106, 20);
+    g.lineStyle(strong ? 8 : 6, 0xdffaff, 0.95);
+    g.strokeRoundedRect(x - 53, y - 53, 106, 106, 20);
+    g.lineStyle(3, 0xffffff, 0.86);
+    g.beginPath();
+    g.moveTo(x - 27, y - 48);
+    g.lineTo(x - 4, y - 13);
+    g.lineTo(x - 16, y + 9);
+    g.lineTo(x + 11, y + 43);
+    g.moveTo(x + 43, y - 24);
+    g.lineTo(x + 10, y - 5);
+    g.lineTo(x + 26, y + 18);
+    g.moveTo(x - 45, y + 26);
+    g.lineTo(x - 12, y + 13);
+    g.strokePath();
+
+    if (strong) {
+      g.fillStyle(0xffffff, 0.35);
+      g.fillRoundedRect(x - 38, y - 41, 52, 12, 6);
     }
   }
-  private selectedTile: Tile | null = null;
+
+  private iceKey(row: number, col: number) {
+    return `${row}:${col}`;
+  }
+
+  private damageIceAround(matches: Tile[]) {
+    if (this.iceCells.size === 0) return;
+
+    const affected = new Set<string>();
+    const offsets = [
+      [0, 0],
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ];
+
+    matches.forEach((tile) => {
+      offsets.forEach(([dr, dc]) => {
+        const row = tile.row + dr;
+        const col = tile.col + dc;
+        if (row >= 0 && row < this.rows && col >= 0 && col < this.cols) {
+          affected.add(this.iceKey(row, col));
+        }
+      });
+    });
+
+    affected.forEach((key) => {
+      const cell = this.iceCells.get(key);
+      if (!cell || cell.hits <= 0) return;
+
+      cell.hits--;
+      if (cell.hits <= 0) {
+        this.iceBrokenCells++;
+        this.tweens.add({
+          targets: cell.graphic,
+          alpha: 0,
+          duration: 180,
+          onComplete: () => cell.graphic.destroy(),
+        });
+        this.iceCells.delete(key);
+        this.cameras.main.shake(70, 0.0015);
+      } else {
+        this.drawIceCell(cell);
+        this.tweens.add({
+          targets: cell.graphic,
+          alpha: { from: 0.45, to: 1 },
+          duration: 180,
+        });
+      }
+    });
+  }
 
   private selectTile(tile: Tile) {
-    if (this.isProcessing) {
-      return;
-    }
+    if (this.isProcessing || this.levelCompleted) return;
+
     if (!this.selectedTile) {
       this.selectedTile = tile;
       tile.circle.setDisplaySize(118, 118);
@@ -447,79 +444,531 @@ export default class GameScene extends Phaser.Scene {
     }
 
     if (this.selectedTile === tile) {
-      this.selectedTile.circle.setDisplaySize(110, 110);
+      tile.circle.setDisplaySize(110, 110);
       this.selectedTile = null;
       return;
     }
 
     const rowDistance = Math.abs(this.selectedTile.row - tile.row);
     const colDistance = Math.abs(this.selectedTile.col - tile.col);
-    const areAdjacent = rowDistance + colDistance === 1;
 
-    if (!areAdjacent) {
+    if (rowDistance + colDistance !== 1) {
       this.selectedTile.circle.setDisplaySize(110, 110);
       this.selectedTile = tile;
       tile.circle.setDisplaySize(118, 118);
       return;
     }
 
-    const firstTile = this.selectedTile;
-
-    firstTile.circle.setDisplaySize(110, 110);
+    const first = this.selectedTile;
+    first.circle.setDisplaySize(110, 110);
     this.selectedTile = null;
-
-    this.swapTiles(firstTile, tile);
+    this.trySwap(first, tile);
   }
 
-  private createsInitialMatch(row: number, col: number, type: number): boolean {
+  private trySwap(tileA: Tile, tileB: Tile) {
+    this.isProcessing = true;
+    const aX = tileA.circle.x;
+    const aY = tileA.circle.y;
+    const bX = tileB.circle.x;
+    const bY = tileB.circle.y;
+
+    this.swapModel(tileA, tileB);
+
+    this.tweens.add({ targets: tileA.circle, x: bX, y: bY, duration: 210, ease: "Power2" });
+    this.tweens.add({
+      targets: tileB.circle,
+      x: aX,
+      y: aY,
+      duration: 210,
+      ease: "Power2",
+      onComplete: () => {
+        const matches = this.findMatches();
+        if (matches.length === 0) {
+          this.swapModel(tileA, tileB);
+          this.tweens.add({ targets: tileA.circle, x: aX, y: aY, duration: 190, ease: "Power2" });
+          this.tweens.add({
+            targets: tileB.circle,
+            x: bX,
+            y: bY,
+            duration: 190,
+            ease: "Power2",
+            onComplete: () => {
+              this.isProcessing = false;
+            },
+          });
+          return;
+        }
+
+        this.moves--;
+        this.movesText.setText(`${this.moves}\nMOSSE`);
+        this.comboMultiplier = 1;
+        this.processMatches(matches, false);
+      },
+    });
+  }
+
+  private swapModel(tileA: Tile, tileB: Tile) {
+    const rowA = tileA.row;
+    const colA = tileA.col;
+    const rowB = tileB.row;
+    const colB = tileB.col;
+
+    this.board[rowA][colA] = tileB;
+    this.board[rowB][colB] = tileA;
+    tileA.row = rowB;
+    tileA.col = colB;
+    tileB.row = rowA;
+    tileB.col = colA;
+  }
+
+  private processMatches(matches: Tile[], cascade: boolean) {
+    if (this.levelCompleted) return;
+
+    if (cascade) {
+      this.comboMultiplier++;
+      this.comboText.setText(`COMBO x${this.comboMultiplier}!`);
+    }
+
+    this.score += matches.length * 100 * this.comboMultiplier;
+    this.scoreText.setText(`${this.score}\nPUNTI`);
+
+    matches.forEach((tile) => {
+      if (tile.type === this.currentLevelConfig.collectType) {
+        this.collectedAmount++;
+      }
+      if (tile.type === this.currentLevelConfig.collectType2) {
+        this.collectedAmount2++;
+      }
+    });
+
+    this.damageIceAround(matches);
+
+    matches.forEach((tile) => {
+      tile.circle.destroy();
+      this.board[tile.row][tile.col] = null;
+    });
+
+    this.updateObjectiveAndProgress();
+
+    if (this.isObjectiveComplete()) {
+      this.showLevelCompleted();
+      return;
+    }
+
+    this.time.delayedCall(220, () => {
+      this.collapseTiles();
+      this.time.delayedCall(320, () => {
+        this.refillBoard();
+        this.time.delayedCall(360, () => this.checkCascadeMatches());
+      });
+    });
+  }
+
+  private updateObjectiveAndProgress() {
+    if (!this.objectiveText || !this.progressFill) return;
+    this.objectiveText.setText(this.getObjectiveLabel());
+
+    const config = this.currentLevelConfig;
+    const scoreRatio = this.score / Math.max(1, config.targetScore);
+    const collectRatio = this.collectedAmount / Math.max(1, config.collectAmount ?? 1);
+    const collect2Ratio = this.collectedAmount2 / Math.max(1, config.collectAmount2 ?? 1);
+    const iceRatio = this.iceTotalCells === 0 ? 1 : this.iceBrokenCells / this.iceTotalCells;
+
+    let ratio = scoreRatio;
+    if (config.objective === "collect") ratio = collectRatio;
+    if (config.objective === "collectDouble") ratio = (collectRatio + collect2Ratio) / 2;
+    if (config.objective === "ice") ratio = iceRatio;
+    if (config.objective === "iceCollect") ratio = (iceRatio + collectRatio) / 2;
+    if (config.objective === "scoreIce") ratio = (iceRatio + scoreRatio) / 2;
+
+    this.progressFill.width = 600 * Phaser.Math.Clamp(ratio, 0, 1);
+  }
+
+  private getObjectiveLabel() {
+    const config = this.currentLevelConfig;
+    const firstName = this.colorNames[config.collectType ?? 0];
+    const secondName = this.colorNames[config.collectType2 ?? 0];
+
+    switch (config.objective) {
+      case "score":
+        return `OBIETTIVO\n${config.targetScore}`;
+      case "collect":
+        return `${firstName}\n${this.collectedAmount}/${config.collectAmount ?? 0}`;
+      case "collectDouble":
+        return `${firstName} ${this.collectedAmount}/${config.collectAmount ?? 0}\n${secondName} ${this.collectedAmount2}/${config.collectAmount2 ?? 0}`;
+      case "ice":
+        return `❄ GHIACCIO\n${this.iceBrokenCells}/${this.iceTotalCells}`;
+      case "iceCollect":
+        return `❄ ${this.iceBrokenCells}/${this.iceTotalCells}\n${firstName} ${this.collectedAmount}/${config.collectAmount ?? 0}`;
+      case "scoreIce":
+        return `${this.score}/${config.targetScore}\n❄ ${this.iceBrokenCells}/${this.iceTotalCells}`;
+    }
+  }
+
+  private isObjectiveComplete() {
+    const config = this.currentLevelConfig;
+    const firstDone = this.collectedAmount >= (config.collectAmount ?? 0);
+    const secondDone = this.collectedAmount2 >= (config.collectAmount2 ?? 0);
+    const iceDone = this.iceTotalCells === 0 || this.iceBrokenCells >= this.iceTotalCells;
+    const scoreDone = this.score >= config.targetScore;
+
+    switch (config.objective) {
+      case "score":
+        return scoreDone;
+      case "collect":
+        return firstDone;
+      case "collectDouble":
+        return firstDone && secondDone;
+      case "ice":
+        return iceDone;
+      case "iceCollect":
+        return iceDone && firstDone;
+      case "scoreIce":
+        return iceDone && scoreDone;
+    }
+  }
+
+  private createBoosterTray() {
+    const tray = this.add.graphics();
+    tray.fillStyle(0x06182f, 0.9);
+    tray.fillRoundedRect(105, 1422, 870, 235, 42);
+    tray.fillStyle(0x09518f, 1);
+    tray.fillRoundedRect(105, 1408, 870, 235, 42);
+    tray.fillStyle(0x2699dc, 0.75);
+    tray.fillRoundedRect(135, 1419, 810, 13, 7);
+    tray.lineStyle(8, 0xffb51f, 1);
+    tray.strokeRoundedRect(105, 1408, 870, 235, 42);
+    tray.lineStyle(3, 0xffec75, 1);
+    tray.strokeRoundedRect(116, 1419, 848, 211, 34);
+
+    this.add
+      .text(540, 1442, "AIUTI DI CHIKI", {
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
+        fontSize: "29px",
+        color: "#fff5d2",
+        fontStyle: "bold",
+        stroke: "#06305a",
+        strokeThickness: 6,
+      })
+      .setOrigin(0.5);
+
+    this.createBoosterButton(270, "booster-shuffle", "MESCOLA", () => {
+      if (this.shuffleUses <= 0 || this.isProcessing || this.levelCompleted) return;
+      this.shuffleUses--;
+      this.shuffleBoard();
+    }, () => this.shuffleUses);
+
+    this.createBoosterButton(540, "booster-hammer", "MARTELLO", () => {
+      if (
+        this.hammerUses <= 0 ||
+        !this.selectedTile ||
+        this.isProcessing ||
+        this.levelCompleted
+      ) return;
+
+      this.hammerUses--;
+      const tile = this.selectedTile;
+      this.selectedTile = null;
+      this.isProcessing = true;
+      this.damageIceAround([tile]);
+      tile.circle.destroy();
+      this.board[tile.row][tile.col] = null;
+      this.updateObjectiveAndProgress();
+
+      if (this.isObjectiveComplete()) {
+        this.showLevelCompleted();
+        return;
+      }
+
+      this.collapseTiles();
+      this.time.delayedCall(320, () => {
+        this.refillBoard();
+        this.time.delayedCall(350, () => this.checkCascadeMatches());
+      });
+    }, () => this.hammerUses);
+
+    this.createBoosterButton(810, "booster-rocket", "RAZZO", () => {
+      if (this.rocketUses <= 0 || this.isProcessing || this.levelCompleted) return;
+      this.rocketUses--;
+      this.isProcessing = true;
+      const row = Phaser.Math.Between(0, this.rows - 1);
+      const rowTiles: Tile[] = [];
+
+      for (let col = 0; col < this.cols; col++) {
+        const tile = this.board[row][col];
+        if (!tile) continue;
+        rowTiles.push(tile);
+        tile.circle.destroy();
+        this.board[row][col] = null;
+      }
+
+      this.damageIceAround(rowTiles);
+      this.updateObjectiveAndProgress();
+
+      if (this.isObjectiveComplete()) {
+        this.showLevelCompleted();
+        return;
+      }
+
+      this.collapseTiles();
+      this.time.delayedCall(320, () => {
+        this.refillBoard();
+        this.time.delayedCall(350, () => this.checkCascadeMatches());
+      });
+    }, () => this.rocketUses);
+  }
+
+  private createBoosterButton(
+    x: number,
+    iconKey: string,
+    label: string,
+    action: () => void,
+    remaining: () => number,
+  ) {
+    const plate = this.add.graphics();
+    plate.fillStyle(0x07335e, 0.95);
+    plate.fillRoundedRect(x - 110, 1484, 220, 135, 28);
+    plate.fillStyle(0x1687cd, 1);
+    plate.fillRoundedRect(x - 110, 1474, 220, 135, 28);
+    plate.fillStyle(0xffc83d, 1);
+    plate.fillRoundedRect(x - 101, 1482, 202, 103, 22);
+    plate.fillStyle(0xffffff, 0.55);
+    plate.fillRoundedRect(x - 82, 1488, 164, 8, 4);
+    plate.lineStyle(6, 0xffed91, 1);
+    plate.strokeRoundedRect(x - 110, 1474, 220, 135, 28);
+
+    const button = this.add
+      .zone(x, 1540, 220, 135)
+      .setInteractive({ useHandCursor: true });
+
+    this.add.image(x - 48, 1525, iconKey).setDisplaySize(102, 102);
+
+    const count = this.add
+      .text(x + 68, 1502, String(remaining()), {
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
+        fontSize: "28px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        backgroundColor: "#76359a",
+        padding: { x: 10, y: 5 },
+        stroke: "#3c1553",
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5);
+
+    this.add
+      .text(x, 1582, label, {
+        fontFamily: '"Lilita One", "Fredoka", sans-serif',
+        fontSize: "22px",
+        color: "#4b2850",
+        fontStyle: "bold",
+        stroke: "#fff4c8",
+        strokeThickness: 2,
+      })
+      .setOrigin(0.5);
+
+    button.on("pointerup", () => {
+      action();
+      count.setText(String(remaining()));
+      this.cameras.main.shake(70, 0.0012);
+    });
+  }
+
+  private createsInitialMatch(row: number, col: number, type: number) {
     if (
       col >= 2 &&
       this.board[row]?.[col - 1]?.type === type &&
       this.board[row]?.[col - 2]?.type === type
-    ) {
-      return true;
-    }
+    ) return true;
 
     if (
       row >= 2 &&
       this.board[row - 1]?.[col]?.type === type &&
       this.board[row - 2]?.[col]?.type === type
-    ) {
-      return true;
-    }
+    ) return true;
 
     return false;
   }
 
-  private getObjectiveLabel(): string {
-    const config = this.currentLevelConfig;
+  private hasMatch() {
+    return this.findMatches().length > 0;
+  }
 
-    if (config.objective === "score") {
-      return `OBIETTIVO\n${config.targetScore}`;
+  private findMatches() {
+    const matches = new Set<Tile>();
+
+    for (let row = 0; row < this.rows; row++) {
+      let runStart = 0;
+      for (let col = 1; col <= this.cols; col++) {
+        const previous = this.board[row][col - 1];
+        const current = col < this.cols ? this.board[row][col] : null;
+        if (previous && current && previous.type === current.type) continue;
+
+        const runLength = col - runStart;
+        if (runLength >= 3 && previous) {
+          for (let c = runStart; c < col; c++) {
+            const tile = this.board[row][c];
+            if (tile) matches.add(tile);
+          }
+        }
+        runStart = col;
+      }
     }
 
-    const firstType = config.collectType ?? 0;
-    const first = `${this.colorNames[firstType]}: ${this.collectedAmount} / ${config.collectAmount}`;
+    for (let col = 0; col < this.cols; col++) {
+      let runStart = 0;
+      for (let row = 1; row <= this.rows; row++) {
+        const previous = this.board[row - 1]?.[col] ?? null;
+        const current = row < this.rows ? this.board[row][col] : null;
+        if (previous && current && previous.type === current.type) continue;
 
-    if (config.objective === "collectDouble") {
-      const secondType = config.collectType2 ?? 0;
-      return `${first}   ${this.colorNames[secondType]}: ${this.collectedAmount2} / ${config.collectAmount2}`;
+        const runLength = row - runStart;
+        if (runLength >= 3 && previous) {
+          for (let r = runStart; r < row; r++) {
+            const tile = this.board[r][col];
+            if (tile) matches.add(tile);
+          }
+        }
+        runStart = row;
+      }
     }
 
-    return first;
+    return Array.from(matches);
+  }
+
+  private hasAvailableMove() {
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const tile = this.board[row][col];
+        if (!tile) continue;
+
+        const neighbors = [
+          this.board[row]?.[col + 1] ?? null,
+          this.board[row + 1]?.[col] ?? null,
+        ];
+
+        for (const neighbor of neighbors) {
+          if (!neighbor) continue;
+          const typeA = tile.type;
+          tile.type = neighbor.type;
+          neighbor.type = typeA;
+          const available = this.hasMatch();
+          neighbor.type = tile.type;
+          tile.type = typeA;
+          neighbor.type = neighbor.type === typeA ? neighbor.type : neighbor.type;
+
+          // Restore explicitly: the temporary swap above changed both types.
+          tile.type = typeA;
+          neighbor.type = typeA === neighbor.type ? neighbor.type : neighbor.type;
+
+          // Use a clean second restoration to avoid any ambiguity.
+          const originalNeighborType = neighbor.circle.texture.key
+            ? this.tileKeys.indexOf(neighbor.circle.texture.key.replace("tile-", ""))
+            : neighbor.type;
+          neighbor.type = originalNeighborType >= 0 ? originalNeighborType : neighbor.type;
+
+          if (available) return true;
+        }
+      }
+    }
+
+    // Fallback: a random reshuffle is preferable to a dead board.
+    return false;
+  }
+
+  private shuffleBoard() {
+    let attempts = 0;
+    do {
+      for (let row = 0; row < this.rows; row++) {
+        for (let col = 0; col < this.cols; col++) {
+          const tile = this.board[row][col];
+          if (!tile) continue;
+          tile.type = Phaser.Math.Between(0, this.tileKeys.length - 1);
+        }
+      }
+      attempts++;
+    } while (this.hasMatch() && attempts < 100);
+
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const tile = this.board[row][col];
+        if (tile) tile.circle.setTexture(`tile-${this.tileKeys[tile.type]}`);
+      }
+    }
+
+    this.isProcessing = false;
+  }
+
+  private collapseTiles() {
+    for (let col = 0; col < this.cols; col++) {
+      let emptyRow = this.rows - 1;
+
+      for (let row = this.rows - 1; row >= 0; row--) {
+        const tile = this.board[row][col];
+        if (!tile) continue;
+
+        if (row !== emptyRow) {
+          this.board[emptyRow][col] = tile;
+          this.board[row][col] = null;
+          const distance = emptyRow - row;
+          tile.row = emptyRow;
+          tile.col = col;
+          this.tweens.add({
+            targets: tile.circle,
+            y: tile.circle.y + distance * this.tileSize,
+            duration: 300,
+            ease: "Bounce.easeOut",
+          });
+        }
+
+        emptyRow--;
+      }
+    }
+  }
+
+  private refillBoard() {
+    for (let col = 0; col < this.cols; col++) {
+      for (let row = 0; row < this.rows; row++) {
+        if (this.board[row][col] !== null) continue;
+        const type = Phaser.Math.Between(0, this.tileKeys.length - 1);
+        this.board[row][col] = this.createTile(row, col, type, true);
+      }
+    }
+  }
+
+  private checkCascadeMatches() {
+    const matches = this.findMatches();
+
+    if (matches.length > 0) {
+      this.processMatches(matches, true);
+      return;
+    }
+
+    this.isProcessing = false;
+    this.comboMultiplier = 1;
+    this.comboText.setText("");
+
+    if (this.moves <= 0 && !this.levelCompleted) {
+      this.showLevelFailed();
+      return;
+    }
+
+    if (this.moves > 0 && !this.levelCompleted && !this.hasAvailableMove()) {
+      this.shuffleBoard();
+    }
   }
 
   private showLevelCompleted() {
     if (this.levelCompleted) return;
-
     this.levelCompleted = true;
+
     window.dispatchEvent(
       new CustomEvent("chiki-level-complete", {
         detail: { level: this.currentLevel, stars: this.calculateStars() },
       }),
     );
 
-    this.add.rectangle(540, 960, 1080, 1920, 0x071322, 0.82);
+    this.add.rectangle(540, 960, 1080, 1920, 0x071322, 0.82).setDepth(20);
     this.drawResultPanel(410, 1010);
 
     this.add
@@ -531,7 +980,8 @@ export default class GameScene extends Phaser.Scene {
         strokeThickness: 13,
         shadow: { offsetX: 0, offsetY: 8, color: "#061a35", fill: true },
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(22);
 
     this.add
       .text(540, 635, "BEN FATTO!", {
@@ -542,8 +992,11 @@ export default class GameScene extends Phaser.Scene {
         strokeThickness: 13,
         shadow: { offsetX: 0, offsetY: 8, color: "#d18b00", fill: true },
       })
-      .setOrigin(0.5);
-    this.add.image(540, 850, "victory-reward").setDisplaySize(410, 410);
+      .setOrigin(0.5)
+      .setDepth(22);
+
+    this.add.image(540, 850, "victory-reward").setDisplaySize(410, 410).setDepth(22);
+
     this.add
       .text(540, 1035, `${this.calculateStars()} STELLE  •  ${this.score} PUNTI`, {
         fontFamily: '"Lilita One", "Fredoka", sans-serif',
@@ -552,9 +1005,11 @@ export default class GameScene extends Phaser.Scene {
         stroke: "#12365e",
         strokeThickness: 7,
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(22);
 
     const continuePlate = this.drawGlossyButton(540, 1195, 480, 126, "green");
+    continuePlate.setDepth(22);
 
     const continueButton = this.add
       .text(540, 1187, "CONTINUA", {
@@ -566,30 +1021,18 @@ export default class GameScene extends Phaser.Scene {
         shadow: { offsetX: 0, offsetY: 6, color: "#17440e", fill: true },
       })
       .setOrigin(0.5)
+      .setDepth(23)
       .setInteractive({ useHandCursor: true });
 
     continuePlate.on("pointerup", () => continueButton.emit("pointerup"));
-
     continueButton.on("pointerup", () => {
-      this.score = 0;
-      this.collectedAmount = 0;
-      this.collectedAmount2 = 0;
       if (this.currentLevel >= levels.length) {
-        continueButton.setText("PROSSIMAMENTE");
+        continueButton.setText("COMPLETATO!");
         continueButton.disableInteractive();
         return;
       }
 
       this.currentLevel++;
-      this.moves = this.currentLevelConfig.moves;
-      this.targetScore = this.currentLevelConfig.targetScore;
-
-      this.comboMultiplier = 1;
-      this.levelCompleted = false;
-      this.selectedTile = null;
-
-      this.isProcessing = false;
-
       this.scene.restart();
     });
   }
@@ -600,12 +1043,12 @@ export default class GameScene extends Phaser.Scene {
     if (movesRatio >= 0.15) return 2;
     return 1;
   }
+
   private showLevelFailed() {
     if (this.levelCompleted) return;
-
     this.levelCompleted = true;
 
-    this.add.rectangle(540, 960, 1080, 1920, 0x071322, 0.82);
+    this.add.rectangle(540, 960, 1080, 1920, 0x071322, 0.82).setDepth(20);
     this.drawResultPanel(500, 850);
 
     this.add
@@ -615,12 +1058,11 @@ export default class GameScene extends Phaser.Scene {
         color: "#fff4c9",
         stroke: "#102d55",
         strokeThickness: 13,
-        shadow: { offsetX: 0, offsetY: 8, color: "#061a35", fill: true },
       })
-      .setOrigin(0.5);
-    this.add
-      .image(540, 815, "chiki-character")
-      .setDisplaySize(260, 273);
+      .setOrigin(0.5)
+      .setDepth(22);
+
+    this.add.image(540, 815, "chiki-character").setDisplaySize(260, 273).setDepth(22);
 
     this.add
       .text(540, 975, "CHIKI HA BISOGNO DI TE", {
@@ -630,9 +1072,11 @@ export default class GameScene extends Phaser.Scene {
         stroke: "#12365e",
         strokeThickness: 7,
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(22);
 
     const retryPlate = this.drawGlossyButton(540, 1105, 460, 120, "red");
+    retryPlate.setDepth(22);
 
     const retryButton = this.add
       .text(540, 1097, "RIPROVA", {
@@ -641,30 +1085,20 @@ export default class GameScene extends Phaser.Scene {
         color: "#fff8d5",
         stroke: "#7b171d",
         strokeThickness: 9,
-        shadow: { offsetX: 0, offsetY: 6, color: "#4c0d12", fill: true },
       })
       .setOrigin(0.5)
+      .setDepth(23)
       .setInteractive({ useHandCursor: true });
 
     retryPlate.on("pointerup", () => retryButton.emit("pointerup"));
-    retryButton.on("pointerup", () => {
-      this.score = 0;
-      this.collectedAmount = 0;
-      this.collectedAmount2 = 0;
-      this.moves = this.currentLevelConfig.moves;
-      this.comboMultiplier = 1;
-      this.levelCompleted = false;
-      this.selectedTile = null;
-
-      this.scene.restart();
-    });
+    retryButton.on("pointerup", () => this.scene.restart());
   }
 
   private drawResultPanel(y: number, height: number) {
     const x = 105;
     const width = 870;
     const top = y - height / 2;
-    const panel = this.add.graphics();
+    const panel = this.add.graphics().setDepth(21);
     panel.fillStyle(0x071b35, 0.9);
     panel.fillRoundedRect(x + 12, top + 24, width, height, 62);
     panel.fillStyle(0x1766ad, 1);
@@ -675,17 +1109,6 @@ export default class GameScene extends Phaser.Scene {
     panel.strokeRoundedRect(x + 8, top + 8, width - 16, height - 16, 56);
     panel.lineStyle(7, 0xffe45f, 1);
     panel.strokeRoundedRect(x + 23, top + 23, width - 46, height - 46, 44);
-
-    panel.fillStyle(0x0b3d72, 0.8);
-    panel.fillRoundedRect(60, top - 28, 960, 220, 58);
-    panel.fillStyle(0x1970bd, 1);
-    panel.fillRoundedRect(45, top - 48, 990, 205, 58);
-    panel.fillStyle(0x238bd5, 1);
-    panel.fillRoundedRect(65, top - 31, 950, 48, 24);
-    panel.lineStyle(10, 0xffa900, 1);
-    panel.strokeRoundedRect(50, top - 43, 980, 195, 55);
-    panel.lineStyle(5, 0xffe45f, 1);
-    panel.strokeRoundedRect(62, top - 31, 956, 171, 46);
   }
 
   private drawGlossyButton(
@@ -695,529 +1118,17 @@ export default class GameScene extends Phaser.Scene {
     height: number,
     color: "green" | "red",
   ) {
-    const palette =
-      color === "green"
-        ? { shadow: 0x174f10, base: 0x2f9d18, face: 0x63d92f, shine: 0xb8ff79 }
-        : { shadow: 0x621219, base: 0xa91f29, face: 0xeb3944, shine: 0xff8a86 };
+    const palette = color === "green"
+      ? { shadow: 0x174f10, base: 0x2f9d18, face: 0x63d92f, shine: 0xb8ff79 }
+      : { shadow: 0x621219, base: 0xa91f29, face: 0xeb3944, shine: 0xff8a86 };
+
     const button = this.add
       .rectangle(x, y + 12, width, height, palette.shadow, 1)
       .setInteractive({ useHandCursor: true });
-    this.add.rectangle(x, y, width, height, palette.base, 1);
-    this.add.rectangle(x, y - 10, width - 18, height - 24, palette.face, 1);
-    this.add.rectangle(x, y - height * 0.28, width * 0.7, 10, palette.shine, 0.8);
+    this.add.rectangle(x, y, width, height, palette.base, 1).setDepth(button.depth);
+    this.add.rectangle(x, y - 10, width - 18, height - 24, palette.face, 1).setDepth(button.depth);
+    this.add.rectangle(x, y - height * 0.28, width * 0.7, 10, palette.shine, 0.8).setDepth(button.depth);
     button.setStrokeStyle(7, 0xfff4c7, 1);
     return button;
-  }
-
-  private swapTiles(tileA: Tile, tileB: Tile, isReverting = false) {
-    if (!isReverting) {
-      this.isProcessing = true;
-    }
-    const rowA = tileA.row;
-    const colA = tileA.col;
-    const rowB = tileB.row;
-    const colB = tileB.col;
-    this.board[rowA][colA] = tileB;
-    this.board[rowB][colB] = tileA;
-
-    tileA.row = rowB;
-    tileA.col = colB;
-
-    tileB.row = rowA;
-    tileB.col = colA;
-
-    const xA = tileA.circle.x;
-    const yA = tileA.circle.y;
-
-    const xB = tileB.circle.x;
-    const yB = tileB.circle.y;
-
-    this.tweens.add({
-      targets: tileA.circle,
-      x: xB,
-      y: yB,
-      duration: 220,
-      ease: "Power2",
-    });
-
-    this.tweens.add({
-      targets: tileB.circle,
-      x: xA,
-      y: yA,
-      duration: 220,
-      ease: "Power2",
-      onComplete: () => {
-        if (isReverting) {
-          this.isProcessing = false;
-          return;
-        }
-        const matchCreated =
-          this.tileHasMatch(tileA) || this.tileHasMatch(tileB);
-
-        console.log("MATCH TROVATO:", matchCreated);
-        if (!matchCreated) {
-          console.log("MOSSA NON VALIDA");
-          this.swapTiles(tileA, tileB, true);
-        }
-        if (matchCreated) {
-          const matches = this.findMatches();
-          this.moves--;
-          this.movesText.setText(`${this.moves}\nMOSSE`);
-
-          console.log("PEDINE DEL TRIS:", matches);
-          this.score += matches.length * 100;
-          this.scoreText.setText(`${this.score}\nPUNTI`);
-          this.updateProgress();
-          if (
-            this.currentLevelConfig.objective === "score" &&
-            this.score >= this.targetScore
-          ) {
-            this.showLevelCompleted();
-          }
-
-          matches.forEach((tile) => {
-            if (
-              this.currentLevelConfig.objective === "collect" &&
-              tile.type === this.currentLevelConfig.collectType
-            ) {
-              this.collectedAmount = Math.min(
-                this.collectedAmount + 1,
-                this.currentLevelConfig.collectAmount ?? 0,
-              );
-            }
-            if (this.currentLevelConfig.objective === "collectDouble") {
-              if (tile.type === this.currentLevelConfig.collectType) {
-                this.collectedAmount = Math.min(
-                  this.collectedAmount + 1,
-                  this.currentLevelConfig.collectAmount ?? 0,
-                );
-              }
-
-              if (tile.type === this.currentLevelConfig.collectType2) {
-                this.collectedAmount2 = Math.min(
-                  this.collectedAmount2 + 1,
-                  this.currentLevelConfig.collectAmount2 ?? 0,
-                );
-              }
-            }
-            tile.circle.destroy();
-            this.board[tile.row][tile.col] = null;
-          });
-          if (this.currentLevelConfig.objective !== "score") {
-            this.objectiveText.setText(this.getObjectiveLabel());
-            this.updateProgress();
-          }
-          if (
-            this.currentLevelConfig.objective === "collect" &&
-            this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0)
-          ) {
-            this.showLevelCompleted();
-          }
-          if (
-            this.currentLevelConfig.objective === "collectDouble" &&
-            this.collectedAmount >=
-              (this.currentLevelConfig.collectAmount ?? 0) &&
-            this.collectedAmount2 >=
-              (this.currentLevelConfig.collectAmount2 ?? 0)
-          ) {
-            this.showLevelCompleted();
-          }
-          this.collapseTiles();
-          this.refillBoard();
-          this.time.delayedCall(400, () => {
-            this.checkCascadeMatches();
-          });
-        }
-      },
-    });
-  }
-  private hasMatch(): boolean {
-    // Controllo orizzontale
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.cols - 2; col++) {
-        const tile = this.board[row][col];
-        if (!tile) continue;
-        const type = tile.type;
-
-        const tileB = this.board[row][col + 1];
-        const tileC = this.board[row][col + 2];
-
-        if (tileB && tileC && tileB.type === type && tileC.type === type) {
-          return true;
-        }
-      }
-    }
-
-    // Controllo verticale
-    for (let col = 0; col < this.cols; col++) {
-      for (let row = 0; row < this.rows - 2; row++) {
-        const tile = this.board[row][col];
-        if (!tile) continue;
-        const type = tile.type;
-
-        const tileB = this.board[row + 1][col];
-        const tileC = this.board[row + 2][col];
-
-        if (tileB && tileC && tileB.type === type && tileC.type === type) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-  private tileHasMatch(tile: Tile): boolean {
-    const row = tile.row;
-    const col = tile.col;
-    const type = tile.type;
-
-    let horizontalCount = 1;
-
-    for (let c = col - 1; c >= 0; c--) {
-      const currentTile = this.board[row][c];
-      if (!currentTile || currentTile.type !== type) break;
-      horizontalCount++;
-    }
-
-    for (let c = col + 1; c < this.cols; c++) {
-      const currentTile = this.board[row][c];
-      if (!currentTile || currentTile.type !== type) break;
-      horizontalCount++;
-    }
-
-    if (horizontalCount >= 3) {
-      return true;
-    }
-
-    let verticalCount = 1;
-
-    for (let r = row - 1; r >= 0; r--) {
-      const currentTile = this.board[r][col];
-      if (!currentTile || currentTile.type !== type) break;
-      verticalCount++;
-    }
-
-    for (let r = row + 1; r < this.rows; r++) {
-      const currentTile = this.board[r][col];
-      if (!currentTile || currentTile.type !== type) break;
-      verticalCount++;
-    }
-
-    return verticalCount >= 3;
-  }
-
-  private hasAvailableMove(): boolean {
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.cols; col++) {
-        const tile = this.board[row][col];
-
-        if (!tile) continue;
-
-        // Prova lo scambio con la pedina a destra
-        if (col < this.cols - 1) {
-          const rightTile = this.board[row][col + 1];
-
-          if (rightTile) {
-            const typeA = tile.type;
-            const typeB = rightTile.type;
-
-            tile.type = typeB;
-            rightTile.type = typeA;
-
-            const createsMatch = this.hasMatch();
-
-            tile.type = typeA;
-            rightTile.type = typeB;
-
-            if (createsMatch) {
-              return true;
-            }
-          }
-        }
-
-        // Prova lo scambio con la pedina sotto
-        if (row < this.rows - 1) {
-          const bottomTile = this.board[row + 1][col];
-
-          if (bottomTile) {
-            const typeA = tile.type;
-            const typeB = bottomTile.type;
-
-            tile.type = typeB;
-            bottomTile.type = typeA;
-
-            const createsMatch = this.hasMatch();
-
-            tile.type = typeA;
-            bottomTile.type = typeB;
-
-            if (createsMatch) {
-              return true;
-            }
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-  private shuffleBoard() {
-    this.isProcessing = true;
-
-    const tiles: Tile[] = [];
-
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.cols; col++) {
-        const tile = this.board[row][col];
-
-        if (tile) {
-          tiles.push(tile);
-        }
-      }
-    }
-
-    let attempts = 0;
-
-    do {
-      Phaser.Utils.Array.Shuffle(tiles);
-
-      let index = 0;
-
-      for (let row = 0; row < this.rows; row++) {
-        for (let col = 0; col < this.cols; col++) {
-          const tile = tiles[index];
-
-          this.board[row][col] = tile;
-
-          tile.row = row;
-          tile.col = col;
-
-          const boardWidth = this.cols * this.tileSize;
-          const startX = (1080 - boardWidth) / 2;
-          const startY = this.boardY;
-
-          const x = startX + col * this.tileSize + this.tileSize / 2;
-
-          const y = startY + row * this.tileSize + this.tileSize / 2;
-
-          tile.circle.setPosition(x, y);
-
-          index++;
-        }
-      }
-
-      attempts++;
-    } while ((this.hasMatch() || !this.hasAvailableMove()) && attempts < 1000);
-    this.isProcessing = false;
-  }
-
-  private findMatches(): Tile[] {
-    const matches = new Set<Tile>();
-
-    // Cerca i match orizzontali
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.cols - 2; col++) {
-        const tileA = this.board[row][col];
-        const tileB = this.board[row][col + 1];
-        const tileC = this.board[row][col + 2];
-        if (!tileA || !tileB || !tileC) continue;
-
-        if (tileA.type === tileB.type && tileA.type === tileC.type) {
-          matches.add(tileA);
-          matches.add(tileB);
-          matches.add(tileC);
-        }
-      }
-    }
-
-    // Cerca i match verticali
-    for (let col = 0; col < this.cols; col++) {
-      for (let row = 0; row < this.rows - 2; row++) {
-        const tileA = this.board[row][col];
-        const tileB = this.board[row + 1][col];
-        const tileC = this.board[row + 2][col];
-        if (!tileA || !tileB || !tileC) continue;
-
-        if (tileA.type === tileB.type && tileA.type === tileC.type) {
-          matches.add(tileA);
-          matches.add(tileB);
-          matches.add(tileC);
-        }
-      }
-    }
-
-    return Array.from(matches);
-  }
-  private collapseTiles() {
-    for (let col = 0; col < this.cols; col++) {
-      let emptyRow = this.rows - 1;
-
-      for (let row = this.rows - 1; row >= 0; row--) {
-        const tile = this.board[row][col];
-
-        if (tile) {
-          if (row !== emptyRow) {
-            this.board[emptyRow][col] = tile;
-            this.board[row][col] = null;
-
-            tile.row = emptyRow;
-            this.tweens.add({
-              targets: tile.circle,
-              y: tile.circle.y + (emptyRow - row) * this.tileSize,
-              duration: 300,
-              ease: "Bounce.easeOut",
-            });
-          }
-
-          emptyRow--;
-        }
-      }
-    }
-  }
-  private refillBoard() {
-    const boardWidth = this.cols * this.tileSize;
-    const startX = (1080 - boardWidth) / 2;
-    const startY = this.boardY;
-
-    for (let col = 0; col < this.cols; col++) {
-      for (let row = 0; row < this.rows; row++) {
-        if (this.board[row][col] !== null) continue;
-
-        const type = Phaser.Math.Between(0, this.colors.length - 1);
-
-        const x = startX + col * this.tileSize + this.tileSize / 2;
-
-        const finalY = startY + row * this.tileSize + this.tileSize / 2;
-
-        const circle = this.add
-          .image(x, finalY - this.tileSize * 2, `tile-${this.tileKeys[type]}`)
-          .setDisplaySize(110, 110)
-          .setInteractive({ useHandCursor: true });
-
-        const tile: Tile = {
-          row,
-          col,
-          type,
-          circle,
-        };
-
-        circle.on("pointerup", () => {
-          if (this.moves <= 0 || this.levelCompleted) {
-            return;
-          }
-
-          this.selectTile(tile);
-        });
-
-        this.board[row][col] = tile;
-
-        this.tweens.add({
-          targets: circle,
-          y: finalY,
-          duration: 300,
-          ease: "Bounce.easeOut",
-        });
-      }
-    }
-  }
-  private checkCascadeMatches() {
-    const matches = this.findMatches();
-
-    if (matches.length === 0) {
-      this.isProcessing = false;
-
-      this.comboMultiplier = 1;
-      this.comboText.setText("");
-
-      if (this.moves <= 0 && !this.levelCompleted) {
-        this.showLevelFailed();
-        return;
-      }
-
-      if (this.moves > 0 && !this.levelCompleted && !this.hasAvailableMove()) {
-        console.log("NESSUNA MOSSA DISPONIBILE");
-        this.shuffleBoard();
-      }
-
-      return;
-    }
-    this.comboMultiplier++;
-    this.comboText.setText(`COMBO x${this.comboMultiplier}!`);
-    this.score += matches.length * 100 * this.comboMultiplier;
-
-    this.scoreText.setText(`${this.score}\nPUNTI`);
-    this.updateProgress();
-    if (
-      this.currentLevelConfig.objective === "score" &&
-      this.score >= this.targetScore
-    ) {
-      this.showLevelCompleted();
-      return;
-    }
-    matches.forEach((tile) => {
-      if (
-        this.currentLevelConfig.objective === "collect" &&
-        tile.type === this.currentLevelConfig.collectType
-      ) {
-        this.collectedAmount = Math.min(
-          this.collectedAmount + 1,
-          this.currentLevelConfig.collectAmount ?? 0,
-        );
-      }
-      if (this.currentLevelConfig.objective === "collectDouble") {
-        if (tile.type === this.currentLevelConfig.collectType) {
-          this.collectedAmount = Math.min(
-            this.collectedAmount + 1,
-            this.currentLevelConfig.collectAmount ?? 0,
-          );
-        }
-
-        if (tile.type === this.currentLevelConfig.collectType2) {
-          this.collectedAmount2 = Math.min(
-            this.collectedAmount2 + 1,
-            this.currentLevelConfig.collectAmount2 ?? 0,
-          );
-        }
-      }
-
-      tile.circle.destroy();
-      this.board[tile.row][tile.col] = null;
-    });
-    if (this.currentLevelConfig.objective === "collectDouble") {
-      this.objectiveText.setText(this.getObjectiveLabel());
-      this.updateProgress();
-    }
-    if (this.currentLevelConfig.objective === "collectDouble") {
-      if (
-        this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0) &&
-        this.collectedAmount2 >= (this.currentLevelConfig.collectAmount2 ?? 0)
-      ) {
-        this.showLevelCompleted();
-        return;
-      }
-    }
-
-    if (this.currentLevelConfig.objective === "collect") {
-      this.objectiveText.setText(this.getObjectiveLabel());
-      this.updateProgress();
-
-      if (
-        this.collectedAmount >= (this.currentLevelConfig.collectAmount ?? 0)
-      ) {
-        this.showLevelCompleted();
-        return;
-      }
-    }
-    this.time.delayedCall(250, () => {
-      this.collapseTiles();
-
-      this.time.delayedCall(350, () => {
-        this.refillBoard();
-
-        this.time.delayedCall(400, () => {
-          this.checkCascadeMatches();
-        });
-      });
-    });
   }
 }
