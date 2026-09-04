@@ -2,10 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
 import GameScene from "./game/GameScene";
 import { levels, worlds } from "./game/levels";
+import {
+  fetchLeaderboard,
+  saveCloudProgress,
+  type LeaderboardEntry,
+} from "./cloudClient";
 import "./App.css";
 import "./Map.css";
 
 type AppView = "home" | "map" | "game" | "leaderboard" | "frenchies";
+
+type AppProps = {
+  username: string;
+  onSignOut: () => void | Promise<void>;
+};
 
 const menuItems = [
   { icon: "/menu-adventure.png", label: "AVVENTURA", view: "map" as AppView },
@@ -45,7 +55,7 @@ const loadUnlockedLevel = () => {
 const worldForLevel = (level: number) =>
   worlds.find((world) => level >= world.firstLevel && level <= world.lastLevel) ?? worlds[0];
 
-function App() {
+function App({ username, onSignOut }: AppProps) {
   const gameContainer = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<AppView>("home");
   const [notice, setNotice] = useState("");
@@ -56,6 +66,9 @@ function App() {
   const [selectedOutfit, setSelectedOutfit] = useState(
     () => localStorage.getItem("chiki-outfit") || "Classico",
   );
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [leaderboardError, setLeaderboardError] = useState("");
 
   useEffect(() => {
     if (view !== "game" || !gameContainer.current) return;
@@ -100,6 +113,48 @@ function App() {
     return () => window.removeEventListener("chiki-level-complete", completed);
   }, []);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void saveCloudProgress({
+        unlocked_level: unlockedLevel,
+        level_stars: levelStars,
+        selected_outfit: selectedOutfit,
+      }).catch(() => {
+        // Il salvataggio locale resta disponibile anche se temporaneamente offline.
+      });
+    }, 250);
+
+    return () => window.clearTimeout(timer);
+  }, [unlockedLevel, levelStars, selectedOutfit]);
+
+  useEffect(() => {
+    if (view !== "leaderboard") return;
+    let active = true;
+    setLeaderboardLoading(true);
+    setLeaderboardError("");
+
+    const load = async () => {
+      try {
+        await saveCloudProgress({
+          unlocked_level: unlockedLevel,
+          level_stars: levelStars,
+          selected_outfit: selectedOutfit,
+        });
+        const rows = await fetchLeaderboard();
+        if (active) setLeaderboard(rows);
+      } catch {
+        if (active) setLeaderboardError("Classifica non disponibile. Riprova tra poco.");
+      } finally {
+        if (active) setLeaderboardLoading(false);
+      }
+    };
+
+    void load();
+    return () => {
+      active = false;
+    };
+  }, [view, unlockedLevel, levelStars, selectedOutfit]);
+
   const soon = (label: string) => {
     setNotice(`${label}: prossimamente`);
     window.setTimeout(() => setNotice(""), 1800);
@@ -124,15 +179,9 @@ function App() {
   const totalStars = Object.values(levelStars).reduce((sum, stars) => sum + stars, 0);
 
   if (view === "leaderboard") {
-    const players = [
-      { name: "Marty", score: 68400, avatar: "🐕" },
-      { name: "Luna", score: 55200, avatar: "🐶" },
-      { name: "Rocky", score: 41900, avatar: "🐾" },
-      { name: "Bulldog King", score: 33750, avatar: "🦴" },
-      { name: "Chiki", score: totalStars * 5000 + unlockedLevel * 1200, avatar: "chiki" },
-    ].sort((a, b) => b.score - a.score);
-
-    const myPosition = players.findIndex((player) => player.name === "Chiki") + 1;
+    const myPosition = leaderboard.findIndex(
+      (player) => player.username.toLowerCase() === username.toLowerCase(),
+    ) + 1;
 
     return (
       <main className="feature-screen leaderboard-screen">
@@ -152,21 +201,40 @@ function App() {
             <button>STELLE</button>
             <button>SFIDA</button>
           </nav>
-          <div className="ranking-list">
-            {players.map((player, index) => (
-              <article className={player.name === "Chiki" ? "me" : ""} key={player.name}>
-                <b>{index + 1}</b>
-                {player.avatar === "chiki" ? (
-                  <img src="/chiki-icon.jpeg" alt="Chiki" />
-                ) : (
-                  <span>{player.avatar}</span>
-                )}
-                <strong>{player.name}</strong>
-                <em>{player.score.toLocaleString("it-IT")}</em>
-              </article>
-            ))}
+
+          {leaderboardLoading && <div className="leaderboard-empty">AGGIORNAMENTO CLASSIFICA…</div>}
+          {!leaderboardLoading && leaderboardError && (
+            <div className="leaderboard-empty">{leaderboardError}</div>
+          )}
+          {!leaderboardLoading && !leaderboardError && leaderboard.length === 0 && (
+            <div className="leaderboard-empty">NESSUN GIOCATORE REGISTRATO</div>
+          )}
+
+          {!leaderboardLoading && leaderboard.length > 0 && (
+            <div className="ranking-list">
+              {leaderboard.map((player, index) => {
+                const isMe = player.username.toLowerCase() === username.toLowerCase();
+                return (
+                  <article className={isMe ? "me" : ""} key={player.username}>
+                    <b>{index + 1}</b>
+                    {isMe ? (
+                      <img src="/chiki-icon.jpeg" alt="Il tuo profilo" />
+                    ) : (
+                      <span>{player.username.slice(0, 1).toUpperCase()}</span>
+                    )}
+                    <strong>{player.username}</strong>
+                    <em>{player.score.toLocaleString("it-IT")}</em>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="my-position">
+            LA TUA POSIZIONE
+            <strong>{myPosition > 0 ? `#${myPosition}` : "—"}</strong>
+            <small>{username} · Livello {unlockedLevel} · {totalStars} stelle</small>
           </div>
-          <div className="my-position">LA TUA POSIZIONE <strong>#{myPosition}</strong></div>
         </section>
       </main>
     );
@@ -192,7 +260,7 @@ function App() {
           </div>
           <div>
             <h2>Chiki</h2>
-            <p>Livello {unlockedLevel} · {totalStars} stelle</p>
+            <p>{username} · Livello {unlockedLevel} · {totalStars} stelle</p>
             <b>{active.name}</b>
           </div>
         </section>
@@ -235,6 +303,7 @@ function App() {
     const currentWorld = worlds.find((world) => world.id === selectedWorld) ?? worlds[0];
     const worldLevels = levels.filter((config) => config.world === currentWorld.id);
     const worldStars = worldLevels.reduce((sum, config) => sum + (levelStars[config.level] || 0), 0);
+    const maxWorldStars = worldLevels.length * 3;
 
     return (
       <main className={`map-screen world-${currentWorld.id}`}>
@@ -244,7 +313,7 @@ function App() {
             <small>MONDO {currentWorld.id}</small>
             <strong>{currentWorld.name.toUpperCase()}</strong>
           </div>
-          <span>⭐ {worldStars}/45</span>
+          <span>⭐ {worldStars}/{maxWorldStars}</span>
         </header>
 
         <nav className="world-switcher" aria-label="Seleziona mondo">
@@ -331,6 +400,10 @@ function App() {
           </button>
         ))}
       </nav>
+      <button className="home-account" onClick={() => void onSignOut()}>
+        <span>👤 {username}</span>
+        <small>ESCI</small>
+      </button>
       {notice && <div className="toast" role="status">{notice}</div>}
     </main>
   );
