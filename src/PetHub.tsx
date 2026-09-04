@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { playPurchaseJingle } from "./homeMusic";
 import { playChikiBark } from "./petAudio";
+import ChikiAvatar from "./ChikiAvatar";
 import { shopItems, shopItemById, type ShopItem, type ShopKind } from "./shopCatalog";
 import "./Shop.css";
 import "./PetHubPolish.css";
@@ -30,27 +31,6 @@ const ItemArt = ({ item, compact = false }: { item: ShopItem; compact?: boolean 
     <i aria-hidden="true" />
     <b>{item.icon}</b>
   </span>
-);
-
-const WearablePiece = ({
-  item,
-  prefix,
-}: {
-  item: ShopItem;
-  prefix: string;
-}) => (
-  <span className={`${prefix} ${prefix}-${item.slot} piece-${item.id}`} aria-hidden="true">
-    <b>{item.icon}</b>
-  </span>
-);
-
-const Wearables = ({ items, prefix = "wearable" }: { items: Record<string, ShopItem | undefined>; prefix?: string }) => (
-  <>
-    {items.outfit && items.outfit.id !== "outfit_classic" && <WearablePiece item={items.outfit} prefix={prefix} />}
-    {items.collar && <WearablePiece item={items.collar} prefix={prefix} />}
-    {items.glasses && <WearablePiece item={items.glasses} prefix={prefix} />}
-    {items.hat && <WearablePiece item={items.hat} prefix={prefix} />}
-  </>
 );
 
 const RoomObject = ({ item, slot }: { item?: ShopItem; slot: string }) => {
@@ -192,15 +172,15 @@ export default function PetHub({
             <RoomObject item={equippedItems.bowl} slot="bowl" />
             <RoomObject item={equippedItems.toy} slot="toy" />
 
-            <button
-              type="button"
-              className={`room-chiki ${equippedItems.toy ? "has-toy" : ""} ${isBarking ? "barking" : ""}`}
-              onClick={interactWithChiki}
-              aria-label="Gioca con Chiki"
-            >
-              <img src="/chiki-character.webp" alt="Chiki nella sua stanza" />
-              <Wearables items={equippedItems} />
-            </button>
+            <div className={`room-chiki ${equippedItems.toy ? "has-toy" : ""}`}>
+              <ChikiAvatar
+                items={equippedItems}
+                variant="room"
+                barking={isBarking}
+                onTap={interactWithChiki}
+                alt="Chiki nella sua stanza"
+              />
+            </div>
             {roomReaction && <div className="room-reaction">{roomReaction}</div>}
             <small className="room-hint">TOCCA CHIKI</small>
           </section>
@@ -221,8 +201,7 @@ export default function PetHub({
         <section className="hub-section chiki-wardrobe-section">
           <div className="chiki-profile-card">
             <div className="mini-chiki-wrap">
-              <img src="/chiki-character.webp" alt="Chiki" />
-              <Wearables items={equippedItems} prefix="profile-wearable" />
+              <ChikiAvatar items={equippedItems} variant="profile" alt="Chiki" />
             </div>
             <div className="chiki-profile-copy">
               <small>LA TUA FRENCHIE</small>
@@ -324,10 +303,12 @@ export default function PetHub({
             <h2>CHIKI È FELICISSIMA!</h2>
             <div className="celebration-stage">
               <div className="celebration-chiki">
-                <img src="/chiki-character.webp" alt="Chiki che esulta" />
-                {celebratingItem.kind === "chiki" && celebratingItem.slot !== "toy" && (
-                  <Wearables items={celebrationItems} prefix="celebration-wearable" />
-                )}
+                <ChikiAvatar
+                  items={celebrationItems}
+                  variant="celebration"
+                  celebrating
+                  alt="Chiki che esulta"
+                />
               </div>
               {celebratingItem.kind === "room" || celebratingItem.slot === "toy" ? (
                 <ItemArt item={celebratingItem} />
