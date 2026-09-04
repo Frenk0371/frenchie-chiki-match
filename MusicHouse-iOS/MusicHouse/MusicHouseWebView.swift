@@ -10,8 +10,10 @@ struct MusicHouseWebView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = .default()
         configuration.allowsInlineMediaPlayback = true
         configuration.allowsAirPlayForMediaPlayback = true
+        configuration.allowsPictureInPictureMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
         configuration.defaultWebpagePreferences.allowsContentJavaScript = true
 
@@ -31,7 +33,11 @@ struct MusicHouseWebView: UIViewRepresentable {
     func updateUIView(_ webView: WKWebView, context: Context) {}
 
     final class Coordinator: NSObject, WKNavigationDelegate {
-        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        func webView(
+            _ webView: WKWebView,
+            decidePolicyFor navigationAction: WKNavigationAction,
+            decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+        ) {
             guard let url = navigationAction.request.url else {
                 decisionHandler(.cancel)
                 return
@@ -47,6 +53,11 @@ struct MusicHouseWebView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             BackgroundAudioSession.shared.activate()
+        }
+
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+            BackgroundAudioSession.shared.activate()
+            webView.reload()
         }
     }
 }
