@@ -11,16 +11,20 @@
 .social-selectable {
   position: relative;
   cursor: pointer;
-  padding-right: 48px !important;
   transition: transform .15s ease, filter .15s ease;
 }
 .social-selectable:active { transform: scale(.985); }
+
+/* In classifica nessuna spunta/+ /clessidra: la riga resta toccabile e apre il profilo. */
+.ranking-list .social-player-action {
+  display: none !important;
+}
+
 .social-player-action {
   position: absolute;
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  display: grid;
   place-items: center;
   min-width: 31px;
   height: 31px;
