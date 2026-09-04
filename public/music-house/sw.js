@@ -1,5 +1,5 @@
-const CACHE = 'music-house-v7';
-const SHELL = ['./','./index.html','./styles.css','./auth.css','./playlist.css','./app-core.js','./app-search-ui.js','./app-search-api.js','./app-library.js','./app-auth.js','./app-player.js','./manifest.webmanifest','./music-house-192.png'];
+const CACHE = 'music-house-v8';
+const SHELL = ['./','./index.html','./styles.css','./auth.css','./playlist.css','./app-core.js','./app-search-ui.js','./app-search-api.js','./app-library.js','./app-auth.js','./app-player.js','./background-test.html','./manifest.webmanifest','./music-house-192.png'];
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener('fetch', event => {
