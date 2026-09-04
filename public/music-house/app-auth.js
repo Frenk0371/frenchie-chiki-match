@@ -95,7 +95,7 @@
       suppressCloudSave = false;
     }
     render();
-    updatePlayerUI?.();
+    if (typeof updatePlayerUI === 'function') updatePlayerUI();
   }
 
   async function saveCloudState() {
@@ -189,7 +189,7 @@
     refreshAccountUI();
     accountModal.hidden = true;
     render();
-    updatePlayerUI?.();
+    if (typeof updatePlayerUI === 'function') updatePlayerUI();
     toastMessage('Disconnesso');
   }
 
