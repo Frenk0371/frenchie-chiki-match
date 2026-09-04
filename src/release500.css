@@ -1,0 +1,40 @@
+/* Release 500: 25 mondi navigabili senza comprimere la mappa. */
+.world-switcher {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 9px 18px 14px !important;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.world-switcher::-webkit-scrollbar { display: none; }
+
+.world-switcher > button {
+  flex: 0 0 clamp(145px, 38vw, 190px) !important;
+  min-width: 0 !important;
+  min-height: 78px !important;
+  scroll-snap-align: center;
+}
+
+.world-switcher > button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* New worlds reuse the established five visual families in a rotating way. */
+.map-screen.world-6, .map-screen.world-13, .map-screen.world-18, .map-screen.world-20 { --world-accent: #68c853; }
+.map-screen.world-7, .map-screen.world-10, .map-screen.world-15, .map-screen.world-22 { --world-accent: #76cbe9; }
+.map-screen.world-8, .map-screen.world-11, .map-screen.world-14, .map-screen.world-17, .map-screen.world-23 { --world-accent: #c69258; }
+.map-screen.world-9, .map-screen.world-12, .map-screen.world-16, .map-screen.world-19, .map-screen.world-24 { --world-accent: #7561a8; }
+.map-screen.world-21, .map-screen.world-25 { --world-accent: #d46a45; }
+
+@media (max-width: 390px) {
+  .world-switcher > button {
+    flex-basis: 142px !important;
+  }
+}
