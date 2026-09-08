@@ -1,0 +1,51 @@
+name: Publish TV App Italia APK
+
+on:
+  push:
+    branches:
+      - tvapp-publish-temp
+    paths:
+      - '.github/workflows/publish-tv-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tvapp-publish-temp
+
+      - name: Download verified APK artifact
+        shell: bash
+        env:
+          ARTIFACT_URL: "https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-d548-8210-9c6c-bec20a9e6bfc/raw?se=2026-09-08T18%3A21%3A55Z&sp=r&sv=2026-02-06&sr=b&scid=dbdd99e2-0dae-5791-ac44-305b943f77ac&skoid=e5e3659d-4463-4dbf-b2ce-ee32bc0a0a8d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-07T20%3A25%3A30Z&ske=2026-09-08T20%3A25%3A30Z&sks=b&skv=2026-02-06&sig=w0M6RAEX5rZPq9dD67dkBGjgwP5oXoS6tA%2BLXr9stLQ%3D"
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --max-time 120 "$ARTIFACT_URL" -o /tmp/tvapp.zip
+          rm -rf /tmp/tvapp && mkdir -p /tmp/tvapp
+          unzip -o /tmp/tvapp.zip -d /tmp/tvapp >/dev/null
+          APK=$(find /tmp/tvapp -type f -name '*.apk' | head -n1)
+          test -n "$APK"
+          test -s "$APK"
+          test "$(stat -c%s "$APK")" = "1303645"
+          test "$(sha256sum "$APK" | awk '{print $1}')" = "98af71def2d6cc7d7723c4f08e61f212c35a2dbec4effd9c34ae4ab0dffb39aa"
+          mkdir -p downloads
+          cp "$APK" downloads/TV-App-Italia-v0.9.6-Premium-TV.apk
+
+      - name: Publish APK on public branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add downloads/TV-App-Italia-v0.9.6-Premium-TV.apk
+          if git diff --cached --quiet; then
+            echo "APK already published"
+          else
+            git commit -m "Publish TV App Italia v0.9.6 Premium APK"
+            git push origin HEAD:tvapp-publish-temp
+          fi
