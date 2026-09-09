@@ -1,0 +1,46 @@
+name: Publish TV App Italia v0.9.11 APK
+
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-tvapp-v0911.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download exact verified v0.9.11 artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://sdmntprcentralus.oaiusercontent.com/files/00000000-c144-81f5-946e-272bf43c83cc/raw?se=2026-09-09T16%3A54%3A12Z&sp=r&sv=2026-02-06&sr=b&scid=6cb27347-f8da-56fa-961a-b7393d00d8e7&skoid=e5e3659d-4463-4dbf-b2ce-ee32bc0a0a8d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-09T08%3A02%3A50Z&ske=2026-09-10T08%3A02%3A50Z&sks=b&skv=2026-02-06&sig=gQKiORSUInB7t8RxU0JFRqOGkai99rGdtHIgUgNyg/E%3D'
+          curl -fL --retry 3 --retry-delay 2 "$URL" -o /tmp/tvapp.zip
+          rm -rf /tmp/tvapp && mkdir -p /tmp/tvapp
+          unzip -q /tmp/tvapp.zip -d /tmp/tvapp
+          APK=$(find /tmp/tvapp -type f -name '*.apk' | head -n1)
+          test -n "$APK"
+          ACTUAL_SHA=$(sha256sum "$APK" | awk '{print $1}')
+          EXPECTED_SHA='5725aaa17c8bbc8bf087be1807bbee0e3202d836fc4e5392b03b8d0c1c7287e4'
+          test "$ACTUAL_SHA" = "$EXPECTED_SHA"
+          test "$(stat -c%s "$APK")" = '1305855'
+          mkdir -p public downloads/tv-app-italia
+          cp "$APK" public/tvapp.apk
+          cp "$APK" downloads/tv-app-italia/latest.apk
+          printf '%s\n' "$ACTUAL_SHA" > public/tvapp.sha256
+          echo 'TV App Italia Android TV v0.9.11 - 30 channels - badge auto-hide - TV launcher fix' > public/tvapp-version.txt
+
+      - name: Publish stable latest.apk
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/tvapp.apk public/tvapp.sha256 public/tvapp-version.txt downloads/tv-app-italia/latest.apk
+          git commit -m 'Publish TV App Italia Android TV v0.9.11'
+          git push
