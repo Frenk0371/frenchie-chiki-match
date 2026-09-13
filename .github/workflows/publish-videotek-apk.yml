@@ -1,0 +1,31 @@
+name: Publish Videotek APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/publish-videotek-apk.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download VideotekApp v0.4.3 artifact
+        run: |
+          curl -L --fail --retry 3 'https://sdmntprsoutheastus3.oaiusercontent.com/files/00000000-11b0-820c-bd19-cb9f6928e1c4/raw?se=2026-09-13T11%3A48%3A45Z&sp=r&sv=2026-02-06&sr=b&scid=d7c1a3d8-4a8d-5ac1-bd87-146c24794f9f&skoid=e5e3659d-4463-4dbf-b2ce-ee32bc0a0a8d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-13T09%3A02%3A24Z&ske=2026-09-14T09%3A02%3A24Z&sks=b&skv=2026-02-06&sig=mI5DrAAW0iI76/auWSx1d2j7dEq0MSep1cYmAGLKHLg%3D' -o /tmp/videotek.zip
+          unzip -o /tmp/videotek.zip -d /tmp/videotek
+          mkdir -p public-downloads/videotekapp
+          cp /tmp/videotek/app-debug.apk public-downloads/videotekapp/VideotekApp-0.4.3.apk
+
+      - name: Publish APK in repository
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public-downloads/videotekapp/VideotekApp-0.4.3.apk
+          git commit -m 'Publish VideotekApp v0.4.3 APK'
+          git push
