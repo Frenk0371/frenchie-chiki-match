@@ -20,7 +20,7 @@ jobs:
       - name: Download VideotekApp artifact
         run: |
           set -e
-          curl -L --fail --retry 3 'https://sdmntprsoutheastus3.oaiusercontent.com/files/00000000-11b0-820c-bd19-cb9f6928e1c4/raw?se=2026-09-13T11%3A48%3A45Z&sp=r&sv=2026-02-06&sr=b&scid=d7c1a3d8-4a8d-5ac1-bd87-146c24794f9f&skoid=e5e3659d-4463-4dbf-b2ce-ee32bc0a0a8d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-13T09%3A02%3A24Z&ske=2026-09-14T09%3A02%3A24Z&sks=b&skv=2026-02-06&sig=mI5DrAAW0iI76/auWSx1d2j7dEq0MSep1cYmAGLKHLg%3D' -o /tmp/videotek.zip
+          curl -L --fail --retry 3 'https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-1ed8-8210-bb18-f9cb72690b9c/raw?se=2026-09-13T11%3A59%3A47Z&sp=r&sv=2026-02-06&sr=b&scid=622acf79-ce43-596a-86ee-c1c607dbabc5&skoid=e5e3659d-4463-4dbf-b2ce-ee32bc0a0a8d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-13T05%3A25%3A18Z&ske=2026-09-14T05%3A25%3A18Z&sks=b&skv=2026-02-06&sig=QJviX82WkamAP7kMB0gVJ/gIHCUupOOjx2Ti8GZsrXc%3D' -o /tmp/videotek.zip
           rm -rf /tmp/videotek-unzip
           mkdir -p /tmp/videotek-unzip
           unzip -o /tmp/videotek.zip -d /tmp/videotek-unzip
