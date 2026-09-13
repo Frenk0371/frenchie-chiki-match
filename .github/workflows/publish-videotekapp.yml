@@ -1,0 +1,38 @@
+name: Publish VideotekApp APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-videotekapp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download VideotekApp artifact
+        run: |
+          set -e
+          curl -L --fail --retry 3 'https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-d850-8210-b203-fd36b5ca526d/raw?se=2026-09-13T07%3A36%3A30Z&sp=r&sv=2026-02-06&sr=b&scid=51f1f58e-81da-5fd8-b64a-15194f1c2a54&skoid=e5e3659d-4463-4dbf-b2ce-ee32bc0a0a8d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-13T06%3A28%3A05Z&ske=2026-09-14T06%3A28%3A05Z&sks=b&skv=2026-02-06&sig=5Cn2CFA/4f9g9wulfJYY%2BdILlIOpS48LhlT6AbHVxEk%3D' -o /tmp/videotek.zip
+          rm -rf /tmp/videotek-unzip
+          mkdir -p /tmp/videotek-unzip
+          unzip -o /tmp/videotek.zip -d /tmp/videotek-unzip
+          APK=$(find /tmp/videotek-unzip -type f -name '*.apk' | head -n 1)
+          test -n "$APK"
+          mkdir -p downloads/videotekapp
+          cp "$APK" downloads/videotekapp/latest.apk
+
+      - name: Commit public APK
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add downloads/videotekapp/latest.apk
+          git commit -m 'Publish VideotekApp latest APK' || exit 0
+          git push
