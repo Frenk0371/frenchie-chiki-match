@@ -14,5 +14,26 @@ function openSearch(){document.body.insertAdjacentHTML('beforeend',`<div class="
 function closeSearch(){$('#sheetBg')?.remove()}
 async function searchCity(q){if(q.trim().length<2){$('#results').innerHTML='';return}let u=new URL('https://geocoding-api.open-meteo.com/v1/search');u.searchParams.set('name',q);u.searchParams.set('count','7');u.searchParams.set('language','it');let r=await fetch(u),j=await r.json();$('#results').innerHTML=(j.results||[]).map((x,i)=>`<button data-i="${i}"><b>${x.name}</b><small>${[x.admin1,x.country].filter(Boolean).join(', ')}</small></button>`).join('');[...$('#results').children].forEach((b,i)=>b.onclick=()=>choose(j.results[i]))}
 function choose(x){loc={name:x.name,admin1:x.admin1,country:x.country,latitude:x.latitude,longitude:x.longitude,timezone:x.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone};localStorage.setItem('mw-location',JSON.stringify(loc));closeSearch();load()}
+const _consensusBase=consensus;
+consensus=function(models){
+  const out=_consensusBase(models);
+  if(!out?.daily?.length||!out?.hourly?.length)return out;
+  out.daily=out.daily.map(d=>{
+    if(d.code<95)return d;
+    const hs=out.hourly.filter(h=>h.time.slice(0,10)===d.date&&+h.time.slice(11,13)>=8&&+h.time.slice(11,13)<=20);
+    if(!hs.length)return d;
+    const stormHours=hs.filter(h=>h.code>=95&&h.pop>=60);
+    const stormCoverage=stormHours.length/hs.length;
+    if(d.pop>=50&&stormHours.length>=2&&stormCoverage>=0.15)return d;
+    const wet=hs.filter(h=>h.code>=51||h.pop>=45||h.precip>=0.2);
+    const wetCoverage=wet.length/hs.length;
+    if(d.pop>=35&&wetCoverage>=0.20)return {...d,code:80};
+    const dry=hs.filter(h=>h.code<51);
+    const clouds=(dry.length?dry:hs).map(h=>h.cloud).filter(Number.isFinite);
+    const avgCloud=clouds.length?clouds.reduce((a,b)=>a+b,0)/clouds.length:50;
+    return {...d,code:avgCloud>=82?3:avgCloud>=45?2:avgCloud>=18?1:0};
+  });
+  return out;
+};
 load();
 </script></body></html>
