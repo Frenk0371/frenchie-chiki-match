@@ -343,6 +343,28 @@ body:before{content:"";position:fixed;z-index:60;left:0;right:0;top:0;height:cal
   .nav button,.nav button.on span{font-size:11px}
 }
 
+
+/* Dettaglio giornaliero 1.5.5 — leggibilità */
+.daySheet .daySummary span{font-size:12.5px;opacity:.86;margin-bottom:5px;line-height:1.15}
+.daySheet .daySummary b{font-size:17px;line-height:1.15}
+.daySheet .daySummary>div{padding:13px 8px}
+.daySheet .dayHourMeta{font-size:13.5px;opacity:.9;line-height:1.32}
+.daySheet .dayHourTemp small{font-size:12.5px;font-weight:650;opacity:.82;margin-top:3px}
+.daySheet .dayHour>div:nth-child(3)>b{font-size:15.5px}
+.daySheet .daySunUv span:not(.sunUvGlyph){font-size:12.5px;opacity:.86}
+.daySheet .daySunUv b{font-size:16px}
+.daySheet .daySunUv small{font-size:11.5px;opacity:.84}
+@media(max-width:430px){
+  .daySheet .daySummary span{font-size:12px}
+  .daySheet .daySummary b{font-size:16.5px}
+  .daySheet .dayHourMeta{font-size:12.75px}
+  .daySheet .dayHourTemp small{font-size:12px}
+  .daySheet .dayHour>div:nth-child(3)>b{font-size:14.75px}
+  .daySheet .daySunUv span:not(.sunUvGlyph){font-size:12px}
+  .daySheet .daySunUv b{font-size:15.5px}
+  .daySheet .daySunUv small{font-size:11px}
+}
+
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
