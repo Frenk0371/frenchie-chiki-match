@@ -173,7 +173,7 @@ async function openRadar(){
 function showInfo(){
   setActiveTab('tabInfo');
   document.getElementById('infoBg')?.remove();
-  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.4.0</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
+  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.4.1</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
   document.getElementById('closeInfo').onclick=()=>{document.getElementById('infoBg')?.remove();setActiveTab('tabToday')};
   document.getElementById('infoBg').onclick=e=>{if(e.target.id==='infoBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
 }
@@ -230,29 +230,43 @@ function todayBrief(hours,daily){
 }
 function rainInsight(hours){
   const hs=(hours||[]).slice(0,24);
-  if(!hs.length)return{wet:false,title:'Dati non disponibili',detail:'Riprova tra poco'};
-  const isWet=h=>{
+  if(!hs.length)return{wet:false,heading:'Precipitazioni',title:'Dati non disponibili',detail:'Riprova tra poco'};
+  const significant=h=>{
     const pop=Number(h.pop)||0,mm=Number(h.precip)||0,code=Number(h.code)||0;
     return (pop>=35&&(code>=51||mm>=.2))||(pop>=20&&mm>=.7);
   };
-  const first=hs.findIndex(isWet);
-  if(first<0)return{wet:false,title:'Nessuna pioggia significativa',detail:'Nelle prossime 24 ore'};
+  const first=hs.findIndex(significant);
+  if(first<0)return{wet:false,heading:'Quando pioverà?',title:'Nessuna pioggia significativa',detail:'Nelle prossime 24 ore'};
   let end=first,lastWet=first,gap=0;
   for(let i=first+1;i<hs.length;i++){
-    if(isWet(hs[i])){lastWet=i;end=i;gap=0}
+    if(significant(hs[i])){lastWet=i;end=i;gap=0}
     else if(gap<1){gap++;end=i}
     else break;
   }
   end=lastWet;
   const seg=hs.slice(first,end+1),maxPop=Math.max(...seg.map(h=>Number(h.pop)||0));
   const total=seg.reduce((s,h)=>s+(Number(h.precip)||0),0);
+  const snowHours=seg.filter(h=>Number(h.code)>=71&&Number(h.code)<=77&&significant(h)).length;
+  const rainHours=seg.filter(h=>Number(h.code)>=51&&!(Number(h.code)>=71&&Number(h.code)<=77)&&significant(h)).length;
+  const isSnow=snowHours>rainHours&&snowHours>0;
+  const mixed=snowHours>0&&rainHours>0&&snowHours===rainHours;
   const refDay=hs[0].time.slice(0,10),startDay=hs[first].time.slice(0,10);
   const diff=Math.round((new Date(startDay+'T12:00')-new Date(refDay+'T12:00'))/86400000);
   const dayWord=diff===0?'oggi':diff===1?'domani':new Intl.DateTimeFormat('it-IT',{weekday:'long'}).format(new Date(startDay+'T12:00'));
   const t0=hs[first].time.slice(11,16),t1=hs[end].time.slice(11,16);
   let when=first===0?'Adesso':(first===end?dayWord+' intorno alle '+t0:dayWord+' dalle '+t0+' alle '+t1);
-  const kind=maxPop>=70||total>=3?'Pioggia probabile':'Possibili rovesci';
-  return{wet:true,title:kind+' · '+when,detail:'Picco '+Math.round(maxPop)+'% · '+fmtMm(total)+' nel periodo'};
+  let heading,kind;
+  if(isSnow){
+    heading='Quando nevicherà?';
+    kind=maxPop>=70||total>=3?'Neve probabile':'Possibili nevicate';
+  }else if(mixed){
+    heading='Precipitazioni';
+    kind=maxPop>=70||total>=3?'Pioggia e neve probabili':'Possibili pioggia e neve';
+  }else{
+    heading='Quando pioverà?';
+    kind=maxPop>=70||total>=3?'Pioggia probabile':'Possibili rovesci';
+  }
+  return{wet:true,heading,title:kind+' · '+when,detail:'Picco '+Math.round(maxPop)+'% · '+fmtMm(total)+' nel periodo'};
 }
 function openDay(date){
   const hs=weather.hourly.filter(h=>h.time.slice(0,10)===date);
