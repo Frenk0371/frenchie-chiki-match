@@ -82,7 +82,37 @@ header{align-items:center;padding:2px 2px 0}
 @keyframes stormFlash{0%,72%,75%,100%{opacity:0}73%{opacity:.72}73.7%{opacity:.08}74.2%{opacity:.46}74.7%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.cloud,.sun,.rainfx,.snowfx,.fogfx,.lightning{animation:none!important}.rainfx,.snowfx,.fogfx,.lightning{display:none!important}}
 
-@media(max-width:430px){.brand{font-size:29px}.round{width:43px;height:43px;border-radius:15px}.favRow{grid-template-columns:1fr auto}.favRow .danger{grid-column:2}}
+
+/* Rifiniture UI ottobre 2026 — solo CSS */
+.tag{font-size:9px;letter-spacing:.115em;opacity:.64;margin-top:6px}
+.cloudy .sun{opacity:.22;transform:scale(.86);transform-origin:center;filter:saturate(.72) blur(.25px) drop-shadow(0 0 26px rgba(255,223,114,.22))}
+.cloudy .cloud{opacity:.52}
+.nav{padding:5px 6px 6px;border-radius:24px}
+.nav button{min-height:56px;gap:3px;border-radius:18px;font-size:10px}
+.nav button i{width:29px;height:29px}
+.nav button i svg{width:20px;height:20px}
+.nav button.on:after{bottom:2px}
+.day{grid-template-columns:78px 64px minmax(0,1fr) 44px 48px;gap:8px;padding:13px 7px}
+.day .wi{width:62px;height:62px}
+.desc{font-size:15px;line-height:1.14}
+.dn b{font-size:17px}
+.min{font-size:19px}.max{font-size:20px}
+
+@media(max-width:430px){
+.brand{font-size:29px}
+.tag{font-size:8px;letter-spacing:.105em;opacity:.62}
+.round{width:43px;height:43px;border-radius:15px}
+.nav{width:min(calc(100% - 20px),700px);padding:5px 5px 6px;border-radius:23px}
+.nav button{min-height:54px;font-size:9.8px;border-radius:17px}
+.nav button i{width:28px;height:28px}
+.nav button i svg{width:20px;height:20px}
+.day{grid-template-columns:58px 50px minmax(0,1fr) 34px 40px;gap:4px;padding:12px 4px}
+.day .wi{width:50px;height:50px}
+.dn b{font-size:17px}.dn small,.desc small{font-size:11px}
+.desc{font-size:14px;line-height:1.13}
+.min{font-size:18px}.max{font-size:19px}
+.favRow{grid-template-columns:1fr auto}.favRow .danger{grid-column:2}
+}
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
