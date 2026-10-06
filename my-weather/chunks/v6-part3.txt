@@ -402,49 +402,49 @@ html{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
 .dayRadarMeta{color:rgba(205,240,255,.96)!important;font-weight:650}
 
 
-/* Pioggia fine 1.5.13 — solo animazione grafica */
+/* Pioggia fine 1.5.14 — solo animazione grafica */
 .rain .rainfx,.storm .rainfx{
-  inset:-10% -12%;
+  inset:-6% -8%;
   transform-origin:center;
   will-change:background-position,transform;
 }
 .rainBack{
-  opacity:.10;
+  opacity:.055;
   background-image:
-    radial-gradient(ellipse 1px 7px at 50% 50%,rgba(218,239,252,.58) 0 62%,transparent 72%),
-    radial-gradient(ellipse .8px 5px at 50% 50%,rgba(204,232,248,.44) 0 62%,transparent 72%);
-  background-size:58px 104px,91px 147px;
-  background-position:8px -120px,41px -210px;
-  animation:rainFineBack 2.2s linear infinite;
-  filter:blur(.18px);
-  transform:rotate(2.4deg) scale(1.04);
+    radial-gradient(ellipse .75px 4.2px at 50% 50%,rgba(218,239,252,.50) 0 58%,transparent 72%),
+    radial-gradient(ellipse .65px 3.4px at 50% 50%,rgba(204,232,248,.36) 0 58%,transparent 72%);
+  background-size:76px 132px,121px 188px;
+  background-position:12px -150px,53px -240px;
+  animation:rainFineBack 2.7s linear infinite;
+  filter:blur(.12px);
+  transform:rotate(.8deg) scale(1.02);
 }
 .rainFront{
-  opacity:.17;
+  opacity:.09;
   background-image:
-    radial-gradient(ellipse 1px 8px at 50% 50%,rgba(238,249,255,.66) 0 60%,transparent 72%),
-    radial-gradient(ellipse .9px 6px at 50% 50%,rgba(224,243,253,.50) 0 60%,transparent 72%);
-  background-size:74px 126px,119px 178px;
-  background-position:22px -150px,69px -260px;
-  animation:rainFineFront 1.55s linear infinite;
-  filter:blur(.10px);
-  transform:rotate(2.8deg) scale(1.04);
+    radial-gradient(ellipse .8px 4.8px at 50% 50%,rgba(238,249,255,.56) 0 58%,transparent 72%),
+    radial-gradient(ellipse .7px 3.8px at 50% 50%,rgba(224,243,253,.42) 0 58%,transparent 72%);
+  background-size:96px 156px,148px 224px;
+  background-position:28px -180px,81px -290px;
+  animation:rainFineFront 2.05s linear infinite;
+  filter:blur(.06px);
+  transform:rotate(1deg) scale(1.02);
 }
-.wx-light .rainBack{opacity:.07}
-.wx-light .rainFront{opacity:.11;animation-duration:1.9s}
-.wx-medium .rainBack{opacity:.11}
-.wx-medium .rainFront{opacity:.18}
-.wx-heavy .rainBack{opacity:.16}
-.wx-heavy .rainFront{opacity:.25;animation-duration:1.25s}
-.storm .rainBack{opacity:.18}
-.storm .rainFront{opacity:.29;animation-duration:1.08s}
+.wx-light .rainBack{opacity:.04}
+.wx-light .rainFront{opacity:.065;animation-duration:2.45s}
+.wx-medium .rainBack{opacity:.06}
+.wx-medium .rainFront{opacity:.10}
+.wx-heavy .rainBack{opacity:.09}
+.wx-heavy .rainFront{opacity:.15;animation-duration:1.7s}
+.storm .rainBack{opacity:.11}
+.storm .rainFront{opacity:.18;animation-duration:1.5s}
 @keyframes rainFineBack{
-  from{background-position:8px -180px,41px -290px}
-  to{background-position:16px 980px,33px 1210px}
+  from{background-position:12px -170px,53px -260px}
+  to{background-position:14px 900px,51px 1110px}
 }
 @keyframes rainFineFront{
-  from{background-position:22px -220px,69px -340px}
-  to{background-position:34px 1120px,57px 1390px}
+  from{background-position:28px -200px,81px -310px}
+  to{background-position:31px 1040px,78px 1260px}
 }
 
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
