@@ -44,6 +44,27 @@ function showSettings(){
   document.getElementById('settingsBg').onclick=e=>{if(e.target.id==='settingsBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
   document.getElementById('changeLocation').onclick=()=>{document.getElementById('settingsBg')?.remove();openSearch()};
 }
+
+function showFavorites(){
+  setActiveTab('fav');
+  document.getElementById('favoritesBg')?.remove();
+  const f=getFavorites();
+  const rows=f.map((x,i)=>'<div class="favRow"><div class="meta"><b>'+x.name+'</b><small>'+[x.admin1,x.country].filter(Boolean).join(', ')+'</small></div><button class="miniBtn" data-open="'+i+'">Apri</button><button class="miniBtn danger" data-del="'+i+'">✕</button></div>').join('');
+  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="favoritesBg"><div class="sheet"><div class="sheetHead"><b>Le mie località</b><button id="closeFavorites">✕</button></div>'+(f.length?'<div class="favList">'+rows+'</div>':'<div class="emptyState">Non hai ancora località preferite.</div>')+'<button class="primaryBtn" id="addFavoritePlace">＋ Aggiungi una località</button></div></div>');
+  document.getElementById('closeFavorites').onclick=()=>{document.getElementById('favoritesBg')?.remove();setActiveTab('tabToday')};
+  document.getElementById('favoritesBg').onclick=e=>{if(e.target.id==='favoritesBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
+  document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>selectFavorite(+b.dataset.open));
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>removeFavorite(+b.dataset.del));
+  document.getElementById('addFavoritePlace').onclick=()=>{document.getElementById('favoritesBg')?.remove();openSearch('favorite')};
+}
+function showInfo(){
+  setActiveTab('tabInfo');
+  document.getElementById('infoBg')?.remove();
+  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.0.0</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
+  document.getElementById('closeInfo').onclick=()=>{document.getElementById('infoBg')?.remove();setActiveTab('tabToday')};
+  document.getElementById('infoBg').onclick=e=>{if(e.target.id==='infoBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
+}
+
 function openDay(date){
   const hs=weather.hourly.filter(h=>h.time.slice(0,10)===date);
   const d=weather.daily.find(x=>x.date===date);
