@@ -209,10 +209,29 @@ body:before{content:"";position:fixed;z-index:60;left:0;right:0;top:0;height:cal
   .nav button.on:after{left:22%;right:22%}
 }
 
+
+/* Alba, tramonto e UV — dati accessori */
+.sunUvCard{margin-top:16px;border-radius:24px;padding:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.sunUvItem{padding:11px 8px;text-align:center;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}
+.sunUvItem span{display:block;font-size:10.5px;opacity:.68;margin-bottom:4px}
+.sunUvItem b{display:block;font-size:17px;white-space:nowrap}
+.sunUvItem small{display:block;font-size:10px;opacity:.65;margin-top:3px;white-space:nowrap}
+.daySunUv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}
+.daySunUv>div{padding:11px 7px;text-align:center;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}
+.daySunUv span{display:block;font-size:10px;opacity:.68;margin-bottom:3px}
+.daySunUv b{display:block;font-size:15px;white-space:nowrap}
+.daySunUv small{display:block;font-size:9.5px;opacity:.65;margin-top:2px}
+@media(max-width:430px){
+  .sunUvCard{gap:6px;padding:10px}
+  .sunUvItem{padding:10px 5px}
+  .sunUvItem b{font-size:16px}
+}
+
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
 let loc=JSON.parse(localStorage.getItem('mw-location')||'null')||DEFAULT, weather=null;
+let extraWeather={key:'',data:null,loading:false};
 
 const FAVORITES_KEY='mw-favorites-v1';
 function getFavorites(){try{const v=JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
