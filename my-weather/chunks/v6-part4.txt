@@ -60,7 +60,7 @@ function showFavorites(){
 function showInfo(){
   setActiveTab('tabInfo');
   document.getElementById('infoBg')?.remove();
-  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.1.0</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
+  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.1.1</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
   document.getElementById('closeInfo').onclick=()=>{document.getElementById('infoBg')?.remove();setActiveTab('tabToday')};
   document.getElementById('infoBg').onclick=e=>{if(e.target.id==='infoBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
 }
@@ -85,7 +85,10 @@ function dayStats(hs){
 function rainInsight(hours){
   const hs=(hours||[]).slice(0,24);
   if(!hs.length)return{wet:false,title:'Dati non disponibili',detail:'Riprova tra poco'};
-  const isWet=h=>(Number(h.precip)||0)>=.2||((Number(h.pop)||0)>=40&&Number(h.code)>=51);
+  const isWet=h=>{
+    const pop=Number(h.pop)||0,mm=Number(h.precip)||0,code=Number(h.code)||0;
+    return (pop>=35&&(code>=51||mm>=.2))||(pop>=20&&mm>=.7);
+  };
   const first=hs.findIndex(isWet);
   if(first<0)return{wet:false,title:'Nessuna pioggia significativa',detail:'Nelle prossime 24 ore'};
   let end=first,lastWet=first,gap=0;
