@@ -406,7 +406,7 @@ function saveFavorites(v){localStorage.setItem(FAVORITES_KEY,JSON.stringify(v))}
 function sameLoc(a,b){return !!a&&!!b&&Math.abs(Number(a.latitude)-Number(b.latitude))<.0001&&Math.abs(Number(a.longitude)-Number(b.longitude))<.0001}
 function toggleCurrentFavorite(){let f=getFavorites(),i=f.findIndex(x=>sameLoc(x,loc)),added=i<0;if(added)f.push(loc);else f.splice(i,1);saveFavorites(f);render();showToast(added?'Aggiunta ai preferiti':'Rimossa dai preferiti')}
 function addFavoriteLocation(x){let f=getFavorites();if(!f.some(y=>sameLoc(y,x))){f.push(x);saveFavorites(f);return true}return false}
-function selectFavorite(i){const f=getFavorites(),x=f[i];if(!x)return;loc=x;localStorage.setItem('mw-location',JSON.stringify(loc));document.getElementById('favoritesBg')?.remove();load()}
+function selectFavorite(i){const f=getFavorites(),x=f[i];if(!x)return;loc=x;localStorage.setItem('mw-location',JSON.stringify(loc));document.getElementById('favoritesBg')?.remove();requestAnimationFrame(()=>window.location.reload())}
 function removeFavorite(i){let f=getFavorites();f.splice(i,1);saveFavorites(f);document.getElementById('favoritesBg')?.remove();showFavorites();if(weather)render()}
 function showToast(msg){document.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),1700)}
 function icon(n){const a={
