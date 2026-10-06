@@ -173,12 +173,54 @@ async function openRadar(){
 function showInfo(){
   setActiveTab('tabInfo');
   document.getElementById('infoBg')?.remove();
-  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.4.1</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
+  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.5.0</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
   document.getElementById('closeInfo').onclick=()=>{document.getElementById('infoBg')?.remove();setActiveTab('tabToday')};
   document.getElementById('infoBg').onclick=e=>{if(e.target.id==='infoBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
 }
 
 
+function extraKey(){return Number(loc.latitude).toFixed(4)+','+Number(loc.longitude).toFixed(4)+','+(loc.timezone||'auto')}
+function uvLevel(v){
+  v=Number(v);
+  if(!Number.isFinite(v))return'—';
+  if(v<3)return'Basso';
+  if(v<6)return'Moderato';
+  if(v<8)return'Alto';
+  if(v<11)return'Molto alto';
+  return'Estremo';
+}
+function extraForDate(date){
+  return extraWeather.key===extraKey()&&extraWeather.data?extraWeather.data[date]||null:null;
+}
+async function ensureExtraWeather(){
+  const key=extraKey();
+  if(extraWeather.key===key&&(extraWeather.loading||extraWeather.data))return;
+  extraWeather={key,data:null,loading:true};
+  try{
+    const u=new URL('https://api.open-meteo.com/v1/forecast');
+    u.searchParams.set('latitude',loc.latitude);
+    u.searchParams.set('longitude',loc.longitude);
+    u.searchParams.set('timezone',loc.timezone||'auto');
+    u.searchParams.set('forecast_days','8');
+    u.searchParams.set('daily','sunrise,sunset,uv_index_max');
+    const r=await fetch(u);if(!r.ok)throw Error('extras');
+    const j=await r.json(),d=j.daily||{},map={};
+    (d.time||[]).forEach((date,i)=>{
+      const sunrise=d.sunrise?.[i]||'',sunset=d.sunset?.[i]||'',uv=Number(d.uv_index_max?.[i]);
+      map[date]={
+        sunrise:sunrise?sunrise.slice(11,16):'—',
+        sunset:sunset?sunset.slice(11,16):'—',
+        uv:Number.isFinite(uv)?uv:null
+      };
+    });
+    if(extraKey()!==key)return;
+    extraWeather={key,data:map,loading:false};
+    render();
+  }catch(e){
+    if(extraKey()!==key)return;
+    extraWeather={key,data:{},loading:false};
+  }
+}
 function fmtMm(v){v=Number(v)||0;if(v<.05)return'0 mm';return(v<10?v.toFixed(1):Math.round(v))+' mm'}
 function dayStats(hs){
   const vals=k=>hs.map(h=>Number(h[k])).filter(Number.isFinite);
@@ -273,6 +315,7 @@ function openDay(date){
   const d=weather.daily.find(x=>x.date===date);
   if(!hs.length){return}
   const stats=dayStats(hs);
+  const extra=extraForDate(date);
   const title=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'}).format(new Date(date+'T12:00'));
   document.getElementById('dayBg')?.remove();
   document.body.insertAdjacentHTML('beforeend',`<div class="sheetBg" id="dayBg"><div class="sheet daySheet"><div class="sheetHead"><div><b style="text-transform:capitalize">${title}</b><div style="font-size:13px;opacity:.7;margin-top:3px">Previsione oraria</div></div><button id="closeDay">✕</button></div>
