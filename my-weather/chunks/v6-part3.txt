@@ -140,6 +140,30 @@ header{align-items:center;padding:2px 2px 0}
   .daySheet .dayHourTemp{font-size:21px}
 }
 
+
+/* Funzioni UI 1.2 — sintesi giornata e confronto preferiti */
+.briefCard{margin-top:16px;border-radius:24px;padding:15px 16px;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center}
+.briefMark{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.13);font-size:22px;font-weight:700}
+.briefCopy small{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.66;margin-bottom:3px}
+.briefCopy b{display:block;font-size:16px;line-height:1.28}
+.favRow{grid-template-columns:minmax(0,1fr) 42px;padding:9px 9px 9px 12px}
+.favMain{min-width:0;border:0;background:transparent;color:#fff;padding:0;text-align:left;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.favWeather{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:118px}
+.favWeather .wi{width:39px;height:39px;flex:0 0 39px}
+.favWxText{text-align:right;min-width:66px}
+.favWxText b{display:block;font-size:19px;line-height:1}
+.favWxText small{display:block;font-size:10.5px;opacity:.7;margin-top:4px;white-space:nowrap}
+.favLoading{font-size:11px;opacity:.58;text-align:right}
+.favRow .danger{width:38px;height:38px;padding:0;display:grid;place-items:center}
+@media(max-width:430px){
+  .briefCard{padding:14px}
+  .briefCopy b{font-size:15px}
+  .favWeather{min-width:108px}
+  .favWeather .wi{width:35px;height:35px;flex-basis:35px}
+  .favWxText b{font-size:18px}
+  .favWxText small{font-size:10px}
+}
+
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
