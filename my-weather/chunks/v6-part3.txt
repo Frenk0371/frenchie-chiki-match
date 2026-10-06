@@ -373,11 +373,20 @@ html{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
   .wrap{padding-bottom:calc(185px + env(safe-area-inset-bottom))}
 }
 
+
+/* Radar vicino 1.5.9 — osservazione separata dalla previsione */
+.radarNowLine{margin-top:7px;display:flex;align-items:flex-start;gap:7px;font-size:12.5px;line-height:1.25;color:rgba(255,255,255,.93)}
+.radarNowDot{width:18px;height:18px;flex:0 0 18px;border-radius:50%;display:grid;place-items:center;background:rgba(120,205,255,.18);border:1px solid rgba(190,230,255,.42);font-size:10px;margin-top:1px}
+.radarNowLine b{font-weight:780}
+.radarNowTime{opacity:.7;white-space:nowrap}
+@media(max-width:430px){.radarNowLine{font-size:12px}}
+
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
 let loc=JSON.parse(localStorage.getItem('mw-location')||'null')||DEFAULT, weather=null;
 let extraWeather={key:'',data:null,loading:false};
+let radarNow={key:'',data:null,loading:false};
 
 const FAVORITES_KEY='mw-favorites-v1';
 function getFavorites(){try{const v=JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
