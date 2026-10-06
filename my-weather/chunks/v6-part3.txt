@@ -227,6 +227,55 @@ body:before{content:"";position:fixed;z-index:60;left:0;right:0;top:0;height:cal
   .sunUvItem b{font-size:16px}
 }
 
+
+/* Polish grafico 1.5.1 — solo presentazione */
+.card{margin-top:13px;padding:17px 13px 16px;border-radius:28px}
+.title{padding:0 5px 10px}
+.title b{font-size:23px;letter-spacing:-.35px}
+.title span,.detailLink{font-size:12.5px;opacity:.72}
+.rainInsight{margin-top:13px;padding:14px 16px;background:linear-gradient(145deg,rgba(255,255,255,.235),rgba(255,255,255,.095));border-color:rgba(255,255,255,.25)}
+.rainInsightCopy>b{font-size:17.5px;letter-spacing:-.15px}
+.briefCard{margin-top:12px;padding:13px 15px;grid-template-columns:40px minmax(0,1fr);gap:11px}
+.briefMark{width:40px;height:40px;border-radius:14px;font-size:20px}
+.briefCopy b{font-size:15.5px;line-height:1.24}
+.sunUvCard{margin-top:12px;padding:9px;gap:6px;border-radius:22px}
+.sunUvItem{position:relative;padding:9px 6px 10px;border-radius:15px}
+.sunUvGlyph{display:block!important;font-size:15px!important;line-height:1!important;opacity:.92!important;margin:0 0 5px!important;font-weight:700}
+.sunUvItem span:not(.sunUvGlyph){font-size:10px;margin-bottom:3px}
+.sunUvItem b{font-size:16px;letter-spacing:-.2px}
+.sunUvItem small{font-size:9.5px;margin-top:2px}
+.hours{gap:6px}
+.hour{min-width:91px;border-radius:17px;padding:7px 5px 8px}
+.hour .wi{width:58px;height:58px}
+.hour span{font-size:13px}
+.hour b{font-size:27px;letter-spacing:-.5px}
+.hour small{font-size:11px;min-height:13px}
+.day{border-top-color:rgba(255,255,255,.10)}
+.dn b{font-weight:760}
+.dn small{opacity:.58}
+.desc{font-weight:690}
+.desc small{opacity:.56;font-weight:520}
+.min{opacity:.78;font-weight:500}
+.max{font-weight:780}
+.nav button.on{background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.075));box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.nav button.on i{color:#ffe58a;transform:translateY(-1px)}
+.nav button.on span{font-weight:750;color:#fff7c8}
+.nav button{transition:background .18s ease,color .18s ease,transform .18s ease}
+.daySunUv{gap:6px}
+.daySunUv>div{padding:9px 6px}
+.daySunUv .sunUvGlyph{font-size:14px!important}
+.daySunUv b{font-size:14.5px}
+@media(max-width:430px){
+  .card{margin-top:12px;padding:15px 12px 14px}
+  .title b{font-size:21px}
+  .hour{min-width:88px;padding:6px 4px 7px}
+  .hour .wi{width:54px;height:54px}
+  .hour b{font-size:25px}
+  .rainInsight{margin-top:12px;padding:13px 14px}
+  .briefCard{margin-top:11px;padding:12px 13px}
+  .sunUvCard{margin-top:11px}
+}
+
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
