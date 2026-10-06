@@ -98,6 +98,7 @@ function stopRadar(){
 function closeRadar(){
   stopRadar();
   document.getElementById('radarBg')?.remove();
+  setActiveTab('tabToday');
 }
 function ensureLeaflet(){
   if(window.L)return Promise.resolve();
@@ -141,7 +142,9 @@ function toggleRadarPlay(){
   },800);
 }
 async function openRadar(){
-  closeRadar();
+  stopRadar();
+  document.getElementById('radarBg')?.remove();
+  setActiveTab('tabRadar');
   document.body.insertAdjacentHTML('beforeend',`<div class="sheetBg" id="radarBg"><div class="sheet radarSheet"><div class="sheetHead"><div><b>Radar pioggia</b><div class="radarLead">Movimento delle precipitazioni nelle ultime 2 ore</div></div><button id="closeRadar">✕</button></div><div class="radarMapWrap"><div id="radarMap"><div class="radarStatus">Caricamento radar…</div></div><div class="radarTime" id="radarTime">--:--</div><div class="radarLoc">${loc.name}</div></div><div class="radarControls"><button class="radarCtl" id="radarPrev">‹</button><button class="radarCtl play" id="radarPlay">▶</button><button class="radarCtl" id="radarNext">›</button><input class="radarRange" id="radarRange" type="range" min="0" max="0" value="0" aria-label="Orario radar"></div><div class="radarFoot"><span>I fotogrammi mostrano osservazioni radar passate, non una previsione futura.</span><span>Radar: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a> · Mappa: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></span></div></div></div>`);
   document.getElementById('closeRadar').onclick=closeRadar;
   document.getElementById('radarBg').onclick=e=>{if(e.target.id==='radarBg')closeRadar()};
@@ -170,7 +173,7 @@ async function openRadar(){
 function showInfo(){
   setActiveTab('tabInfo');
   document.getElementById('infoBg')?.remove();
-  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.3.2</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
+  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.4.0</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
   document.getElementById('closeInfo').onclick=()=>{document.getElementById('infoBg')?.remove();setActiveTab('tabToday')};
   document.getElementById('infoBg').onclick=e=>{if(e.target.id==='infoBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
 }
