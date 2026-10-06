@@ -45,22 +45,53 @@ function showSettings(){
   document.getElementById('changeLocation').onclick=()=>{document.getElementById('settingsBg')?.remove();openSearch()};
 }
 
+async function favoritePreview(x){
+  if(weather&&sameLoc(x,loc)){
+    const c=weather.current;
+    return{temp:Math.round(c.temp),code:c.code,pop:Math.round(c.pop||0),isDay:c.isDay};
+  }
+  const u=new URL('https://api.open-meteo.com/v1/forecast');
+  u.searchParams.set('latitude',x.latitude);
+  u.searchParams.set('longitude',x.longitude);
+  u.searchParams.set('timezone',x.timezone||'auto');
+  u.searchParams.set('forecast_days','2');
+  u.searchParams.set('hourly','temperature_2m,precipitation_probability,weather_code,is_day');
+  const r=await fetch(u);if(!r.ok)throw Error('preview');
+  const j=await r.json(),h=j.hourly;
+  const tz=x.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const now=new Date().toLocaleString('sv-SE',{timeZone:tz}).replace(' ','T').slice(0,13)+':00';
+  let i=h.time.findIndex(t=>t>=now);if(i<0)i=0;
+  return{temp:Math.round(h.temperature_2m[i]),code:h.weather_code[i],pop:Math.round(h.precipitation_probability[i]||0),isDay:h.is_day[i]};
+}
+async function loadFavoritePreviews(f){
+  await Promise.all(f.map(async(x,i)=>{
+    const el=document.getElementById('favWx'+i);if(!el)return;
+    try{
+      const w=await favoritePreview(x);
+      if(!document.getElementById('favWx'+i))return;
+      el.innerHTML=wi(w.code,w.isDay)+'<div class="favWxText"><b>'+w.temp+'°</b><small>'+label(w.code)+' · '+w.pop+'%</small></div>';
+    }catch(e){
+      if(document.getElementById('favWx'+i))el.innerHTML='<div class="favLoading">Apri per vedere</div>';
+    }
+  }));
+}
 function showFavorites(){
   setActiveTab('fav');
   document.getElementById('favoritesBg')?.remove();
   const f=getFavorites();
-  const rows=f.map((x,i)=>'<div class="favRow"><div class="meta"><b>'+x.name+'</b><small>'+[x.admin1,x.country].filter(Boolean).join(', ')+'</small></div><button class="miniBtn" data-open="'+i+'">Apri</button><button class="miniBtn danger" data-del="'+i+'">✕</button></div>').join('');
+  const rows=f.map((x,i)=>'<div class="favRow"><button class="favMain" data-open="'+i+'"><div class="meta"><b>'+x.name+'</b><small>'+[x.admin1,x.country].filter(Boolean).join(', ')+'</small></div><div class="favWeather" id="favWx'+i+'"><div class="favLoading">Aggiorno…</div></div></button><button class="miniBtn danger" data-del="'+i+'" aria-label="Rimuovi">✕</button></div>').join('');
   document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="favoritesBg"><div class="sheet"><div class="sheetHead"><b>Le mie località</b><button id="closeFavorites">✕</button></div>'+(f.length?'<div class="favList">'+rows+'</div>':'<div class="emptyState">Non hai ancora località preferite.</div>')+'<button class="primaryBtn" id="addFavoritePlace">＋ Aggiungi una località</button></div></div>');
   document.getElementById('closeFavorites').onclick=()=>{document.getElementById('favoritesBg')?.remove();setActiveTab('tabToday')};
   document.getElementById('favoritesBg').onclick=e=>{if(e.target.id==='favoritesBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>selectFavorite(+b.dataset.open));
-  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>removeFavorite(+b.dataset.del));
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>{e.stopPropagation();removeFavorite(+b.dataset.del)});
   document.getElementById('addFavoritePlace').onclick=()=>{document.getElementById('favoritesBg')?.remove();openSearch('favorite')};
+  if(f.length)loadFavoritePreviews(f);
 }
 function showInfo(){
   setActiveTab('tabInfo');
   document.getElementById('infoBg')?.remove();
-  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.1.2</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
+  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.2.0</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
   document.getElementById('closeInfo').onclick=()=>{document.getElementById('infoBg')?.remove();setActiveTab('tabToday')};
   document.getElementById('infoBg').onclick=e=>{if(e.target.id==='infoBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
 }
@@ -81,6 +112,39 @@ function dayStats(hs){
     gust:Math.round(max('gust')),
     cloud:avg('cloud')
   };
+}
+function briefCondition(hs){
+  if(!hs.length)return'';
+  const maxPop=Math.max(...hs.map(h=>Number(h.pop)||0));
+  const rainMm=hs.reduce((s,h)=>s+(Number(h.precip)||0),0);
+  const storm=hs.filter(h=>Number(h.code)>=95&&Number(h.pop)>=40).length;
+  const snow=hs.filter(h=>Number(h.code)>=71&&Number(h.code)<=77).length;
+  const fog=hs.filter(h=>Number(h.code)>=45&&Number(h.code)<=48).length;
+  const wet=hs.filter(h=>Number(h.code)>=51&&(Number(h.pop)>=35||(Number(h.precip)||0)>=.2)).length;
+  const cloud=hs.map(h=>Number(h.cloud)).filter(Number.isFinite);
+  const avgCloud=cloud.length?cloud.reduce((a,b)=>a+b,0)/cloud.length:50;
+  if(storm)return'con possibili temporali';
+  if(snow)return'con possibili nevicate';
+  if(wet>=Math.max(1,Math.ceil(hs.length*.25))&&(maxPop>=35||rainMm>=.5))return'con possibili rovesci';
+  if(fog>=Math.max(1,Math.ceil(hs.length*.35)))return'con nebbia';
+  if(avgCloud>=78)return'nuvoloso';
+  if(avgCloud>=38)return'con qualche nube';
+  return'sereno';
+}
+function todayBrief(hours,daily){
+  if(!hours?.length)return{title:'Oggi in breve',text:'Dettagli non disponibili.'};
+  const today=hours[0].time.slice(0,10);
+  const hs=hours.filter(h=>h.time.slice(0,10)===today);
+  const groups=[
+    ['Mattina',hs.filter(h=>+h.time.slice(11,13)>=6&&+h.time.slice(11,13)<12)],
+    ['Pomeriggio',hs.filter(h=>+h.time.slice(11,13)>=12&&+h.time.slice(11,13)<18)],
+    ['Sera',hs.filter(h=>+h.time.slice(11,13)>=18&&+h.time.slice(11,13)<=23)]
+  ].filter(x=>x[1].length);
+  let pieces=groups.map(([name,g])=>name+' '+briefCondition(g));
+  if(!pieces.length)pieces=['Giornata quasi conclusa'];
+  let text=pieces.join(', ')+'.';
+  if(daily&&Number.isFinite(Number(daily.max)))text+=' Massima '+Math.round(daily.max)+'°.';
+  return{title:'Oggi in breve',text};
 }
 function rainInsight(hours){
   const hs=(hours||[]).slice(0,24);
