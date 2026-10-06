@@ -1,10 +1,170 @@
-{width:34px;height:34px;font-size:21px}}</style></head><body><div id="app"><div class="loading"><h1>My Weather</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
+{width:34px;height:34px;font-size:21px}}
+:root{color-scheme:dark}
+body{letter-spacing:-.01em}
+.wrap{max-width:760px;padding-left:18px;padding-right:18px}
+header{align-items:center;padding:2px 2px 0}
+.brand{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;font-size:31px;font-weight:780;letter-spacing:-1.15px;text-shadow:none}
+.tag{font-size:10px;font-weight:700;letter-spacing:.16em;opacity:.72}
+.topBtns{gap:10px}
+.round{width:46px;height:46px;display:grid;place-items:center;border-radius:17px;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.24);box-shadow:0 10px 30px rgba(4,46,78,.16),inset 0 1px 0 rgba(255,255,255,.2)}
+.round svg{width:21px;height:21px;stroke:currentColor}
+.hero{padding-top:31px}
+.loc{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;font-size:27px;letter-spacing:-.6px}
+.heart{font-size:18px;color:#ffe27a}
+.temp{font-weight:250;letter-spacing:-8px}
+.glass{background:linear-gradient(145deg,rgba(255,255,255,.20),rgba(255,255,255,.075));border-color:rgba(255,255,255,.20);box-shadow:0 20px 55px rgba(2,37,65,.17),inset 0 1px 0 rgba(255,255,255,.23)}
+.card{border-radius:30px}
+.nav{bottom:max(14px,env(safe-area-inset-bottom));width:min(calc(100% - 22px),700px);padding:7px;border-radius:26px;background:rgba(9,35,56,.80);border-color:rgba(255,255,255,.16);box-shadow:0 20px 50px rgba(3,18,31,.28),inset 0 1px 0 rgba(255,255,255,.10)}
+.nav:before{display:none}
+.nav button{min-height:62px;border-radius:20px;gap:4px;font-size:10.5px;color:#c6dce9}
+.nav button i{width:31px;height:31px;border-radius:11px;font-size:0}
+.nav button i svg{width:22px;height:22px;stroke:currentColor}
+.nav button.on{background:rgba(255,255,255,.11);color:#fff}
+.nav button.on i{background:transparent;box-shadow:none;color:#ffe58a}
+.nav button.on:after{left:27%;right:27%;height:2px;bottom:3px}
+.nav button.on span{color:#fff}
+.sheet{background:linear-gradient(180deg,#174e73,#0c304a);border:1px solid rgba(255,255,255,.12);box-shadow:0 -25px 70px rgba(0,16,28,.32)}
+.sheetHead b{font-size:21px}
+.favList{display:grid;gap:10px;margin-top:16px}
+.favRow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:13px 12px;border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)}
+.favRow .meta b,.favRow .meta small{display:block}
+.favRow .meta small{margin-top:3px;opacity:.68}
+.miniBtn{border:0;border-radius:13px;padding:10px 12px;background:rgba(255,255,255,.11);color:white}
+.miniBtn.danger{color:#ffd1d1}
+.primaryBtn{width:100%;margin-top:12px;border:0;border-radius:16px;padding:13px 14px;background:rgba(71,174,238,.30);color:white;font-weight:700}
+.infoGrid{display:grid;gap:10px;margin-top:16px}
+.infoCard{padding:15px;border-radius:19px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)}
+.infoCard h3{font-size:14px;margin:0 0 7px;opacity:.72;font-weight:650}
+.infoCard p{margin:0;line-height:1.45;font-size:14px}
+.infoName{font-size:28px;font-weight:800;letter-spacing:-.8px}
+.infoVersion{opacity:.7;margin-top:3px}
+.emptyState{text-align:center;padding:24px 12px 12px;opacity:.82}
+.toast{position:fixed;z-index:250;left:50%;bottom:110px;transform:translateX(-50%);padding:11px 15px;border-radius:14px;background:rgba(6,27,43,.94);border:1px solid rgba(255,255,255,.15);box-shadow:0 14px 35px rgba(0,0,0,.25);font-size:13px;white-space:nowrap}
+
+/* Atmosfera animata — solo presentazione, nessun impatto sul motore meteo */
+.app.foggy{background:linear-gradient(180deg,#7893a2 0%,#9fb2bc 45%,#6b8796 100%)}
+.app.night.rain{background:linear-gradient(180deg,#071727,#17364a 52%,#0a2335)}
+.app.night.storm{background:linear-gradient(180deg,#050b14,#172330 52%,#070e16)}
+.app.night.snow{background:linear-gradient(180deg,#17283a,#40586d 58%,#1c3145)}
+.app.night.foggy{background:linear-gradient(180deg,#223342,#455965 50%,#263b49)}
+.sky{isolation:isolate}
+.cloud{animation:cloudDrift 24s ease-in-out infinite alternate;will-change:translate}
+.c2{animation-duration:31s;animation-direction:alternate-reverse}
+.c3{animation-duration:37s}
+.sunny .sun{animation:sunPulse 5.8s ease-in-out infinite}
+.rainfx,.snowfx,.fogfx,.lightning{display:none;position:absolute;pointer-events:none}
+.rain .rainfx,.storm .rainfx{display:block;inset:-25% -18%;z-index:3;will-change:background-position}
+.rainBack{opacity:.22;background-image:repeating-linear-gradient(103deg,transparent 0 27px,rgba(210,235,250,.42) 28px 30px,transparent 31px 58px);background-size:78px 130px;animation:rainFall .92s linear infinite;filter:blur(.45px)}
+.rainFront{opacity:.42;background-image:repeating-linear-gradient(103deg,transparent 0 42px,rgba(235,247,255,.62) 43px 45px,transparent 46px 86px);background-size:104px 165px;animation:rainFall .56s linear infinite}
+.wx-light .rainBack{opacity:.15}.wx-light .rainFront{opacity:.25;animation-duration:.76s}
+.wx-medium .rainBack{opacity:.25}.wx-medium .rainFront{opacity:.46}
+.wx-heavy .rainBack{opacity:.36}.wx-heavy .rainFront{opacity:.66;animation-duration:.42s}
+.storm .rainBack{opacity:.38}.storm .rainFront{opacity:.72;animation-duration:.38s}
+.storm .lightning{display:block;inset:0;z-index:1;background:radial-gradient(circle at 72% 12%,rgba(255,255,255,.92) 0,rgba(208,230,255,.42) 16%,rgba(170,205,235,.10) 36%,transparent 58%);mix-blend-mode:screen;opacity:0;animation:stormFlash 7.6s infinite}
+.snow .snowfx{display:block;inset:-18% -12%;z-index:3;will-change:background-position,translate}
+.snowBack{opacity:.44;background-image:radial-gradient(circle,rgba(255,255,255,.92) 0 1.3px,transparent 1.7px),radial-gradient(circle,rgba(240,249,255,.78) 0 1.8px,transparent 2.2px);background-size:42px 48px,76px 84px;background-position:0 -80px,18px -160px;animation:snowFallBack 13s linear infinite;filter:blur(.15px)}
+.snowFront{opacity:.76;background-image:radial-gradient(circle,rgba(255,255,255,.98) 0 2.3px,transparent 2.8px),radial-gradient(circle,rgba(250,253,255,.88) 0 3.2px,transparent 3.8px);background-size:92px 106px,138px 148px;background-position:22px -110px,65px -230px;animation:snowFallFront 9.2s linear infinite;filter:drop-shadow(0 1px 2px rgba(90,130,160,.18))}
+.wx-light .snowFront{opacity:.52;animation-duration:11.5s}.wx-heavy .snowFront{opacity:.9;animation-duration:7.4s}
+.foggy .fogfx{display:block;z-index:2;width:165%;left:-32%;height:26%;border-radius:50%;background:linear-gradient(90deg,transparent 0%,rgba(235,246,250,.18) 12%,rgba(245,251,253,.43) 38%,rgba(220,236,242,.30) 64%,rgba(245,251,253,.18) 82%,transparent 100%);filter:blur(24px);will-change:translate,opacity}
+.fogA{top:10%;opacity:.72;animation:fogDriftA 17s ease-in-out infinite alternate}
+.fogB{top:37%;opacity:.58;animation:fogDriftB 23s ease-in-out infinite alternate-reverse}
+.fogC{top:66%;opacity:.46;animation:fogDriftA 29s ease-in-out infinite alternate}
+.foggy .sky:after{background:linear-gradient(180deg,rgba(224,239,245,.16),rgba(212,230,237,.22) 48%,rgba(109,140,153,.18));backdrop-filter:blur(1.2px)}
+.foggy .cloud{opacity:.12}
+.foggy .sun{opacity:.18;filter:blur(3px) drop-shadow(0 0 35px rgba(255,245,205,.30))}
+@keyframes cloudDrift{from{translate:-12px 0}to{translate:18px -5px}}
+@keyframes sunPulse{0%,100%{filter:drop-shadow(0 0 38px rgba(255,223,114,.42))}50%{filter:drop-shadow(0 0 58px rgba(255,231,143,.64))}}
+@keyframes rainFall{from{background-position:0 -210px}to{background-position:52px 210px}}
+@keyframes snowFallBack{0%{background-position:0 -180px,18px -320px;translate:-10px 0}50%{translate:12px 0}100%{background-position:24px 950px,-18px 1180px;translate:-5px 0}}
+@keyframes snowFallFront{0%{background-position:22px -220px,65px -430px;translate:10px 0}50%{translate:-15px 0}100%{background-position:-28px 1080px,14px 1390px;translate:8px 0}}
+@keyframes fogDriftA{from{translate:-9% -4px;opacity:.42}to{translate:9% 5px;opacity:.78}}
+@keyframes fogDriftB{from{translate:7% 3px;opacity:.34}to{translate:-11% -3px;opacity:.68}}
+@keyframes stormFlash{0%,72%,75%,100%{opacity:0}73%{opacity:.72}73.7%{opacity:.08}74.2%{opacity:.46}74.7%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.cloud,.sun,.rainfx,.snowfx,.fogfx,.lightning{animation:none!important}.rainfx,.snowfx,.fogfx,.lightning{display:none!important}}
+
+
+/* Rifiniture UI ottobre 2026 — solo CSS */
+.tag{font-size:9px;letter-spacing:.115em;opacity:.64;margin-top:6px}
+.cloudy .sun{opacity:.08;transform:scale(.70);transform-origin:center;filter:saturate(.55) blur(.7px) drop-shadow(0 0 14px rgba(255,223,114,.12))}
+.cloudy .cloud{opacity:.54}
+.wrap{padding-bottom:calc(245px + env(safe-area-inset-bottom))}
+.nav{padding:5px 6px 6px;border-radius:24px}
+.nav button{min-height:56px;gap:3px;border-radius:18px;font-size:10px}
+.nav button i{width:29px;height:29px}
+.nav button i svg{width:20px;height:20px}
+.nav button.on:after{bottom:2px}
+.day{grid-template-columns:76px 60px minmax(0,1fr) 46px 50px;gap:7px;padding:13px 10px 13px 7px}
+.day .wi{width:60px;height:60px}
+.desc{font-size:15px;line-height:1.14}
+.dn b{font-size:17px}
+.min,.max{white-space:nowrap}
+.min{font-size:19px}.max{font-size:20px}
+
+@media(max-width:430px){
+.brand{font-size:29px}
+.tag{font-size:8px;letter-spacing:.105em;opacity:.62}
+.round{width:43px;height:43px;border-radius:15px}
+.nav{width:min(calc(100% - 20px),700px);padding:5px 5px 6px;border-radius:23px}
+.nav button{min-height:54px;font-size:9.8px;border-radius:17px}
+.nav button i{width:28px;height:28px}
+.nav button i svg{width:20px;height:20px}
+.wrap{padding-bottom:calc(235px + env(safe-area-inset-bottom))}
+.day{grid-template-columns:56px 48px minmax(0,1fr) 38px 44px;gap:4px;padding:12px 9px 12px 4px}
+.day .wi{width:48px;height:48px}
+.dn b{font-size:17px}.dn small,.desc small{font-size:11px}
+.desc{font-size:14px;line-height:1.13}
+.min{font-size:18px}.max{font-size:19px}
+.favRow{grid-template-columns:1fr auto}.favRow .danger{grid-column:2}
+}
+
+/* Rifinitura dettaglio giornaliero — solo layout */
+.daySheet{padding-left:14px;padding-right:14px}
+.daySheet .dayHourly{gap:10px}
+.daySheet .dayHour{grid-template-columns:58px 50px minmax(0,1fr) 48px;gap:8px;padding:11px 11px;border-radius:19px}
+.daySheet .dayHour .wi{width:46px;height:46px}
+.daySheet .dayHourTime{font-size:15px}
+.daySheet .dayHourMeta{font-size:12px;line-height:1.25}
+.daySheet .dayHourTemp{font-size:22px;white-space:nowrap;text-align:right}
+.daySheet .dayHour>div:nth-child(3){min-width:0}
+.daySheet .dayHour>div:nth-child(3)>b{font-size:15px;line-height:1.15;display:block}
+@media(max-width:430px){
+  .daySheet{padding-left:12px;padding-right:12px}
+  .daySheet .dayHour{grid-template-columns:50px 44px minmax(0,1fr) 42px;gap:7px;padding:10px 9px}
+  .daySheet .dayHour .wi{width:42px;height:42px}
+  .daySheet .dayHourTime{font-size:14px}
+  .daySheet .dayHour>div:nth-child(3)>b{font-size:14px}
+  .daySheet .dayHourMeta{font-size:11.5px}
+  .daySheet .dayHourTemp{font-size:21px}
+}
+
+</style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
 let loc=JSON.parse(localStorage.getItem('mw-location')||'null')||DEFAULT, weather=null;
+
+const FAVORITES_KEY='mw-favorites-v1';
+function getFavorites(){try{const v=JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
+function saveFavorites(v){localStorage.setItem(FAVORITES_KEY,JSON.stringify(v))}
+function sameLoc(a,b){return !!a&&!!b&&Math.abs(Number(a.latitude)-Number(b.latitude))<.0001&&Math.abs(Number(a.longitude)-Number(b.longitude))<.0001}
+function toggleCurrentFavorite(){let f=getFavorites(),i=f.findIndex(x=>sameLoc(x,loc)),added=i<0;if(added)f.push(loc);else f.splice(i,1);saveFavorites(f);render();showToast(added?'Aggiunta ai preferiti':'Rimossa dai preferiti')}
+function addFavoriteLocation(x){let f=getFavorites();if(!f.some(y=>sameLoc(y,x))){f.push(x);saveFavorites(f);return true}return false}
+function selectFavorite(i){const f=getFavorites(),x=f[i];if(!x)return;loc=x;localStorage.setItem('mw-location',JSON.stringify(loc));document.getElementById('favoritesBg')?.remove();load()}
+function removeFavorite(i){let f=getFavorites();f.splice(i,1);saveFavorites(f);document.getElementById('favoritesBg')?.remove();showFavorites();if(weather)render()}
+function showToast(msg){document.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),1700)}
+function icon(n){const a={
+home:'<svg viewBox="0 0 24 24" fill="none"><path d="M3 10.8 12 3l9 7.8v9.2a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+calendar:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 3v3m12-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+heart:'<svg viewBox="0 0 24 24" fill="none"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+info:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke-width="1.8"/><path d="M12 10v6m0-9.2v.2" stroke-width="1.8" stroke-linecap="round"/></svg>',
+search:'<svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke-width="1.8"/><path d="m16 16 4 4" stroke-width="1.8" stroke-linecap="round"/></svg>',
+star:'<svg viewBox="0 0 24 24" fill="none"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+starFill:'<svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z" fill="currentColor"/></svg>'
+};return a[n]||''}
+
 const clean=a=>a.filter(v=>Number.isFinite(v));const mean=a=>{a=clean(a);return a.length?a.reduce((s,v)=>s+v,0)/a.length:null}; const med=a=>{a=clean(a);if(!a.length)return null;let s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2};
 function label(c){if(c===0)return'Sereno';if(c<=2)return'Parzialmente nuvoloso';if(c===3)return'Cielo nuvoloso';if(c>=95)return'Temporali';if(c>=71&&c<=77)return'Neve';if(c>=80&&c<90)return'Rovesci';if(c>=51&&c<80)return'Pioggia';if(c>=45&&c<=48)return'Nebbia';return'Variabile'}
-function cls(c,day=1){if(!day)return'night';if(c===3)return'cloudy';if(c>=95)return'storm';if(c>=71&&c<=77)return'snow';if(c>=51)return'rain';return'sunny'}
+function cls(c,day=1){let wx;if(c>=95)wx='storm';else if(c>=71&&c<=77)wx='snow';else if(c>=51)wx='rain';else if(c>=45&&c<=48)wx='foggy';else if(c===3)wx='cloudy';else wx='sunny';return day?wx:'night '+wx}
+function fxIntensity(c){if(c.code>=95||c.pop>=75||c.precip>=2)return'wx-heavy';if(c.pop>=45||c.precip>=.5)return'wx-medium';return'wx-light'}
 function wi(code){
  let body='';
  const cloud=`<g filter="url(#shadow)"><ellipse cx="28" cy="35" rx="17" ry="10" fill="url(#cloudGrad)"/><circle cx="19" cy="33" r="9" fill="url(#cloudGrad)"/><circle cx="29" cy="27" r="12" fill="url(#cloudGrad)"/><circle cx="39" cy="33" r="9" fill="url(#cloudGrad)"/></g>`;
@@ -20,5 +180,5 @@ function wi(code){
 function derive(codes,pop,cloud,temp){let storm=codes.filter(c=>c>=95).length,snow=codes.filter(c=>c>=71&&c<=77).length,rain=codes.filter(c=>c>=51&&c<95).length;if(storm&&pop>=60)return 95;if(snow&&temp<=2&&pop>=40)return 73;if(rain&&pop>=60)return 61;if(rain&&pop>=35)return 80;if(cloud>=82)return 3;if(cloud>=45)return 2;if(cloud>=18)return 1;return 0}
 function confidence(ts,ps,codes){ts=clean(ts);ps=clean(ps);codes=clean(codes);if(ts.length<2)return'Media';let spread=Math.max(...ts)-Math.min(...ts),pd=ps.length>1?Math.max(...ps)-Math.min(...ps):0,rain=codes.map(c=>c>=51?1:0),agree=rain.length?Math.max(rain.filter(x=>x===0).length,rain.filter(x=>x===1).length)/rain.length:1,score=100-spread*7-pd*.35-(1-agree)*45;return score>=78?'Alta':score>=58?'Media':'Bassa'}
 async function getModel(model){const u=new URL('https://api.open-meteo.com/v1/forecast');u.searchParams.set('latitude',loc.latitude);u.searchParams.set('longitude',loc.longitude);u.searchParams.set('timezone',loc.timezone||'auto');u.searchParams.set('forecast_days','8');u.searchParams.set('hourly','temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,relative_humidity_2m,is_day');if(model)u.searchParams.set('models',model);let r=await fetch(u);if(!r.ok)throw Error(model||'best');let j=await r.json();j._model=model||'best';return j}
-async function load(){app.innerHTML='<div class="loading"><h1>My Weather</h1><p>Sto preparando la previsione…</p></div>';try{let settled=await Promise.allSettled([...MODELS.map(getModel),getModel(null)]),models=settled.filter(x=>x.status==='fulfilled').map(x=>x.value).filter(x=>x.hourly?.time?.length);if(!models.length)throw Error();weather=consensus(models);render()}catch(e){app.innerHTML='<div class="error"><h2>Dati meteo non disponibili</h2><p>Controlla la connessione e riprova.</p><button onclick="load()">Riprova</button></div>'}}
+async function load(){app.innerHTML='<div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div>';try{let settled=await Promise.allSettled([...MODELS.map(getModel),getModel(null)]),models=settled.filter(x=>x.status==='fulfilled').map(x=>x.value).filter(x=>x.hourly?.time?.length);if(!models.length)throw Error();weather=consensus(models);render()}catch(e){app.innerHTML='<div class="error"><h2>Dati meteo non disponibili</h2><p>Controlla la connessione e riprova.</p><button onclick="load()">Riprova</button></div>'}}
 function modelWeight(name,h){if(h<=72){if(name==='italia_meteo_arpae_icon_2i')return .42;if(name==='dwd_icon_eu')return .30;if(name==='ecmwf_ifs025')return .23;return .05}if(h<=120){if(name==='ecmwf_ifs025')return .55;if(name==='dwd_icon_eu')return .30;if(name==='italia_meteo_arpae_icon_2i')return .10;return .05}if(
