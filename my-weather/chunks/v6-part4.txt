@@ -173,7 +173,7 @@ async function openRadar(){
 function showInfo(){
   setActiveTab('tabInfo');
   document.getElementById('infoBg')?.remove();
-  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.5.8</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
+  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.5.9</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
   document.getElementById('closeInfo').onclick=()=>{document.getElementById('infoBg')?.remove();setActiveTab('tabToday')};
   document.getElementById('infoBg').onclick=e=>{if(e.target.id==='infoBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
 }
@@ -219,6 +219,62 @@ async function ensureExtraWeather(){
   }catch(e){
     if(extraKey()!==key)return;
     extraWeather={key,data:{},loading:false};
+  }
+}
+function radarNowKey(){return Number(loc.latitude).toFixed(4)+','+Number(loc.longitude).toFixed(4)}
+function radarNowForCurrent(){return radarNow.key===radarNowKey()?radarNow.data:null}
+function radarTimeLabel(ts){
+  try{return new Intl.DateTimeFormat('it-IT',{hour:'2-digit',minute:'2-digit',timeZone:loc.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone}).format(new Date(ts*1000))}catch(e){return''}
+}
+function sampleRadarImage(img){
+  const c=document.createElement('canvas');c.width=256;c.height=256;
+  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,256,256);
+  const d=x.getImageData(0,0,256,256).data,cx=128,cy=128;
+  let center=0,near=0,strong=0;
+  for(let yy=-22;yy<=22;yy++){
+    for(let xx=-22;xx<=22;xx++){
+      const dist=Math.hypot(xx,yy);if(dist>22)continue;
+      const i=((cy+yy)*256+(cx+xx))*4,a=d[i+3];
+      if(a<18)continue;
+      near++;
+      if(dist<=6)center++;
+      const brightness=(d[i]+d[i+1]+d[i+2])/3;
+      if(a>110&&brightness>70)strong++;
+    }
+  }
+  if(center>=2)return{wet:true,local:true,sparse:center<12&&near<80};
+  if(near>=8)return{wet:true,local:false,sparse:near<100};
+  return{wet:false,local:false,sparse:true};
+}
+async function ensureRadarNow(){
+  const key=radarNowKey();
+  if(radarNow.key===key&&(radarNow.loading||radarNow.data))return;
+  radarNow={key,data:null,loading:true};
+  try{
+    const r=await fetch('https://api.rainviewer.com/public/weather-maps.json',{cache:'no-store'});
+    if(!r.ok)throw Error('radar-meta');
+    const m=await r.json(),frames=m?.radar?.past||[];
+    if(!frames.length)throw Error('radar-frames');
+    const f=frames[frames.length-1];
+    const lat=Number(loc.latitude).toFixed(4),lon=Number(loc.longitude).toFixed(4);
+    const src=m.host+f.path+'/256/7/'+lat+'/'+lon+'/2/0_1.png';
+    const result=await new Promise((resolve,reject)=>{
+      const img=new Image();img.crossOrigin='anonymous';
+      img.onload=()=>{try{resolve(sampleRadarImage(img))}catch(e){reject(e)}};
+      img.onerror=()=>reject(Error('radar-image'));
+      img.src=src;
+    });
+    if(radarNowKey()!==key)return;
+    let text='';
+    if(result.wet){
+      if(result.local)text=result.sparse?'Possibili gocce o pioggia debole rilevate sulla zona':'Precipitazioni rilevate sulla zona';
+      else text=result.sparse?'Possibili gocce o pioggia debole rilevate nei dintorni':'Precipitazioni rilevate nei dintorni';
+    }
+    radarNow={key,data:{...result,text,time:radarTimeLabel(f.time)},loading:false};
+    render();
+  }catch(e){
+    if(radarNowKey()!==key)return;
+    radarNow={key,data:{wet:false,unavailable:true},loading:false};
   }
 }
 function fmtMm(v){v=Number(v)||0;if(v<.05)return'0 mm';return(v<10?v.toFixed(1):Math.round(v))+' mm'}
@@ -293,7 +349,7 @@ function rainInsight(hours){
     return (pop>=35&&(code>=51||mm>=.2))||(pop>=20&&mm>=.7);
   };
   const first=hs.findIndex(significant);
-  if(first<0)return{wet:false,heading:'Quando pioverà?',title:'Nessuna pioggia significativa',detail:'Nelle prossime 24 ore'};
+  if(first<0)return{wet:false,heading:'Quando pioverà?',title:'Nessuna pioggia significativa prevista',detail:'Nelle prossime 24 ore'};
   let end=first,lastWet=first,gap=0;
   for(let i=first+1;i<hs.length;i++){
     if(significant(hs[i])){lastWet=i;end=i;gap=0}
