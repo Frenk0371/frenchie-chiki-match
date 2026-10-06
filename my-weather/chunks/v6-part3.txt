@@ -365,6 +365,14 @@ body:before{content:"";position:fixed;z-index:60;left:0;right:0;top:0;height:cal
   .daySheet .daySunUv small{font-size:11px}
 }
 
+
+/* Spazio sicurezza barra inferiore 1.5.7 — solo layout */
+.wrap{padding-bottom:calc(285px + env(safe-area-inset-bottom))}
+html{scroll-padding-bottom:calc(118px + env(safe-area-inset-bottom))}
+@media(max-width:430px){
+  .wrap{padding-bottom:calc(300px + env(safe-area-inset-bottom))}
+}
+
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
