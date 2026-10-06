@@ -307,6 +307,42 @@ body:before{content:"";position:fixed;z-index:60;left:0;right:0;top:0;height:cal
   .nav button,.nav button.on span{font-size:10.5px}
 }
 
+
+/* Leggibilità 1.5.4 — testi secondari più grandi e contrastati */
+.metric span{font-size:15px;opacity:.86}
+.conf{font-size:15px}
+.rainInsightCopy>small,.briefCopy small{font-size:12.5px;opacity:.82;letter-spacing:.055em}
+.rainInsightMeta{font-size:13.5px;opacity:.84}
+.briefCopy b{font-size:16.5px}
+.sunUvItem span:not(.sunUvGlyph){font-size:13px;opacity:.86}
+.sunUvItem b{font-size:18px}
+.sunUvItem small{font-size:12px;opacity:.86}
+.title span{font-size:15px;opacity:.86}
+.detailLink{font-size:15px;opacity:.9}
+.hour span{font-size:15px}
+.hour small{font-size:13px;opacity:.86}
+.dn small{font-size:13px;opacity:.78}
+.desc small{font-size:13px!important;opacity:.74!important;color:rgba(255,255,255,.9)!important;line-height:1.18}
+.nav button,.nav button.on span{font-size:11.5px}
+.daySunUv span:not(.sunUvGlyph){font-size:12px;opacity:.84}
+.daySunUv small{font-size:11px;opacity:.82}
+.dayHourMeta{font-size:13px;opacity:.86}
+@media(max-width:430px){
+  .metric span{font-size:14px}
+  .conf{font-size:14px}
+  .rainInsightCopy>small,.briefCopy small{font-size:12px}
+  .rainInsightMeta{font-size:13px}
+  .briefCopy b{font-size:16px}
+  .sunUvItem span:not(.sunUvGlyph){font-size:12.5px}
+  .sunUvItem b{font-size:17px}
+  .sunUvItem small{font-size:11.5px}
+  .title span,.detailLink{font-size:14px}
+  .hour span{font-size:14.5px}
+  .hour small{font-size:12.5px}
+  .dn small,.desc small{font-size:12.5px!important}
+  .nav button,.nav button.on span{font-size:11px}
+}
+
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
