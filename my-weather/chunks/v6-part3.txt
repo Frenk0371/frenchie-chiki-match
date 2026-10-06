@@ -40,6 +40,48 @@ header{align-items:center;padding:2px 2px 0}
 .infoVersion{opacity:.7;margin-top:3px}
 .emptyState{text-align:center;padding:24px 12px 12px;opacity:.82}
 .toast{position:fixed;z-index:250;left:50%;bottom:110px;transform:translateX(-50%);padding:11px 15px;border-radius:14px;background:rgba(6,27,43,.94);border:1px solid rgba(255,255,255,.15);box-shadow:0 14px 35px rgba(0,0,0,.25);font-size:13px;white-space:nowrap}
+
+/* Atmosfera animata — solo presentazione, nessun impatto sul motore meteo */
+.app.foggy{background:linear-gradient(180deg,#7893a2 0%,#9fb2bc 45%,#6b8796 100%)}
+.app.night.rain{background:linear-gradient(180deg,#071727,#17364a 52%,#0a2335)}
+.app.night.storm{background:linear-gradient(180deg,#050b14,#172330 52%,#070e16)}
+.app.night.snow{background:linear-gradient(180deg,#17283a,#40586d 58%,#1c3145)}
+.app.night.foggy{background:linear-gradient(180deg,#223342,#455965 50%,#263b49)}
+.sky{isolation:isolate}
+.cloud{animation:cloudDrift 24s ease-in-out infinite alternate;will-change:translate}
+.c2{animation-duration:31s;animation-direction:alternate-reverse}
+.c3{animation-duration:37s}
+.sunny .sun{animation:sunPulse 5.8s ease-in-out infinite}
+.rainfx,.snowfx,.fogfx,.lightning{display:none;position:absolute;pointer-events:none}
+.rain .rainfx,.storm .rainfx{display:block;inset:-25% -18%;z-index:3;will-change:background-position}
+.rainBack{opacity:.22;background-image:repeating-linear-gradient(103deg,transparent 0 27px,rgba(210,235,250,.42) 28px 30px,transparent 31px 58px);background-size:78px 130px;animation:rainFall .92s linear infinite;filter:blur(.45px)}
+.rainFront{opacity:.42;background-image:repeating-linear-gradient(103deg,transparent 0 42px,rgba(235,247,255,.62) 43px 45px,transparent 46px 86px);background-size:104px 165px;animation:rainFall .56s linear infinite}
+.wx-light .rainBack{opacity:.15}.wx-light .rainFront{opacity:.25;animation-duration:.76s}
+.wx-medium .rainBack{opacity:.25}.wx-medium .rainFront{opacity:.46}
+.wx-heavy .rainBack{opacity:.36}.wx-heavy .rainFront{opacity:.66;animation-duration:.42s}
+.storm .rainBack{opacity:.38}.storm .rainFront{opacity:.72;animation-duration:.38s}
+.storm .lightning{display:block;inset:0;z-index:1;background:radial-gradient(circle at 72% 12%,rgba(255,255,255,.92) 0,rgba(208,230,255,.42) 16%,rgba(170,205,235,.10) 36%,transparent 58%);mix-blend-mode:screen;opacity:0;animation:stormFlash 7.6s infinite}
+.snow .snowfx{display:block;inset:-18% -12%;z-index:3;will-change:background-position,translate}
+.snowBack{opacity:.44;background-image:radial-gradient(circle,rgba(255,255,255,.92) 0 1.3px,transparent 1.7px),radial-gradient(circle,rgba(240,249,255,.78) 0 1.8px,transparent 2.2px);background-size:42px 48px,76px 84px;background-position:0 -80px,18px -160px;animation:snowFallBack 13s linear infinite;filter:blur(.15px)}
+.snowFront{opacity:.76;background-image:radial-gradient(circle,rgba(255,255,255,.98) 0 2.3px,transparent 2.8px),radial-gradient(circle,rgba(250,253,255,.88) 0 3.2px,transparent 3.8px);background-size:92px 106px,138px 148px;background-position:22px -110px,65px -230px;animation:snowFallFront 9.2s linear infinite;filter:drop-shadow(0 1px 2px rgba(90,130,160,.18))}
+.wx-light .snowFront{opacity:.52;animation-duration:11.5s}.wx-heavy .snowFront{opacity:.9;animation-duration:7.4s}
+.foggy .fogfx{display:block;z-index:2;width:165%;left:-32%;height:26%;border-radius:50%;background:linear-gradient(90deg,transparent 0%,rgba(235,246,250,.18) 12%,rgba(245,251,253,.43) 38%,rgba(220,236,242,.30) 64%,rgba(245,251,253,.18) 82%,transparent 100%);filter:blur(24px);will-change:translate,opacity}
+.fogA{top:10%;opacity:.72;animation:fogDriftA 17s ease-in-out infinite alternate}
+.fogB{top:37%;opacity:.58;animation:fogDriftB 23s ease-in-out infinite alternate-reverse}
+.fogC{top:66%;opacity:.46;animation:fogDriftA 29s ease-in-out infinite alternate}
+.foggy .sky:after{background:linear-gradient(180deg,rgba(224,239,245,.16),rgba(212,230,237,.22) 48%,rgba(109,140,153,.18));backdrop-filter:blur(1.2px)}
+.foggy .cloud{opacity:.12}
+.foggy .sun{opacity:.18;filter:blur(3px) drop-shadow(0 0 35px rgba(255,245,205,.30))}
+@keyframes cloudDrift{from{translate:-12px 0}to{translate:18px -5px}}
+@keyframes sunPulse{0%,100%{filter:drop-shadow(0 0 38px rgba(255,223,114,.42))}50%{filter:drop-shadow(0 0 58px rgba(255,231,143,.64))}}
+@keyframes rainFall{from{background-position:0 -210px}to{background-position:52px 210px}}
+@keyframes snowFallBack{0%{background-position:0 -180px,18px -320px;translate:-10px 0}50%{translate:12px 0}100%{background-position:24px 950px,-18px 1180px;translate:-5px 0}}
+@keyframes snowFallFront{0%{background-position:22px -220px,65px -430px;translate:10px 0}50%{translate:-15px 0}100%{background-position:-28px 1080px,14px 1390px;translate:8px 0}}
+@keyframes fogDriftA{from{translate:-9% -4px;opacity:.42}to{translate:9% 5px;opacity:.78}}
+@keyframes fogDriftB{from{translate:7% 3px;opacity:.34}to{translate:-11% -3px;opacity:.68}}
+@keyframes stormFlash{0%,72%,75%,100%{opacity:0}73%{opacity:.72}73.7%{opacity:.08}74.2%{opacity:.46}74.7%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.cloud,.sun,.rainfx,.snowfx,.fogfx,.lightning{animation:none!important}.rainfx,.snowfx,.fogfx,.lightning{display:none!important}}
+
 @media(max-width:430px){.brand{font-size:29px}.round{width:43px;height:43px;border-radius:15px}.favRow{grid-template-columns:1fr auto}.favRow .danger{grid-column:2}}
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
@@ -67,7 +109,8 @@ starFill:'<svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-
 
 const clean=a=>a.filter(v=>Number.isFinite(v));const mean=a=>{a=clean(a);return a.length?a.reduce((s,v)=>s+v,0)/a.length:null}; const med=a=>{a=clean(a);if(!a.length)return null;let s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2};
 function label(c){if(c===0)return'Sereno';if(c<=2)return'Parzialmente nuvoloso';if(c===3)return'Cielo nuvoloso';if(c>=95)return'Temporali';if(c>=71&&c<=77)return'Neve';if(c>=80&&c<90)return'Rovesci';if(c>=51&&c<80)return'Pioggia';if(c>=45&&c<=48)return'Nebbia';return'Variabile'}
-function cls(c,day=1){if(!day)return'night';if(c===3)return'cloudy';if(c>=95)return'storm';if(c>=71&&c<=77)return'snow';if(c>=51)return'rain';return'sunny'}
+function cls(c,day=1){let wx;if(c>=95)wx='storm';else if(c>=71&&c<=77)wx='snow';else if(c>=51)wx='rain';else if(c>=45&&c<=48)wx='foggy';else if(c===3)wx='cloudy';else wx='sunny';return day?wx:'night '+wx}
+function fxIntensity(c){if(c.code>=95||c.pop>=75||c.precip>=2)return'wx-heavy';if(c.pop>=45||c.precip>=.5)return'wx-medium';return'wx-light'}
 function wi(code){
  let body='';
  const cloud=`<g filter="url(#shadow)"><ellipse cx="28" cy="35" rx="17" ry="10" fill="url(#cloudGrad)"/><circle cx="19" cy="33" r="9" fill="url(#cloudGrad)"/><circle cx="29" cy="27" r="12" fill="url(#cloudGrad)"/><circle cx="39" cy="33" r="9" fill="url(#cloudGrad)"/></g>`;
