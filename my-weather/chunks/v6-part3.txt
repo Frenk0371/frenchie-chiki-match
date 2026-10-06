@@ -366,11 +366,11 @@ body:before{content:"";position:fixed;z-index:60;left:0;right:0;top:0;height:cal
 }
 
 
-/* Spazio sicurezza barra inferiore 1.5.7 — solo layout */
-.wrap{padding-bottom:calc(285px + env(safe-area-inset-bottom))}
-html{scroll-padding-bottom:calc(118px + env(safe-area-inset-bottom))}
+/* Spazio sicurezza barra inferiore 1.5.8 — solo layout */
+.wrap{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
+html{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
 @media(max-width:430px){
-  .wrap{padding-bottom:calc(300px + env(safe-area-inset-bottom))}
+  .wrap{padding-bottom:calc(185px + env(safe-area-inset-bottom))}
 }
 
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
