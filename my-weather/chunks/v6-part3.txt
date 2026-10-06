@@ -381,6 +381,18 @@ html{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
 .radarNowTime{opacity:.7;white-space:nowrap}
 @media(max-width:430px){.radarNowLine{font-size:12px}}
 
+
+/* Situazione radar in primo piano 1.5.10 — solo presentazione */
+.radarLiveTitle{font-size:18px!important;line-height:1.18}
+.radarLiveMeta{font-size:13px;opacity:.82;margin-top:4px}
+.forecastAfterRadar{margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.14)}
+.forecastAfterRadar>small{display:block;font-size:11px;font-weight:760;letter-spacing:.05em;text-transform:uppercase;opacity:.68;margin-bottom:3px}
+.forecastAfterRadar>b{display:block;font-size:15px;line-height:1.2}
+@media(max-width:430px){
+  .radarLiveTitle{font-size:17.5px!important}
+  .forecastAfterRadar>b{font-size:14.5px}
+}
+
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
