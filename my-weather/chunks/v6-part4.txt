@@ -60,15 +60,56 @@ function showFavorites(){
 function showInfo(){
   setActiveTab('tabInfo');
   document.getElementById('infoBg')?.remove();
-  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.0.0</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
+  document.body.insertAdjacentHTML('beforeend','<div class="sheetBg" id="infoBg"><div class="sheet"><div class="sheetHead"><b>Info</b><button id="closeInfo">✕</button></div><div class="infoGrid"><div class="infoCard"><div class="infoName">Il Mio Meteo</div><div class="infoVersion">Versione 1.1.0</div></div><div class="infoCard"><h3>Ideazione e creazione</h3><p>Ideato e creato da <b>Francesco Scelsa</b>.</p></div><div class="infoCard"><h3>Unità</h3><p>Temperatura °C · Vento km/h · Precipitazioni mm</p></div></div></div></div>');
   document.getElementById('closeInfo').onclick=()=>{document.getElementById('infoBg')?.remove();setActiveTab('tabToday')};
   document.getElementById('infoBg').onclick=e=>{if(e.target.id==='infoBg'){e.currentTarget.remove();setActiveTab('tabToday')}};
 }
 
+
+function fmtMm(v){v=Number(v)||0;if(v<.05)return'0 mm';return(v<10?v.toFixed(1):Math.round(v))+' mm'}
+function dayStats(hs){
+  const vals=k=>hs.map(h=>Number(h[k])).filter(Number.isFinite);
+  const avg=k=>{const a=vals(k);return a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length):0};
+  const max=k=>{const a=vals(k);return a.length?Math.max(...a):0};
+  const feels=vals('feels');
+  return{
+    feelsMin:feels.length?Math.round(Math.min(...feels)):0,
+    feelsMax:feels.length?Math.round(Math.max(...feels)):0,
+    rain:hs.reduce((s,h)=>s+(Number.isFinite(Number(h.precip))?Number(h.precip):0),0),
+    maxPop:max('pop'),
+    humidity:avg('humidity'),
+    gust:Math.round(max('gust')),
+    cloud:avg('cloud')
+  };
+}
+function rainInsight(hours){
+  const hs=(hours||[]).slice(0,24);
+  if(!hs.length)return{wet:false,title:'Dati non disponibili',detail:'Riprova tra poco'};
+  const isWet=h=>(Number(h.precip)||0)>=.2||((Number(h.pop)||0)>=40&&Number(h.code)>=51);
+  const first=hs.findIndex(isWet);
+  if(first<0)return{wet:false,title:'Nessuna pioggia significativa',detail:'Nelle prossime 24 ore'};
+  let end=first,lastWet=first,gap=0;
+  for(let i=first+1;i<hs.length;i++){
+    if(isWet(hs[i])){lastWet=i;end=i;gap=0}
+    else if(gap<1){gap++;end=i}
+    else break;
+  }
+  end=lastWet;
+  const seg=hs.slice(first,end+1),maxPop=Math.max(...seg.map(h=>Number(h.pop)||0));
+  const total=seg.reduce((s,h)=>s+(Number(h.precip)||0),0);
+  const refDay=hs[0].time.slice(0,10),startDay=hs[first].time.slice(0,10);
+  const diff=Math.round((new Date(startDay+'T12:00')-new Date(refDay+'T12:00'))/86400000);
+  const dayWord=diff===0?'oggi':diff===1?'domani':new Intl.DateTimeFormat('it-IT',{weekday:'long'}).format(new Date(startDay+'T12:00'));
+  const t0=hs[first].time.slice(11,16),t1=hs[end].time.slice(11,16);
+  let when=first===0?'Adesso':(first===end?dayWord+' intorno alle '+t0:dayWord+' dalle '+t0+' alle '+t1);
+  const kind=maxPop>=70||total>=3?'Pioggia probabile':'Possibili rovesci';
+  return{wet:true,title:kind+' · '+when,detail:'Picco '+Math.round(maxPop)+'% · '+fmtMm(total)+' nel periodo'};
+}
 function openDay(date){
   const hs=weather.hourly.filter(h=>h.time.slice(0,10)===date);
   const d=weather.daily.find(x=>x.date===date);
   if(!hs.length){return}
+  const stats=dayStats(hs);
   const title=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'numeric',month:'long'}).format(new Date(date+'T12:00'));
   document.getElementById('dayBg')?.remove();
   document.body.insertAdjacentHTML('beforeend',`<div class="sheetBg" id="dayBg"><div class="sheet daySheet"><div class="sheetHead"><div><b style="text-transform:capitalize">${title}</b><div style="font-size:13px;opacity:.7;margin-top:3px">Previsione oraria</div></div><button id="closeDay">✕</button></div>
