@@ -85,17 +85,19 @@ header{align-items:center;padding:2px 2px 0}
 
 /* Rifiniture UI ottobre 2026 — solo CSS */
 .tag{font-size:9px;letter-spacing:.115em;opacity:.64;margin-top:6px}
-.cloudy .sun{opacity:.22;transform:scale(.86);transform-origin:center;filter:saturate(.72) blur(.25px) drop-shadow(0 0 26px rgba(255,223,114,.22))}
-.cloudy .cloud{opacity:.52}
+.cloudy .sun{opacity:.08;transform:scale(.70);transform-origin:center;filter:saturate(.55) blur(.7px) drop-shadow(0 0 14px rgba(255,223,114,.12))}
+.cloudy .cloud{opacity:.54}
+.wrap{padding-bottom:calc(245px + env(safe-area-inset-bottom))}
 .nav{padding:5px 6px 6px;border-radius:24px}
 .nav button{min-height:56px;gap:3px;border-radius:18px;font-size:10px}
 .nav button i{width:29px;height:29px}
 .nav button i svg{width:20px;height:20px}
 .nav button.on:after{bottom:2px}
-.day{grid-template-columns:78px 64px minmax(0,1fr) 44px 48px;gap:8px;padding:13px 7px}
-.day .wi{width:62px;height:62px}
+.day{grid-template-columns:76px 60px minmax(0,1fr) 46px 50px;gap:7px;padding:13px 10px 13px 7px}
+.day .wi{width:60px;height:60px}
 .desc{font-size:15px;line-height:1.14}
 .dn b{font-size:17px}
+.min,.max{white-space:nowrap}
 .min{font-size:19px}.max{font-size:20px}
 
 @media(max-width:430px){
@@ -106,8 +108,9 @@ header{align-items:center;padding:2px 2px 0}
 .nav button{min-height:54px;font-size:9.8px;border-radius:17px}
 .nav button i{width:28px;height:28px}
 .nav button i svg{width:20px;height:20px}
-.day{grid-template-columns:58px 50px minmax(0,1fr) 34px 40px;gap:4px;padding:12px 4px}
-.day .wi{width:50px;height:50px}
+.wrap{padding-bottom:calc(235px + env(safe-area-inset-bottom))}
+.day{grid-template-columns:56px 48px minmax(0,1fr) 38px 44px;gap:4px;padding:12px 9px 12px 4px}
+.day .wi{width:48px;height:48px}
 .dn b{font-size:17px}.dn small,.desc small{font-size:11px}
 .desc{font-size:14px;line-height:1.13}
 .min{font-size:18px}.max{font-size:19px}
