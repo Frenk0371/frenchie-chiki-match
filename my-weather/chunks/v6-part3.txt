@@ -401,6 +401,52 @@ html{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
 .dayHour.radarLiveHour{box-shadow:inset 0 0 0 1px rgba(126,215,255,.38)}
 .dayRadarMeta{color:rgba(205,240,255,.96)!important;font-weight:650}
 
+
+/* Pioggia fine 1.5.13 — solo animazione grafica */
+.rain .rainfx,.storm .rainfx{
+  inset:-10% -12%;
+  transform-origin:center;
+  will-change:background-position,transform;
+}
+.rainBack{
+  opacity:.10;
+  background-image:
+    radial-gradient(ellipse 1px 7px at 50% 50%,rgba(218,239,252,.58) 0 62%,transparent 72%),
+    radial-gradient(ellipse .8px 5px at 50% 50%,rgba(204,232,248,.44) 0 62%,transparent 72%);
+  background-size:58px 104px,91px 147px;
+  background-position:8px -120px,41px -210px;
+  animation:rainFineBack 2.2s linear infinite;
+  filter:blur(.18px);
+  transform:rotate(2.4deg) scale(1.04);
+}
+.rainFront{
+  opacity:.17;
+  background-image:
+    radial-gradient(ellipse 1px 8px at 50% 50%,rgba(238,249,255,.66) 0 60%,transparent 72%),
+    radial-gradient(ellipse .9px 6px at 50% 50%,rgba(224,243,253,.50) 0 60%,transparent 72%);
+  background-size:74px 126px,119px 178px;
+  background-position:22px -150px,69px -260px;
+  animation:rainFineFront 1.55s linear infinite;
+  filter:blur(.10px);
+  transform:rotate(2.8deg) scale(1.04);
+}
+.wx-light .rainBack{opacity:.07}
+.wx-light .rainFront{opacity:.11;animation-duration:1.9s}
+.wx-medium .rainBack{opacity:.11}
+.wx-medium .rainFront{opacity:.18}
+.wx-heavy .rainBack{opacity:.16}
+.wx-heavy .rainFront{opacity:.25;animation-duration:1.25s}
+.storm .rainBack{opacity:.18}
+.storm .rainFront{opacity:.29;animation-duration:1.08s}
+@keyframes rainFineBack{
+  from{background-position:8px -180px,41px -290px}
+  to{background-position:16px 980px,33px 1210px}
+}
+@keyframes rainFineFront{
+  from{background-position:22px -220px,69px -340px}
+  to{background-position:34px 1120px,57px 1390px}
+}
+
 </style></head><body><div id="app"><div class="loading"><h1>Il Mio Meteo</h1><p>Sto preparando la previsione…</p></div></div><script>const $=s=>document.querySelector(s); const app=$('#app');
 const DEFAULT={name:'Lodi',admin1:'Lombardia',country:'Italia',latitude:45.3136,longitude:9.5037,timezone:'Europe/Rome'};
 const MODELS=['italia_meteo_arpae_icon_2i','dwd_icon_eu','ecmwf_ifs025'];
